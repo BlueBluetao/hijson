@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HiJSON - JSON 解析工具</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+
+    .jc-key    { color: #2563eb; font-weight: 500; }
+    .jc-string { color: #059669; }
+    .jc-number { color: #c2410c; }
+    .jc-bool   { color: #7c3aed; }
+    .jc-null   { color: #94a3af; font-style: italic; }
+
+    .node-row { border-radius: 6px; transition: background 0.1s; }
+    .node-row:hover { background: #f1f5f9; }
+    .tree-node.is-selected > .node-row { background: #e0e7ff; }
+    .tree-node.is-selected > .node-row:hover { background: #c7d2fe; }
+    .tree-toggle svg { transition: transform 0.15s ease; }
+    .search-hi > .node-row { background: #fef9c3 !important; }
+
+    #dropZone.drag-active { border-color: #6366f1; background: #eef2ff; }
+    #dropZone.drag-active .drop-icon { color: #6366f1; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    body.resizing { cursor: col-resize !important; user-select: none !important; }
+    #resizeHandle { cursor: col-resize; width: 4px; transition: background 0.15s; }
+    #resizeHandle:hover, #resizeHandle.active { background: #6366f1; }
+
+    /* Left panel collapse */
+    #leftPanel.collapsed { width: 0 !important; min-width: 0 !important; overflow: hidden; padding: 0; border: none; }
+    #leftPanel.collapsed > * { display: none !important; }
+    #collapseBar { display: none; }
+    #leftPanel.collapsed ~ #collapseBar { display: flex; }
+
+    /* Outline panel */
+    #outlinePanel { transition: width 0.2s; }
+    #outlinePanel.collapsed { width: 0 !important; min-width: 0 !important; overflow: hidden; border: none; }
+    .outline-node { padding: 2px 0 2px 14px; position: relative; }
+    .outline-node::before { content: ''; position: absolute; left: 5px; top: 0; bottom: 0; width: 1px; background: #e2e8f0; }
+    .outline-node:last-child::before { bottom: 50%; }
+    .outline-row { display: flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap; transition: background 0.1s; }
+    .outline-row:hover { background: #f1f5f9; }
+    .outline-row.active { background: #e0e7ff; color: #4f46e5; }
+    .outline-type { font-size: 10px; padding: 0 4px; border-radius: 3px; flex-shrink: 0; }
+
+    /* Breadcrumb */
+    .bc-seg { display: inline-flex; align-items: center; gap: 2px; padding: 1px 6px; border-radius: 4px; cursor: pointer; color: #475569; font-size: 12px; transition: background 0.1s, color 0.1s; white-space: nowrap; }
+    .bc-seg:hover { background: #e0e7ff; color: #4338ca; }
+    .bc-sep { color: #cbd5e1; font-size: 11px; margin: 0 1px; flex-shrink: 0; }
+
+    #memItems > div:hover .del-btn { opacity: 1 !important; }
+
+    /* Detail panel syntax highlighting (softer background) */
+    #selContent { background: #fafbfc; }
+
+    /* Path query mode indicator */
+    #searchInput.path-mode { border-color: #818cf8 !important; background: #eef2ff !important; }
+    .query-result-item { padding: 6px 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.1s; }
+    .query-result-item:hover { background: #f1f5f9; }
+    .query-result-item:last-child { border-bottom: none; }
+
+    /* Compare table */
+    .cmp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .cmp-table th { position: sticky; top: 0; background: #f1f5f9; color: #475569; font-weight: 600; text-align: left; padding: 6px 10px; border-bottom: 2px solid #e2e8f0; white-space: nowrap; z-index: 1; }
+    .cmp-table td { padding: 5px 10px; border-bottom: 1px solid #f1f5f9; color: #334155; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+    .cmp-table tr:hover td { background: #f8fafc; }
+    .cmp-table td.idx { color: #94a3b8; font-size: 11px; width: 30px; text-align: right; padding-right: 8px; }
+
+    /* Outline search */
+    #outlineSearch { width: 100%; padding: 4px 8px; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 5px; outline: none; background: #f8fafc; transition: border .15s; }
+    #outlineSearch:focus { border-color: #818cf8; }
+    .outline-node.outline-hidden { display: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900" style="height:100vh;display:flex;flex-direction:column;overflow:hidden;">
+
+<!-- =========== HEADER =========== -->
+<header style="height:48px;flex-shrink:0;display:flex;align-items:center;gap:12px;padding:0 16px;background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);z-index:10;">
+  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <div style="width:28px;height:28px;background:#4f46e5;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+      <span style="color:#fff;font-size:12px;font-weight:700;font-family:monospace;">{}</span>
+    </div>
+    <span style="font-weight:600;color:#1e293b;font-size:15px;">HiJSON</span>
+    <span style="font-size:12px;color:#94a3b8;">JSON 解析工具</span>
+  </div>
+  <div style="flex:1;"></div>
+
+  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <span style="font-size:13px;color:#64748b;">记忆模式</span>
+    <button id="memoryToggle" onclick="toggleMemory()"
+      style="position:relative;width:40px;height:22px;border-radius:11px;border:none;cursor:pointer;background:#e2e8f0;transition:background .2s;outline:none;">
+      <span id="memKnob" style="position:absolute;left:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s;display:block;"></span>
+    </button>
+  </div>
+
+  <div style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;"></div>
+
+  <button onclick="showShortcuts()"
+    style="display:flex;align-items:center;gap:6px;font-size:13px;color:#64748b;background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:8px;transition:background .1s;"
+    onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+    <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+    </svg>
+    快捷键
+  </button>
+</header>
+
+<!-- =========== MAIN =========== -->
+<main style="flex:1;display:flex;overflow:hidden;">
+
+  <!-- LEFT PANEL -->
+  <div id="leftPanel" style="width:360px;min-width:200px;max-width:580px;flex-shrink:0;display:flex;flex-direction:column;background:#fff;border-right:1px solid #e2e8f0;">
+
+    <!-- Panel header with collapse button -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 12px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
+      <span style="font-size:12px;font-weight:600;color:#475569;">原始报文</span>
+      <button onclick="toggleLeftPanel()" title="折叠面板 (Ctrl+B)"
+        style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:none;background:none;cursor:pointer;border-radius:6px;color:#94a3b8;transition:all .1s;"
+        onmouseover="this.style.background='#f1f5f9';this.style.color='#475569'" onmouseout="this.style.background='none';this.style.color='#94a3b8'">
+        <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Drop Zone -->
+    <div id="dropZone"
+      style="margin:12px 12px 0;border:2px dashed #e2e8f0;border-radius:12px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all .15s;flex-shrink:0;"
+      onclick="document.getElementById('fileInput').click()"
+      ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)"
+      onmouseover="this.style.borderColor='#a5b4fc';this.style.background='#eef2ff22'"
+      onmouseout="this.style.borderColor='#e2e8f0';this.style.background=''">
+      <input type="file" id="fileInput" style="display:none;" accept=".json,.txt,.jsonl" onchange="onFileSelect(event)">
+      <svg class="drop-icon" style="width:24px;height:24px;color:#cbd5e1;transition:color .15s;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+      </svg>
+      <span style="font-size:12px;color:#94a3b8;">拖拽 JSON 文件 / <span style="color:#818cf8;">点击选择</span></span>
+    </div>
+
+    <!-- Input Area -->
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0;padding:12px;gap:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;font-weight:500;color:#64748b;">JSON 输入</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="sizeLabel" style="display:none;font-size:11px;padding:2px 6px;border-radius:4px;background:#f1f5f9;color:#64748b;"></span>
+          <button onclick="clearInput()" style="font-size:12px;color:#94a3b8;border:none;background:none;cursor:pointer;"
+            onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">清空</button>
+        </div>
+      </div>
+      <textarea id="jsonInput" class="mono"
+        style="flex:1;min-height:0;width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;resize:none;background:#f8fafc;outline:none;color:#1e293b;line-height:1.6;transition:border .15s,background .15s;"
+        placeholder="粘贴 JSON 内容，或拖拽文件..."
+        oninput="onInputChange()" onpaste="handlePaste(event)"
+        onfocus="this.style.borderColor='#818cf8';this.style.background='#fff'"
+        onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'"></textarea>
+      <div id="errBox" style="display:none;">
+        <div class="mono" style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;font-size:12px;color:#dc2626;white-space:pre-wrap;word-break:break-all;max-height:80px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div style="padding:0 12px 12px;display:flex;gap:8px;">
+      <button onclick="parseJson()"
+        style="flex:1;background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;"
+        onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">
+        解析
+        <kbd style="font-size:10px;background:#6366f1;color:#c7d2fe;padding:1px 5px;border-radius:3px;font-family:monospace;">Ctrl+↵</kbd>
+      </button>
+      <button onclick="formatJson()"
+        style="background:#f1f5f9;color:#475569;border:none;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;transition:background .15s;"
+        onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">格式化</button>
+      <button onclick="compressJson()"
+        style="background:#f1f5f9;color:#475569;border:none;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;transition:background .15s;"
+        onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">压缩</button>
+    </div>
+  </div>
+
+  <!-- COLLAPSE BAR (visible when left panel collapsed) -->
+  <div id="collapseBar"
+    style="width:36px;flex-shrink:0;background:#fff;border-right:1px solid #e2e8f0;flex-direction:column;align-items:center;padding-top:8px;gap:8px;">
+    <button onclick="toggleLeftPanel()" title="展开面板 (Ctrl+B)"
+      style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:none;background:#f1f5f9;cursor:pointer;border-radius:6px;color:#64748b;transition:all .1s;"
+      onmouseover="this.style.background='#e0e7ff';this.style.color='#4f46e5'" onmouseout="this.style.background='#f1f5f9';this.style.color='#64748b'">
+      <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+      </svg>
+    </button>
+    <span style="writing-mode:vertical-lr;font-size:11px;color:#94a3b8;letter-spacing:0.05em;">原始报文</span>
+  </div>
+
+  <!-- RESIZE HANDLE -->
+  <div id="resizeHandle" style="background:#e2e8f0;flex-shrink:0;"></div>
+
+  <!-- RIGHT PANEL -->
+  <div id="rightPanel" style="flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;background:#f8fafc;">
+
+    <!-- Tree Toolbar -->
+    <div id="treeToolbar" style="display:none;align-items:center;gap:10px;padding:8px 16px;background:#fff;border-bottom:1px solid #e2e8f0;flex-shrink:0;">
+      <div style="flex:1;position:relative;">
+        <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:#94a3b8;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input id="searchInput" type="text" placeholder="搜索键名/值 | $ 路径查询 | $.arr[*].{key1,key2} 多字段对比"
+          style="width:100%;padding:6px 10px 6px 32px;font-size:13px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;transition:border .15s;"
+          oninput="onSearchOrQuery(this.value)"
+          onfocus="this.style.borderColor='#818cf8'" onblur="if(!this.classList.contains('path-mode'))this.style.borderColor='#e2e8f0'">
+      </div>
+      <button onclick="expandAll()" style="font-size:12px;color:#64748b;white-space:nowrap;border:none;background:none;cursor:pointer;padding:4px 8px;border-radius:6px;transition:background .1s;"
+        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">展开全部</button>
+      <button onclick="collapseAll()" style="font-size:12px;color:#64748b;white-space:nowrap;border:none;background:none;cursor:pointer;padding:4px 8px;border-radius:6px;transition:background .1s;"
+        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">折叠全部</button>
+
+      <div style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;"></div>
+
+      <button id="outlineToggle" onclick="toggleOutline()" title="大纲导航"
+        style="display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b;white-space:nowrap;border:none;background:none;cursor:pointer;padding:4px 8px;border-radius:6px;transition:background .1s;"
+        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+        <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
+        </svg>
+        大纲
+      </button>
+
+    </div>
+
+    <!-- Path Memory Panel (below toolbar) -->
+    <div id="memPanel" style="display:none;background:#fff;border-bottom:1px solid #e2e8f0;flex-shrink:0;max-height:180px;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 16px;flex-shrink:0;">
+        <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;">路径记忆</span>
+        <button onclick="clearMemory()" style="font-size:11px;color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px 6px;border-radius:4px;"
+          onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">清空</button>
+      </div>
+      <div id="memItems" style="overflow-y:auto;max-height:140px;padding-bottom:4px;"></div>
+    </div>
+
+    <!-- Tree + Outline container -->
+    <div style="flex:1;display:flex;overflow:hidden;min-height:0;">
+
+      <!-- Tree Container -->
+      <div id="treeContainer" style="flex:1;overflow:auto;min-width:0;">
+        <div id="emptyState" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#94a3b8;user-select:none;">
+          <div style="width:72px;height:72px;background:#f1f5f9;border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+            <svg style="width:36px;height:36px;color:#cbd5e1;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+          </div>
+          <p style="font-size:15px;font-weight:500;color:#94a3b8;margin:0 0 4px;">等待解析</p>
+          <p style="font-size:13px;color:#cbd5e1;margin:0;">粘贴 JSON 或拖拽文件</p>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:16px;">
+            <kbd style="font-size:11px;background:#f1f5f9;color:#94a3b8;padding:3px 8px;border-radius:4px;font-family:monospace;">Ctrl</kbd>
+            <span style="color:#cbd5e1;font-size:12px;">+</span>
+            <kbd style="font-size:11px;background:#f1f5f9;color:#94a3b8;padding:3px 8px;border-radius:4px;font-family:monospace;">Enter</kbd>
+            <span style="font-size:12px;color:#cbd5e1;margin-left:4px;">快速解析</span>
+          </div>
+        </div>
+        <div id="jsonTree" class="mono" style="display:none;padding:12px;min-width:max-content;"></div>
+      </div>
+
+      <!-- Outline Panel -->
+      <div id="outlinePanel" class="collapsed" style="width:240px;min-width:0;flex-shrink:0;background:#fff;border-left:1px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
+          <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;">大纲导航</span>
+          <button onclick="toggleOutline()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px;border-radius:4px;"
+            onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">
+            <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div style="padding:6px 8px;flex-shrink:0;">
+          <input id="outlineSearch" type="text" placeholder="搜索键名..." oninput="filterOutline(this.value)">
+        </div>
+        <div id="outlineTree" class="mono" style="flex:1;overflow:auto;padding:4px 4px 6px;font-size:12px;"></div>
+      </div>
+    </div>
+
+    <!-- Selected Node Panel -->
+    <div id="selectedPanel" style="display:none;flex-direction:column;border-top:1px solid #e2e8f0;background:#fff;max-height:45%;min-height:120px;">
+      <!-- Breadcrumb path -->
+      <div style="display:flex;align-items:center;gap:4px;padding:6px 16px;border-bottom:1px solid #f1f5f9;flex-shrink:0;overflow-x:auto;flex-wrap:nowrap;" id="breadcrumb"></div>
+      <!-- Panel header -->
+      <div style="display:flex;align-items:center;gap:12px;padding:6px 16px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+          <span style="font-size:11px;font-weight:500;color:#94a3b8;flex-shrink:0;">路径</span>
+          <code id="selPath" class="mono" style="font-size:12px;color:#4f46e5;background:#eef2ff;border:1px solid #e0e7ff;padding:2px 8px;border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;flex:1;min-width:0;cursor:pointer;" title="点击复制路径" onclick="copyPath()"></code>
+          <button onclick="copyPath()" title="复制路径"
+            style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:none;background:none;cursor:pointer;border-radius:4px;color:#94a3b8;flex-shrink:0;transition:all .1s;"
+            onmouseover="this.style.background='#eef2ff';this.style.color='#4f46e5'" onmouseout="this.style.background='none';this.style.color='#94a3b8'">
+            <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+          </button>
+          <span id="selType" style="font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+          <button onclick="copySelFmt()" title="复制格式化 JSON"
+            style="display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b;border:none;background:none;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .1s;"
+            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+            <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            复制
+          </button>
+          <button onclick="copySelMin()" title="复制压缩 JSON"
+            style="font-size:12px;color:#64748b;border:none;background:none;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .1s;"
+            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">压缩复制</button>
+          <div style="width:1px;height:16px;background:#e2e8f0;margin:0 2px;"></div>
+          <button onclick="closeSelPanel()" title="关闭 (Esc)"
+            style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:5px;border-radius:6px;display:flex;align-items:center;transition:background .1s;"
+            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+            <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <pre id="selContent" class="mono" style="flex:1;overflow:auto;padding:14px 16px;margin:0;font-size:13px;line-height:1.7;"></pre>
+    </div>
+  </div>
+</main>
+
+<!-- =========== SHORTCUTS MODAL =========== -->
+<div id="shortcutsModal" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,.2);backdrop-filter:blur(4px);" onclick="hideShortcuts()"></div>
+  <div style="position:relative;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:24px;width:100%;max-width:400px;margin:0 16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:0;">键盘快捷键</h2>
+      <button onclick="hideShortcuts()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:4px;border-radius:6px;"
+        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+        <svg style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div id="shortcutsList"></div>
+  </div>
+</div>
+
+<!-- =========== TOAST =========== -->
+<div id="toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;background:#1e293b;color:#fff;font-size:13px;padding:8px 16px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.2);align-items:center;gap:8px;white-space:nowrap;">
+  <svg style="width:14px;height:14px;color:#4ade80;flex-shrink:0;" viewBox="0 0 20 20" fill="currentColor">
+    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+  </svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+// ==================== STATE ====================
+let parsedData  = null;
+let selValue    = undefined;
+let selPath     = '';
+let memMode     = false;
+let memories    = [];
+let outlineOpen = false;
+const MAX_MEM   = 30;
+const WARN_SIZE = 2 * 1024 * 1024;
+
+// ==================== INIT ====================
+function init() {
+  loadMem();
+  setupResize();
+  setupKeys();
+  buildShortcutsList();
+  if (localStorage.getItem('hijson_mem') === 'true') {
+    memMode = true;
+    applyMemUI(true);
+  }
+}
+
+// ==================== PARSE ====================
+function parseJson() {
+  const raw = document.getElementById('jsonInput').value.trim();
+  if (!raw) { showErr('请输入 JSON 内容'); return; }
+  try {
+    parsedData = JSON.parse(raw);
+    hideErr();
+    renderTree(parsedData);
+    renderOutline(parsedData);
+    showToast('解析成功');
+  } catch (e) {
+    showErr('解析错误: ' + e.message);
+    clearTree();
+  }
+}
+
+function formatJson() {
+  const raw = document.getElementById('jsonInput').value.trim();
+  if (!raw) return;
+  try {
+    document.getElementById('jsonInput').value = JSON.stringify(JSON.parse(raw), null, 2);
+    updateSizeLabel();
+    showToast('已格式化');
+  } catch (e) { showErr('解析错误: ' + e.message); }
+}
+
+function compressJson() {
+  const raw = document.getElementById('jsonInput').value.trim();
+  if (!raw) return;
+  try {
+    document.getElementById('jsonInput').value = JSON.stringify(JSON.parse(raw));
+    updateSizeLabel();
+    showToast('已压缩');
+  } catch (e) { showErr('解析错误: ' + e.message); }
+}
+
+function clearInput() {
+  document.getElementById('jsonInput').value = '';
+  updateSizeLabel();
+  hideErr();
+  clearTree();
+}
+
+// ==================== LEFT PANEL COLLAPSE ====================
+function toggleLeftPanel() {
+  const lp = document.getElementById('leftPanel');
+  lp.classList.toggle('collapsed');
+}
+
+// ==================== TREE ====================
+function renderTree(data) {
+  const tree = document.getElementById('jsonTree');
+  tree.innerHTML = '';
+  const nodeCount = countNodes(data);
+  const rootEl = makeNode(data, '$', null, 0, nodeCount > 3000);
+  tree.appendChild(rootEl);
+  document.getElementById('emptyState').style.display = 'none';
+  tree.style.display = 'block';
+  document.getElementById('treeToolbar').style.display = 'flex';
+  if (memMode && memories.length) showMemPanel();
+  closeSelPanel();
+  if (nodeCount > 3000) showToast(`节点数 ${nodeCount}，已启用懒展开以提升性能`);
+}
+
+function clearTree() {
+  const tree = document.getElementById('jsonTree');
+  tree.innerHTML = '';
+  tree.style.display = 'none';
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('treeToolbar').style.display = 'none';
+  document.getElementById('outlineTree').innerHTML = '';
+  parsedData = null;
+  closeSelPanel();
+}
+
+function countNodes(v) {
+  if (!v || typeof v !== 'object') return 1;
+  if (Array.isArray(v)) return v.reduce((s, i) => s + countNodes(i), 1);
+  return Object.values(v).reduce((s, i) => s + countNodes(i), 1);
+}
+
+function makeNode(value, path, key, depth, lazy) {
+  const type = typeOf(value);
+  const isComp = type === 'object' || type === 'array';
+  const len = isComp ? (type === 'array' ? value.length : Object.keys(value).length) : 0;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'tree-node';
+  wrap.dataset.path = path;
+  wrap._value = value;
+
+  const row = document.createElement('div');
+  row.className = 'node-row';
+  row.style.cssText = `display:flex;align-items:center;gap:6px;padding:2px 8px 2px ${depth * 16 + 8}px;cursor:pointer;user-select:none;`;
+  wrap.appendChild(row);
+
+  const tog = document.createElement('span');
+  tog.className = 'tree-toggle';
+  tog.style.cssText = 'width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;';
+  if (isComp) {
+    tog.innerHTML = `<svg style="width:11px;height:11px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`;
+  }
+  row.appendChild(tog);
+
+  if (key !== null) {
+    const keyEl = document.createElement('span');
+    if (typeof key === 'number') {
+      keyEl.style.cssText = 'color:#64748b;flex-shrink:0;font-size:12px;';
+      keyEl.textContent = `[${key}]`;
+    } else {
+      keyEl.className = 'jc-key';
+      keyEl.style.flexShrink = '0';
+      keyEl.textContent = `"${key}"`;
+    }
+    row.appendChild(keyEl);
+    const sep = document.createElement('span');
+    sep.style.cssText = 'color:#cbd5e1;flex-shrink:0;';
+    sep.textContent = ':';
+    row.appendChild(sep);
+  } else {
+    const rootLbl = document.createElement('span');
+    rootLbl.style.cssText = 'color:#94a3b8;flex-shrink:0;font-size:12px;';
+    rootLbl.textContent = '$';
+    row.appendChild(rootLbl);
+  }
+
+  if (isComp) {
+    const badge = document.createElement('span');
+    const isArr = type === 'array';
+    badge.style.cssText = `font-size:11px;padding:1px 6px;border-radius:5px;font-weight:500;flex-shrink:0;
+      background:${isArr ? '#fff7ed' : '#f1f5f9'};
+      color:${isArr ? '#c2410c' : '#64748b'};
+      border:1px solid ${isArr ? '#fed7aa' : '#e2e8f0'};`;
+    badge.textContent = isArr ? `[${len}]` : `{${len}}`;
+    row.appendChild(badge);
+
+    const hint = document.createElement('span');
+    hint.className = 'mono';
+    hint.style.cssText = 'font-size:11px;color:#cbd5e1;margin-left:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1;';
+    hint.textContent = isArr ? `${path}[*]` : path;
+    hint.title = isArr ? `${path}[*]` : path;
+    row.appendChild(hint);
+  } else {
+    const valEl = document.createElement('span');
+    valEl.className = valCls(type);
+    valEl.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:500px;flex-shrink:1;';
+    valEl.textContent = fmtVal(value, type);
+    row.appendChild(valEl);
+  }
+
+  if (isComp) {
+    const kids = document.createElement('div');
+    kids.className = 'tree-children';
+    kids.style.display = 'none';
+    let rendered = !lazy;
+    if (!lazy) fillChildren(kids, value, path, type, depth, lazy);
+    wrap.appendChild(kids);
+
+    row.addEventListener('click', () => {
+      const open = kids.style.display !== 'none';
+      if (open) {
+        kids.style.display = 'none';
+        const svg = tog.querySelector('svg');
+        if (svg) svg.style.transform = '';
+      } else {
+        if (!rendered) { fillChildren(kids, value, path, type, depth, lazy); rendered = true; }
+        kids.style.display = 'block';
+        const svg = tog.querySelector('svg');
+        if (svg) svg.style.transform = 'rotate(90deg)';
+      }
+      doSelect(value, path, wrap);
+    });
+
+    wrap._kids = kids;
+    wrap._lazyRender = () => { if (!rendered) { fillChildren(kids, value, path, type, depth, lazy); rendered = true; } };
+  } else {
+    row.addEventListener('click', () => doSelect(value, path, wrap));
+  }
+
+  return wrap;
+}
+
+function fillChildren(kids, value, path, type, depth, lazy) {
+  const frag = document.createDocumentFragment();
+  if (type === 'array') {
+    value.forEach((item, i) => frag.appendChild(makeNode(item, `${path}[${i}]`, i, depth + 1, lazy)));
+  } else {
+    Object.keys(value).forEach(k => frag.appendChild(makeNode(value[k], `${path}.${k}`, k, depth + 1, lazy)));
+  }
+  kids.appendChild(frag);
+}
+
+function typeOf(v) {
+  if (v === null) return 'null';
+  if (Array.isArray(v)) return 'array';
+  return typeof v;
+}
+
+function valCls(t) {
+  return { string: 'jc-string', number: 'jc-number', boolean: 'jc-bool', null: 'jc-null' }[t] || '';
+}
+
+function fmtVal(v, t) {
+  if (t === 'null') return 'null';
+  if (t === 'string') { const s = v.length > 120 ? v.slice(0, 120) + '…' : v; return `"${s}"`; }
+  return String(v);
+}
+
+// ==================== EXPAND / COLLAPSE ====================
+function expandAll() {
+  function doExpand(node) {
+    if (!node._kids) return;
+    if (typeof node._lazyRender === 'function') node._lazyRender();
+    node._kids.style.display = 'block';
+    const svg = node.querySelector(':scope > .node-row .tree-toggle svg');
+    if (svg) svg.style.transform = 'rotate(90deg)';
+    Array.from(node._kids.children).forEach(doExpand);
+  }
+  document.querySelectorAll('#jsonTree > .tree-node').forEach(doExpand);
+}
+
+function collapseAll() {
+  document.querySelectorAll('#jsonTree .tree-children').forEach(c => c.style.display = 'none');
+  document.querySelectorAll('#jsonTree .tree-toggle svg').forEach(svg => svg.style.transform = '');
+}
+
+// ==================== SELECT ====================
+function doSelect(value, path, nodeEl) {
+  document.querySelectorAll('#jsonTree .tree-node.is-selected').forEach(n => n.classList.remove('is-selected'));
+  nodeEl.classList.add('is-selected');
+  selValue = value;
+  selPath  = path;
+  showSelPanel(value, path);
+  highlightOutline(path);
+}
+
+function showSelPanel(value, path) {
+  const type = typeOf(value);
+  const panel = document.getElementById('selectedPanel');
+  document.getElementById('selPath').textContent = path;
+  document.getElementById('selPath').title = path;
+
+  const typeBadge = document.getElementById('selType');
+  const typeColors = { object: '#1d4ed8,#dbeafe', array: '#c2410c,#fff7ed', string: '#059669,#ecfdf5', number: '#c2410c,#fff7ed', boolean: '#7c3aed,#ede9fe', null: '#64748b,#f1f5f9' };
+  const [tc, bg] = (typeColors[type] || '#64748b,#f1f5f9').split(',');
+  typeBadge.textContent = type;
+  typeBadge.style.cssText = `font-size:11px;padding:2px 6px;border-radius:4px;background:${bg};color:${tc};flex-shrink:0;`;
+
+  buildBreadcrumb(path);
+
+  const json = JSON.stringify(value, null, 2);
+  document.getElementById('selContent').innerHTML = hlJson(json);
+  panel.style.display = 'flex';
+}
+
+function closeSelPanel() {
+  const panel = document.getElementById('selectedPanel');
+  panel.style.display = 'none';
+  document.querySelectorAll('#jsonTree .tree-node.is-selected').forEach(n => n.classList.remove('is-selected'));
+  selValue = undefined;
+  selPath  = '';
+  highlightOutline('');
+}
+
+// ==================== BREADCRUMB ====================
+function buildBreadcrumb(path) {
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = '';
+  const segs = parsePath(path);
+  segs.forEach((seg, i) => {
+    if (i > 0) {
+      const sep = document.createElement('span');
+      sep.className = 'bc-sep';
+      sep.textContent = '›';
+      bc.appendChild(sep);
+    }
+    const el = document.createElement('span');
+    el.className = 'bc-seg mono';
+    el.textContent = seg.label;
+    el.title = seg.path;
+    el.addEventListener('click', () => navigateToPath(seg.path));
+    bc.appendChild(el);
+  });
+}
+
+function parsePath(path) {
+  const segs = [{ label: '$', path: '$' }];
+  let rest = path.slice(1);
+  let cur = '$';
+  const re = /\.([^.\[]+)|\[(\d+)\]/g;
+  let m;
+  while ((m = re.exec(rest)) !== null) {
+    if (m[1] !== undefined) {
+      cur += '.' + m[1];
+      segs.push({ label: m[1], path: cur });
+    } else {
+      cur += '[' + m[2] + ']';
+      segs.push({ label: '[' + m[2] + ']', path: cur });
+    }
+  }
+  return segs;
+}
+
+function navigateToPath(targetPath) {
+  const node = findTreeNode(targetPath);
+  if (!node) return;
+  expandToNode(node);
+  node.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  const v = node._value;
+  doSelect(v, targetPath, node);
+}
+
+function findTreeNode(path) {
+  return document.querySelector(`#jsonTree .tree-node[data-path="${CSS.escape(path)}"]`);
+}
+
+function expandToNode(node) {
+  let el = node.parentElement;
+  while (el && el.id !== 'jsonTree') {
+    if (el.classList && el.classList.contains('tree-children')) {
+      el.style.display = 'block';
+      const pn = el.parentElement;
+      if (pn && pn.classList.contains('tree-node')) {
+        if (typeof pn._lazyRender === 'function') pn._lazyRender();
+        const svg = pn.querySelector(':scope > .node-row .tree-toggle svg');
+        if (svg) svg.style.transform = 'rotate(90deg)';
+      }
+    }
+    el = el.parentElement;
+  }
+}
+
+// ==================== COPY PATH ====================
+function copyPath() {
+  if (!selPath) return;
+  copyText(selPath);
+  showToast('路径已复制');
+}
+
+function copySelFmt() {
+  if (selValue === undefined) return;
+  copyText(JSON.stringify(selValue, null, 2));
+  showToast('已复制（格式化）');
+}
+
+function copySelMin() {
+  if (selValue === undefined) return;
+  copyText(JSON.stringify(selValue));
+  showToast('已复制（压缩）');
+}
+
+
+// ==================== OUTLINE ====================
+function toggleOutline() {
+  outlineOpen = !outlineOpen;
+  document.getElementById('outlinePanel').classList.toggle('collapsed', !outlineOpen);
+}
+
+function renderOutline(data) {
+  const container = document.getElementById('outlineTree');
+  container.innerHTML = '';
+  const schema = extractSchema(data, '$');
+  const tree = buildOutlineNode(schema, '$', true);
+  container.appendChild(tree);
+}
+
+function extractSchema(value, path, queryPath) {
+  if (!queryPath) queryPath = path;
+  const type = typeOf(value);
+  if (type === 'object') {
+    const keys = Object.keys(value);
+    return {
+      type: 'object', path, queryPath, label: path === '$' ? '$' : path.split('.').pop(),
+      children: keys.map(k => extractSchema(value[k], path + '.' + k, queryPath + '.' + k))
+    };
+  }
+  if (type === 'array' && value.length > 0) {
+    const child = extractSchema(value[0], path + '[0]', queryPath + '[*]');
+    return { type: 'array', path, queryPath, label: path === '$' ? '$' : path.split('.').pop(), itemSchema: child };
+  }
+  const parts = path.split('.');
+  return { type, path, queryPath, label: parts[parts.length - 1] || path };
+}
+
+function buildOutlineNode(schema, path, isRoot) {
+  const wrap = document.createElement('div');
+  if (!isRoot) wrap.className = 'outline-node';
+
+  const row = document.createElement('div');
+  row.className = 'outline-row';
+  row.dataset.outlinePath = schema.path;
+  row.dataset.queryPath = schema.queryPath || schema.path;
+
+  const typeTag = document.createElement('span');
+  typeTag.className = 'outline-type';
+  const tc = { object: '#1d4ed8,#dbeafe', array: '#c2410c,#fff7ed', string: '#059669,#ecfdf5', number: '#c2410c,#fff7ed', boolean: '#7c3aed,#ede9fe', null: '#94a3b8,#f1f5f9' };
+  const [fg, bg] = (tc[schema.type] || '#64748b,#f1f5f9').split(',');
+  typeTag.style.cssText = `background:${bg};color:${fg};`;
+  const typeAbbr = { object: '{}', array: '[]', string: 'str', number: 'num', boolean: 'bool', null: '∅' };
+  typeTag.textContent = typeAbbr[schema.type] || schema.type;
+  row.appendChild(typeTag);
+
+  const label = document.createElement('span');
+  label.style.cssText = 'color:#334155;overflow:hidden;text-overflow:ellipsis;';
+  let labelText = schema.label || '$';
+  if (labelText.includes('[')) {
+    const idx = labelText.indexOf('[');
+    labelText = labelText.substring(0, idx);
+  }
+  label.textContent = isRoot ? '$' : labelText;
+  row.appendChild(label);
+
+  if (schema.type === 'array') {
+    const arrHint = document.createElement('span');
+    arrHint.style.cssText = 'color:#c2410c;font-size:10px;';
+    arrHint.textContent = '[*]';
+    row.appendChild(arrHint);
+  }
+
+  row.title = schema.queryPath || schema.path;
+
+  row.addEventListener('click', (e) => {
+    if (schema.queryPath && schema.queryPath.includes('[*]')) {
+      const si = document.getElementById('searchInput');
+      si.value = schema.queryPath;
+      onSearchOrQuery(schema.queryPath);
+      si.focus();
+    } else {
+      navigateToPath(schema.path);
+    }
+  });
+
+  wrap.appendChild(row);
+
+  if (schema.type === 'object' && schema.children) {
+    schema.children.forEach(child => {
+      wrap.appendChild(buildOutlineNode(child, child.path, false));
+    });
+  }
+  if (schema.type === 'array' && schema.itemSchema) {
+    if (schema.itemSchema.type === 'object' && schema.itemSchema.children) {
+      schema.itemSchema.children.forEach(child => {
+        wrap.appendChild(buildOutlineNode(child, child.path, false));
+      });
+    } else {
+      wrap.appendChild(buildOutlineNode(schema.itemSchema, schema.itemSchema.path, false));
+    }
+  }
+
+  return wrap;
+}
+
+function highlightOutline(path) {
+  document.querySelectorAll('#outlineTree .outline-row.active').forEach(r => r.classList.remove('active'));
+  if (!path) return;
+  const row = document.querySelector(`#outlineTree .outline-row[data-outline-path="${CSS.escape(path)}"]`);
+  if (row) {
+    row.classList.add('active');
+    row.scrollIntoView({ block: 'nearest' });
+  }
+}
+
+function filterOutline(q) {
+  q = q.toLowerCase().trim();
+  const allNodes = document.querySelectorAll('#outlineTree .outline-node, #outlineTree > div');
+  const allRows = document.querySelectorAll('#outlineTree .outline-row');
+
+  if (!q) {
+    allNodes.forEach(n => n.classList.remove('outline-hidden'));
+    return;
+  }
+
+  allRows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    const match = text.includes(q);
+    const node = row.parentElement;
+    if (match) {
+      node.classList.remove('outline-hidden');
+      let p = node.parentElement;
+      while (p && p.id !== 'outlineTree') {
+        p.classList.remove('outline-hidden');
+        p = p.parentElement;
+      }
+    } else {
+      node.classList.add('outline-hidden');
+    }
+  });
+
+  document.querySelectorAll('#outlineTree .outline-row').forEach(row => {
+    if (!row.parentElement.classList.contains('outline-hidden')) {
+      const kids = row.parentElement.querySelectorAll(':scope > .outline-node:not(.outline-hidden)');
+      if (kids.length > 0 || row.textContent.toLowerCase().includes(q)) {
+        row.parentElement.classList.remove('outline-hidden');
+      }
+    }
+  });
+}
+
+// ==================== HIGHLIGHT ====================
+function hlJson(json) {
+  const esc = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return esc.replace(
+    /("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    m => {
+      let cls = 'jc-number';
+      if (/^"/.test(m))      cls = /:$/.test(m) ? 'jc-key' : 'jc-string';
+      else if (/true|false/.test(m)) cls = 'jc-bool';
+      else if (/null/.test(m))       cls = 'jc-null';
+      return `<span class="${cls}">${m}</span>`;
+    }
+  );
+}
+
+// ==================== SEARCH / PATH QUERY ====================
+let _queryDebounce = null;
+
+function onSearchOrQuery(raw) {
+  const input = document.getElementById('searchInput');
+  const trimmed = raw.trim();
+
+  if (trimmed.startsWith('$')) {
+    input.classList.add('path-mode');
+    clearSearchHighlights();
+    clearTimeout(_queryDebounce);
+    _queryDebounce = setTimeout(() => runPathQuery(trimmed), 200);
+  } else {
+    input.classList.remove('path-mode');
+    closeQueryResults();
+    onSearch(trimmed);
+  }
+}
+
+function onSearch(q) {
+  q = q.toLowerCase().trim();
+  const allNodes = document.querySelectorAll('#jsonTree .tree-node');
+  if (!q) {
+    allNodes.forEach(n => { n.style.display = ''; n.classList.remove('search-hi'); });
+    return;
+  }
+  allNodes.forEach(n => {
+    const row = n.querySelector(':scope > .node-row');
+    const match = row && row.textContent.toLowerCase().includes(q);
+    n.dataset.sm = match ? '1' : '0';
+    n.classList.toggle('search-hi', match);
+    n.style.display = match ? '' : 'none';
+  });
+  document.querySelectorAll('#jsonTree .tree-node[data-sm="1"]').forEach(m => {
+    let el = m.parentElement;
+    while (el && el.id !== 'jsonTree') {
+      if (el.classList && el.classList.contains('tree-children')) {
+        el.style.display = 'block';
+        const pn = el.parentElement;
+        if (pn && pn.classList.contains('tree-node')) {
+          pn.style.display = '';
+          if (typeof pn._lazyRender === 'function') pn._lazyRender();
+          const svg = pn.querySelector(':scope > .node-row .tree-toggle svg');
+          if (svg) svg.style.transform = 'rotate(90deg)';
+        }
+      }
+      if (el.classList && el.classList.contains('tree-node')) el.style.display = '';
+      el = el.parentElement;
+    }
+  });
+}
+
+function clearSearchHighlights() {
+  document.querySelectorAll('#jsonTree .tree-node').forEach(n => {
+    n.style.display = '';
+    n.classList.remove('search-hi');
+    delete n.dataset.sm;
+  });
+}
+
+// ==================== JSONPATH QUERY ====================
+
+function parseQueryPath(pathStr) {
+  let multiKeys = null;
+  let cleanPath = pathStr;
+
+  const multiMatch = pathStr.match(/\.\{([^}]+)\}\s*$/);
+  if (multiMatch) {
+    multiKeys = multiMatch[1].split(',').map(k => k.trim()).filter(Boolean);
+    cleanPath = pathStr.slice(0, multiMatch.index);
+  }
+
+  const tokens = [];
+  let rest = cleanPath.startsWith('$') ? cleanPath.slice(1) : cleanPath;
+  const re = /\.([^.\[\]{}]+)|\[(\d+|\*)\]/g;
+  let m;
+  while ((m = re.exec(rest)) !== null) {
+    if (m[1] !== undefined) tokens.push({ type: 'key', value: m[1] });
+    else if (m[2] === '*') tokens.push({ type: 'wildcard' });
+    else tokens.push({ type: 'index', value: parseInt(m[2]) });
+  }
+
+  return { tokens, multiKeys };
+}
+
+function resolveJsonPath(data, pathStr) {
+  const { tokens, multiKeys } = parseQueryPath(pathStr);
+
+  let results = [{ value: data, path: '$' }];
+  for (const token of tokens) {
+    const next = [];
+    for (const { value, path } of results) {
+      if (value === null || value === undefined) continue;
+      if (token.type === 'key') {
+        if (typeof value === 'object' && !Array.isArray(value) && token.value in value) {
+          next.push({ value: value[token.value], path: path + '.' + token.value });
+        }
+      } else if (token.type === 'index') {
+        if (Array.isArray(value) && token.value < value.length) {
+          next.push({ value: value[token.value], path: path + '[' + token.value + ']' });
+        }
+      } else if (token.type === 'wildcard') {
+        if (Array.isArray(value)) {
+          value.forEach((item, i) => {
+            next.push({ value: item, path: path + '[' + i + ']' });
+          });
+        }
+      }
+    }
+    results = next;
+    if (results.length === 0) break;
+  }
+
+  return { results, multiKeys };
+}
+
+function runPathQuery(pathStr) {
+  if (!parsedData) { showToast('请先解析 JSON'); return; }
+
+  const { results, multiKeys } = resolveJsonPath(parsedData, pathStr);
+  if (results.length === 0) {
+    showQueryNoResult(pathStr);
+    return;
+  }
+
+  if (multiKeys && multiKeys.length > 0) {
+    showMultiFieldResults(pathStr, results, multiKeys);
+  } else {
+    showQueryResults(pathStr, results);
+  }
+  savePathToMemory(pathStr, results.length);
+}
+
+function showQueryResults(pathStr, results) {
+  const panel = document.getElementById('selectedPanel');
+
+  document.getElementById('breadcrumb').innerHTML =
+    `<span style="font-size:11px;font-weight:600;color:#4f46e5;padding:2px 8px;background:#eef2ff;border-radius:4px;flex-shrink:0;">路径查询</span>
+     <span class="bc-sep">›</span>
+     <span class="mono bc-seg" style="color:#475569;cursor:default;font-size:11px;">${esc(pathStr)}</span>
+     <span style="font-size:11px;color:#94a3b8;flex-shrink:0;margin-left:4px;">${results.length} 条</span>`;
+
+  document.getElementById('selPath').textContent = pathStr;
+  document.getElementById('selPath').title = pathStr;
+
+  const typeBadge = document.getElementById('selType');
+  typeBadge.textContent = `${results.length} 条`;
+  typeBadge.style.cssText = 'font-size:11px;padding:2px 6px;border-radius:4px;background:#ecfdf5;color:#059669;flex-shrink:0;';
+
+  const allValues = results.map(r => r.value);
+  selValue = allValues;
+  selPath = pathStr;
+
+  if (results.length === 1 && typeof results[0].value === 'object' && results[0].value !== null) {
+    const json = JSON.stringify(results[0].value, null, 2);
+    document.getElementById('selContent').innerHTML = hlJson(json);
+  } else {
+    const json = JSON.stringify(allValues, null, 2);
+    document.getElementById('selContent').innerHTML = hlJson(json);
+  }
+
+  panel.style.display = 'flex';
+}
+
+function showMultiFieldResults(pathStr, results, fields) {
+  const panel = document.getElementById('selectedPanel');
+
+  document.getElementById('breadcrumb').innerHTML =
+    `<span style="font-size:11px;font-weight:600;color:#4f46e5;padding:2px 8px;background:#eef2ff;border-radius:4px;flex-shrink:0;">多字段对比</span>
+     <span class="bc-sep">›</span>
+     <span class="mono bc-seg" style="color:#475569;cursor:default;font-size:11px;">${esc(pathStr)}</span>
+     <span style="font-size:11px;color:#94a3b8;flex-shrink:0;margin-left:4px;">${results.length} 行 × ${fields.length} 列</span>`;
+
+  document.getElementById('selPath').textContent = pathStr;
+  document.getElementById('selPath').title = pathStr;
+
+  const typeBadge = document.getElementById('selType');
+  typeBadge.textContent = 'table';
+  typeBadge.style.cssText = 'font-size:11px;padding:2px 6px;border-radius:4px;background:#dbeafe;color:#1d4ed8;flex-shrink:0;';
+
+  const tableData = results.map(r => {
+    const row = {};
+    fields.forEach(f => {
+      row[f] = (r.value && typeof r.value === 'object' && !Array.isArray(r.value)) ? r.value[f] : undefined;
+    });
+    return row;
+  });
+
+  selValue = tableData;
+  selPath = pathStr;
+
+  let html = '<table class="cmp-table mono"><thead><tr>';
+  html += '<th style="width:30px;">#</th>';
+  fields.forEach(f => { html += `<th>${esc(f)}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  tableData.forEach((row, i) => {
+    html += '<tr>';
+    html += `<td class="idx">${i}</td>`;
+    fields.forEach(f => {
+      const v = row[f];
+      const cls = valCls(typeOf(v));
+      const display = v === undefined ? '<span style="color:#d1d5db;">—</span>' :
+                      typeof v === 'string' ? `<span class="${cls}">"${esc(v.length > 60 ? v.slice(0, 60) + '…' : v)}"</span>` :
+                      `<span class="${cls}">${esc(JSON.stringify(v))}</span>`;
+      html += `<td title="${esc(JSON.stringify(v))}">${display}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('selContent').innerHTML = html;
+
+  panel.style.display = 'flex';
+}
+
+function showQueryNoResult(pathStr) {
+  const panel = document.getElementById('selectedPanel');
+
+  document.getElementById('breadcrumb').innerHTML =
+    `<span style="font-size:11px;font-weight:600;color:#dc2626;padding:2px 8px;background:#fef2f2;border-radius:4px;flex-shrink:0;">路径查询</span>
+     <span class="bc-sep">›</span>
+     <span class="mono bc-seg" style="color:#475569;cursor:default;font-size:11px;">${esc(pathStr)}</span>`;
+
+  document.getElementById('selPath').textContent = pathStr;
+  document.getElementById('selType').textContent = '无匹配';
+  document.getElementById('selType').style.cssText = 'font-size:11px;padding:2px 6px;border-radius:4px;background:#fef2f2;color:#dc2626;flex-shrink:0;';
+
+  document.getElementById('selContent').innerHTML =
+    `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;color:#94a3b8;">
+      <p style="font-size:13px;margin:0 0 8px;">未找到匹配路径</p>
+      <p style="font-size:12px;margin:0;color:#cbd5e1;">支持语法: <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">[*]</code> 通配数组 &nbsp;
+      <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">.{key1,key2}</code> 多字段对比</p>
+    </div>`;
+
+  selValue = undefined;
+  selPath = pathStr;
+  panel.style.display = 'flex';
+}
+
+function closeQueryResults() {}
+
+// ==================== FILE ====================
+function onDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag-active'); }
+function onDragLeave(e) { document.getElementById('dropZone').classList.remove('drag-active'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag-active');
+  const f = e.dataTransfer.files[0];
+  if (f) readFile(f);
+}
+function onFileSelect(e) { const f = e.target.files[0]; if (f) readFile(f); e.target.value = ''; }
+function readFile(file) {
+  const r = new FileReader();
+  r.onload = ev => {
+    document.getElementById('jsonInput').value = ev.target.result;
+    updateSizeLabel();
+    parseJson();
+    showToast(`已加载: ${file.name}`);
+  };
+  r.onerror = () => showErr('文件读取失败');
+  r.readAsText(file, 'utf-8');
+}
+
+// ==================== PASTE ====================
+function handlePaste(e) {
+  setTimeout(() => {
+    const v = document.getElementById('jsonInput').value;
+    updateSizeLabel();
+    if (v.length > WARN_SIZE) showToast('内容较大，建议使用文件拖拽导入');
+  }, 0);
+}
+function onInputChange() { updateSizeLabel(); }
+function updateSizeLabel() {
+  const v = document.getElementById('jsonInput').value;
+  const lbl = document.getElementById('sizeLabel');
+  if (!v.length) { lbl.style.display = 'none'; return; }
+  const b = new Blob([v]).size;
+  lbl.textContent = fmtBytes(b);
+  lbl.style.display = 'inline-block';
+  if (b > 1024 * 1024) {
+    lbl.style.cssText = 'display:inline-block;font-size:11px;padding:2px 6px;border-radius:4px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;';
+  } else if (b > 100 * 1024) {
+    lbl.style.cssText = 'display:inline-block;font-size:11px;padding:2px 6px;border-radius:4px;background:#fffbeb;color:#d97706;border:1px solid #fde68a;';
+  } else {
+    lbl.style.cssText = 'display:inline-block;font-size:11px;padding:2px 6px;border-radius:4px;background:#f1f5f9;color:#64748b;';
+  }
+}
+
+// ==================== MEMORY (PATH QUERIES) ====================
+function toggleMemory() {
+  memMode = !memMode;
+  localStorage.setItem('hijson_mem', memMode);
+  applyMemUI(memMode);
+  if (memMode) {
+    if (document.getElementById('treeToolbar').style.display !== 'none') showMemPanel();
+  } else {
+    document.getElementById('memPanel').style.display = 'none';
+  }
+}
+function applyMemUI(on) {
+  document.getElementById('memoryToggle').style.background = on ? '#6366f1' : '#e2e8f0';
+  document.getElementById('memKnob').style.transform = on ? 'translateX(18px)' : '';
+}
+function showMemPanel() {
+  document.getElementById('memPanel').style.display = 'block';
+  renderMemItems();
+}
+function loadMem() {
+  try { memories = JSON.parse(localStorage.getItem('hijson_paths') || '[]'); }
+  catch { memories = []; }
+}
+function saveMem() { localStorage.setItem('hijson_paths', JSON.stringify(memories.slice(0, MAX_MEM))); }
+
+function savePathToMemory(pathStr, resultCount) {
+  if (!memMode) return;
+  const exists = memories.findIndex(m => m.path === pathStr);
+  if (exists !== -1) {
+    memories[exists].count = resultCount;
+    memories[exists].time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    memories[exists].hits = (memories[exists].hits || 0) + 1;
+    const item = memories.splice(exists, 1)[0];
+    memories.unshift(item);
+  } else {
+    memories.unshift({
+      id: Date.now(),
+      path: pathStr,
+      count: resultCount,
+      time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+      hits: 1
+    });
+  }
+  if (memories.length > MAX_MEM) memories.pop();
+  saveMem();
+  renderMemItems();
+}
+
+function renderMemItems() {
+  const c = document.getElementById('memItems');
+  if (!memories.length) {
+    c.innerHTML = '<p style="font-size:12px;color:#94a3b8;text-align:center;padding:12px;">路径查询后自动记忆</p>';
+    return;
+  }
+  c.innerHTML = memories.map((m, i) => {
+    const pathShort = m.path.length > 60 ? '…' + m.path.slice(-58) : m.path;
+    return `<div style="display:flex;align-items:center;gap:6px;padding:5px 16px;cursor:pointer;transition:background .1s;"
+      onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background=''"
+      onclick="restoreMem(${i})" title="${esc(m.path)}">
+      <svg style="width:12px;height:12px;color:#94a3b8;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+      <code class="mono" style="font-size:11px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;">${esc(pathShort)}</code>
+      <span style="font-size:10px;color:#94a3b8;flex-shrink:0;white-space:nowrap;">${m.count != null ? m.count + '条' : ''}</span>
+      <button style="opacity:0;flex-shrink:0;border:none;background:none;cursor:pointer;padding:2px;border-radius:4px;color:#94a3b8;transition:opacity .15s;"
+        class="del-btn" onclick="event.stopPropagation();deleteMem(${i})"
+        onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+        <svg style="width:10px;height:10px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function restoreMem(i) {
+  const m = memories[i];
+  if (!m) return;
+  const si = document.getElementById('searchInput');
+  si.value = m.path;
+  onSearchOrQuery(m.path);
+  si.focus();
+}
+function deleteMem(i) { memories.splice(i, 1); saveMem(); renderMemItems(); }
+function clearMemory() {
+  if (!confirm('确认清空全部路径记忆？')) return;
+  memories = []; saveMem(); renderMemItems();
+}
+
+// ==================== KEYBOARD ====================
+function setupKeys() {
+  document.addEventListener('keydown', e => {
+    const ctrl = e.ctrlKey || e.metaKey;
+    const tag  = document.activeElement.tagName;
+    const inInput = tag === 'TEXTAREA' || tag === 'INPUT';
+
+    if (ctrl && e.key === 'Enter') { e.preventDefault(); parseJson(); }
+    else if (ctrl && e.shiftKey && e.key.toUpperCase() === 'F') { e.preventDefault(); formatJson(); }
+    else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'b') { e.preventDefault(); toggleLeftPanel(); }
+    else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 's') { e.preventDefault(); }
+    else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'f') {
+      e.preventDefault();
+      const si = document.getElementById('searchInput');
+      if (si && document.getElementById('treeToolbar').style.display !== 'none') { si.focus(); si.select(); }
+    }
+    else if (ctrl && e.shiftKey && e.key.toUpperCase() === 'C') { e.preventDefault(); copySelFmt(); }
+    else if (e.altKey && e.key.toLowerCase() === 'e') { e.preventDefault(); expandAll(); }
+    else if (e.altKey && e.key.toLowerCase() === 'c' && !inInput) { e.preventDefault(); collapseAll(); }
+    else if (e.key === 'Escape') {
+      if (document.getElementById('shortcutsModal').style.display !== 'none') hideShortcuts();
+      else closeSelPanel();
+    }
+  });
+}
+
+// ==================== RESIZE ====================
+function setupResize() {
+  const handle = document.getElementById('resizeHandle');
+  const left   = document.getElementById('leftPanel');
+  let drag = false, sx = 0, sw = 0;
+  handle.addEventListener('mousedown', e => {
+    if (left.classList.contains('collapsed')) return;
+    drag = true; sx = e.clientX; sw = left.offsetWidth;
+    document.body.classList.add('resizing'); handle.classList.add('active');
+  });
+  window.addEventListener('mousemove', e => {
+    if (!drag) return;
+    left.style.width = Math.max(200, Math.min(580, sw + e.clientX - sx)) + 'px';
+  });
+  window.addEventListener('mouseup', () => {
+    if (!drag) return;
+    drag = false;
+    document.body.classList.remove('resizing'); handle.classList.remove('active');
+  });
+}
+
+// ==================== SHORTCUTS MODAL ====================
+const SHORTCUTS = [
+  ['Ctrl + Enter',     '解析 JSON'],
+  ['Ctrl + Shift + F', '格式化 JSON'],
+  ['Ctrl + B',         '折叠/展开原始报文面板'],
+  ['Ctrl + F',         '聚焦搜索/查询框'],
+  ['Ctrl + Shift + C', '复制选中节点（格式化）'],
+  ['Alt + E',          '展开全部'],
+  ['Alt + C',          '折叠全部'],
+  ['Escape',           '关闭面板'],
+];
+function buildShortcutsList() {
+  document.getElementById('shortcutsList').innerHTML = SHORTCUTS.map(([k, d]) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f8fafc;">
+      <span style="font-size:13px;color:#475569;">${d}</span>
+      <kbd style="font-size:11px;font-family:monospace;background:#f1f5f9;color:#475569;padding:3px 8px;border-radius:4px;white-space:nowrap;">${k}</kbd>
+    </div>`).join('');
+}
+function showShortcuts() { document.getElementById('shortcutsModal').style.display = 'flex'; }
+function hideShortcuts() { document.getElementById('shortcutsModal').style.display = 'none'; }
+
+// ==================== TOAST / ERROR ====================
+let _tt = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  el.style.display = 'flex';
+  if (_tt) clearTimeout(_tt);
+  _tt = setTimeout(() => el.style.display = 'none', 2400);
+}
+function showErr(msg) {
+  const box = document.getElementById('errBox');
+  box.style.display = 'block';
+  box.querySelector('div').textContent = msg;
+}
+function hideErr() { document.getElementById('errBox').style.display = 'none'; }
+
+// ==================== UTILS ====================
+function copyText(text) {
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+  else fallbackCopy(text);
+}
+function fallbackCopy(text) {
+  const ta = Object.assign(document.createElement('textarea'), { value: text });
+  ta.style.cssText = 'position:fixed;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+}
+function fmtBytes(n) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1048576) return `${(n/1024).toFixed(1)} KB`;
+  return `${(n/1048576).toFixed(2)} MB`;
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ==================== START ====================
+init();
+</script>
+</body>
+</html>
