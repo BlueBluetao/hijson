@@ -135,6 +135,15 @@
     #outlineSearch { width: 100%; padding: 4px 8px; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 5px; outline: none; background: #f8fafc; transition: border .15s; }
     #outlineSearch:focus { border-color: #818cf8; }
     .outline-node.outline-hidden { display: none; }
+
+    /* Share loading overlay */
+    .share-loading { position:relative;pointer-events:none;opacity:.6; }
+    .share-loading::after { content:'';position:absolute;inset:0;display:flex;align-items:center;justify-content:center; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spinner { display:inline-block;width:14px;height:14px;border:2px solid #c7d2fe;border-top-color:#4f46e5;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle; }
+
+    /* Shared banner */
+    #sharedBanner { background:linear-gradient(135deg,#eef2ff,#e0e7ff);border-bottom:1px solid #c7d2fe; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900" style="height:100vh;display:flex;flex-direction:column;overflow:hidden;">
@@ -177,6 +186,17 @@
   </div>
 
   <div style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;"></div>
+
+  <button id="binSettingsBtn" onclick="showBinSettings()"
+    style="display:flex;align-items:center;gap:6px;font-size:13px;color:#64748b;background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:8px;transition:background .1s;"
+    onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+    <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+    <span>JSONBin 设置</span>
+    <span id="binKeyDot" style="display:none;width:6px;height:6px;background:#4ade80;border-radius:50%;flex-shrink:0;"></span>
+  </button>
 
   <button onclick="showShortcuts()"
     style="display:flex;align-items:center;gap:6px;font-size:13px;color:#64748b;background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:8px;transition:background .1s;"
@@ -387,6 +407,14 @@
           <button onclick="copySelMin()" title="复制压缩 JSON"
             style="font-size:12px;color:#64748b;border:none;background:none;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .1s;"
             onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">压缩复制</button>
+          <button id="shareBtn" onclick="shareResult()" title="分享到 JSONBin"
+            style="display:flex;align-items:center;gap:5px;font-size:12px;color:#4f46e5;border:none;background:none;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .1s;"
+            onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='none'">
+            <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+            </svg>
+            分享
+          </button>
           <div style="width:1px;height:16px;background:#e2e8f0;margin:0 2px;"></div>
           <button onclick="closeSelPanel()" title="关闭 (Esc)"
             style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:5px;border-radius:6px;display:flex;align-items:center;transition:background .1s;"
@@ -419,6 +447,118 @@
   </div>
 </div>
 
+<!-- =========== JSONBIN SETTINGS MODAL =========== -->
+<div id="binSettingsModal" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,.2);backdrop-filter:blur(4px);" onclick="hideBinSettings()"></div>
+  <div style="position:relative;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:24px;width:100%;max-width:440px;margin:0 16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;background:#eef2ff;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <svg style="width:16px;height:16px;color:#4f46e5;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+          </svg>
+        </div>
+        <h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:0;">JSONBin 设置</h2>
+      </div>
+      <button onclick="hideBinSettings()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:4px;border-radius:6px;"
+        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+        <svg style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:12px;font-weight:500;color:#475569;margin-bottom:6px;">JSONBin.io API Key（X-Master-Key）</label>
+      <div style="position:relative;">
+        <input id="binKeyInput" type="password" placeholder="$2a$10$xxxxxxxx..."
+          style="width:100%;padding:8px 40px 8px 12px;font-size:13px;font-family:'JetBrains Mono',monospace;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;transition:border .15s;box-sizing:border-box;"
+          onfocus="this.style.borderColor='#818cf8'" onblur="this.style.borderColor='#e2e8f0'">
+        <button onclick="toggleKeyVisibility()" title="显示/隐藏"
+          style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:#94a3b8;padding:2px;"
+          onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">
+          <svg id="eyeIcon" style="width:16px;height:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+        </button>
+      </div>
+      <p style="font-size:11px;color:#94a3b8;margin:6px 0 0;">
+        从 <a href="https://jsonbin.io/app/api-keys" target="_blank" rel="noopener" style="color:#6366f1;text-decoration:none;"
+          onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">jsonbin.io/app/api-keys</a> 获取。Key 仅存储在本地浏览器。
+      </p>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button onclick="saveBinKey()"
+        style="flex:1;background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;"
+        onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">保存</button>
+      <button onclick="clearBinKey()"
+        style="background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;transition:background .15s;"
+        onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">清除</button>
+    </div>
+
+    <div id="binKeyStatus" style="display:none;margin-top:12px;padding:8px 12px;border-radius:8px;font-size:12px;"></div>
+  </div>
+</div>
+
+<!-- =========== SHARE LINK MODAL =========== -->
+<div id="shareLinkModal" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,.2);backdrop-filter:blur(4px);" onclick="hideShareLink()"></div>
+  <div style="position:relative;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:24px;width:100%;max-width:480px;margin:0 16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;background:#ecfdf5;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <svg style="width:16px;height:16px;color:#059669;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:0;">分享链接已生成</h2>
+      </div>
+      <button onclick="hideShareLink()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:4px;border-radius:6px;"
+        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+        <svg style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-size:11px;font-weight:500;color:#94a3b8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">分享链接</label>
+      <div style="display:flex;gap:6px;">
+        <input id="shareLinkInput" type="text" readonly
+          style="flex:1;padding:8px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;color:#334155;min-width:0;">
+        <button onclick="copyShareLink()"
+          style="display:flex;align-items:center;gap:5px;padding:8px 14px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;flex-shrink:0;transition:background .15s;"
+          onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">
+          <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          复制
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-size:11px;font-weight:500;color:#94a3b8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">JSONBin 直链</label>
+      <div style="display:flex;gap:6px;">
+        <input id="shareBinLink" type="text" readonly
+          style="flex:1;padding:8px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;color:#334155;min-width:0;">
+        <button onclick="copyBinLink()"
+          style="display:flex;align-items:center;gap:5px;padding:8px 14px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:12px;cursor:pointer;flex-shrink:0;transition:background .15s;"
+          onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+          <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          复制
+        </button>
+      </div>
+    </div>
+
+    <p style="font-size:11px;color:#94a3b8;margin:0;">对方打开链接后将自动加载并解析此 JSON 数据。</p>
+  </div>
+</div>
+
 <!-- =========== TOAST =========== -->
 <div id="toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;background:#1e293b;color:#fff;font-size:13px;padding:8px 16px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.2);align-items:center;gap:8px;white-space:nowrap;">
   <svg style="width:14px;height:14px;color:#4ade80;flex-shrink:0;" viewBox="0 0 20 20" fill="currentColor">
@@ -444,10 +584,12 @@ function init() {
   setupResize();
   setupKeys();
   buildShortcutsList();
+  updateBinKeyDot();
   if (localStorage.getItem('hijson_mem') === 'true') {
     memMode = true;
     applyMemUI(true);
   }
+  loadFromBinParam();
 }
 
 // ==================== PARSE ====================
@@ -1361,7 +1503,9 @@ function setupKeys() {
     else if (e.altKey && e.key.toLowerCase() === 'e') { e.preventDefault(); expandAll(); }
     else if (e.altKey && e.key.toLowerCase() === 'c' && !inInput) { e.preventDefault(); collapseAll(); }
     else if (e.key === 'Escape') {
-      if (document.getElementById('shortcutsModal').style.display !== 'none') hideShortcuts();
+      if (document.getElementById('shareLinkModal').style.display !== 'none') hideShareLink();
+      else if (document.getElementById('binSettingsModal').style.display !== 'none') hideBinSettings();
+      else if (document.getElementById('shortcutsModal').style.display !== 'none') hideShortcuts();
       else closeSelPanel();
     }
   });
@@ -1445,6 +1589,190 @@ function fmtBytes(n) {
 }
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ==================== JSONBIN SHARE ====================
+const JSONBIN_API = 'https://api.jsonbin.io/v3/b';
+
+function getBinKey() {
+  return localStorage.getItem('hijson_binkey') || '';
+}
+
+function showBinSettings() {
+  const modal = document.getElementById('binSettingsModal');
+  document.getElementById('binKeyInput').value = getBinKey();
+  document.getElementById('binKeyStatus').style.display = 'none';
+  modal.style.display = 'flex';
+}
+function hideBinSettings() { document.getElementById('binSettingsModal').style.display = 'none'; }
+
+function toggleKeyVisibility() {
+  const inp = document.getElementById('binKeyInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function saveBinKey() {
+  const key = document.getElementById('binKeyInput').value.trim();
+  if (!key) { showBinKeyStatus('请输入 API Key', false); return; }
+  localStorage.setItem('hijson_binkey', key);
+  updateBinKeyDot();
+  showBinKeyStatus('已保存', true);
+  setTimeout(hideBinSettings, 800);
+}
+
+function clearBinKey() {
+  localStorage.removeItem('hijson_binkey');
+  document.getElementById('binKeyInput').value = '';
+  updateBinKeyDot();
+  showBinKeyStatus('已清除', true);
+}
+
+function showBinKeyStatus(msg, ok) {
+  const el = document.getElementById('binKeyStatus');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = ok ? '#ecfdf5' : '#fef2f2';
+  el.style.color = ok ? '#059669' : '#dc2626';
+}
+
+function updateBinKeyDot() {
+  document.getElementById('binKeyDot').style.display = getBinKey() ? 'inline-block' : 'none';
+}
+
+async function shareResult() {
+  const key = getBinKey();
+  if (!key) { showBinSettings(); showToast('请先配置 JSONBin API Key'); return; }
+  if (selValue === undefined) { showToast('没有可分享的内容'); return; }
+
+  const btn = document.getElementById('shareBtn');
+  const origHTML = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span> 上传中…';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+
+  const payload = {
+    _hijson: true,
+    version: 1,
+    path: selPath || '$',
+    data: selValue,
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    const resp = await fetch(JSONBIN_API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': key,
+        'X-Bin-Private': 'false',
+        'X-Bin-Name': 'HiJSON Share: ' + (selPath || '$').slice(0, 60)
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}));
+      throw new Error(errData.message || `HTTP ${resp.status}`);
+    }
+
+    const result = await resp.json();
+    const binId = result.metadata?.id;
+    if (!binId) throw new Error('未返回 Bin ID');
+
+    const baseUrl = location.origin + location.pathname;
+    const shareUrl = `${baseUrl}?bin=${binId}`;
+    const binUrl = `${JSONBIN_API}/${binId}`;
+
+    document.getElementById('shareLinkInput').value = shareUrl;
+    document.getElementById('shareBinLink').value = binUrl;
+    document.getElementById('shareLinkModal').style.display = 'flex';
+    showToast('分享链接已生成');
+  } catch (e) {
+    showToast('分享失败: ' + e.message);
+  } finally {
+    btn.innerHTML = origHTML;
+    btn.disabled = false;
+    btn.style.opacity = '';
+  }
+}
+
+function showShareLink() { document.getElementById('shareLinkModal').style.display = 'flex'; }
+function hideShareLink() { document.getElementById('shareLinkModal').style.display = 'none'; }
+
+function copyShareLink() {
+  copyText(document.getElementById('shareLinkInput').value);
+  showToast('分享链接已复制');
+}
+function copyBinLink() {
+  copyText(document.getElementById('shareBinLink').value);
+  showToast('JSONBin 直链已复制');
+}
+
+async function loadFromBinParam() {
+  const params = new URLSearchParams(location.search);
+  const binId = params.get('bin');
+  if (!binId) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'sharedBanner';
+  banner.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 16px;flex-shrink:0;';
+  banner.innerHTML = `
+    <svg style="width:16px;height:16px;color:#4f46e5;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+    </svg>
+    <span style="font-size:13px;color:#4338ca;font-weight:500;"><span class="spinner" style="margin-right:6px;"></span>正在加载分享数据…</span>
+  `;
+  const header = document.querySelector('header');
+  header.insertAdjacentElement('afterend', banner);
+
+  try {
+    const resp = await fetch(`${JSONBIN_API}/${binId}/latest`, {
+      headers: { 'X-Access-Type': 'json' }
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+    const result = await resp.json();
+    const record = result.record || result;
+    let jsonData;
+
+    if (record._hijson && record.data !== undefined) {
+      jsonData = record.data;
+    } else {
+      jsonData = record;
+    }
+
+    const jsonStr = JSON.stringify(jsonData, null, 2);
+    document.getElementById('jsonInput').value = jsonStr;
+    updateSizeLabel();
+
+    parsedData = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+    hideErr();
+    renderTree(parsedData);
+    renderOutline(parsedData);
+
+    const path = record._hijson ? (record.path || '$') : '$';
+    banner.innerHTML = `
+      <svg style="width:16px;height:16px;color:#059669;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span style="font-size:13px;color:#059669;font-weight:500;">已加载分享数据</span>
+      <span style="font-size:11px;color:#64748b;">来源: ${esc(binId)}</span>
+      ${path !== '$' ? `<span style="font-size:11px;color:#4f46e5;background:#eef2ff;padding:1px 6px;border-radius:4px;font-family:monospace;">路径: ${esc(path)}</span>` : ''}
+      <button onclick="this.parentElement.remove();history.replaceState(null,'',location.pathname)" style="margin-left:auto;font-size:11px;color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px 6px;border-radius:4px;"
+        onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">关闭</button>
+    `;
+
+    showToast('分享数据加载成功');
+  } catch (e) {
+    banner.innerHTML = `
+      <svg style="width:16px;height:16px;color:#dc2626;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+      <span style="font-size:13px;color:#dc2626;font-weight:500;">加载失败: ${esc(e.message)}</span>
+      <button onclick="this.parentElement.remove();history.replaceState(null,'',location.pathname)" style="margin-left:auto;font-size:11px;color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px 6px;border-radius:4px;"
+        onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">关闭</button>
+    `;
+  }
 }
 
 // ==================== START ====================
