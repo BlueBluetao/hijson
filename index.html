@@ -3,7 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HiJSON - JSON 解析工具</title>
+  <title>HiJSON - 在线 JSON 解析、格式化、压缩、路径查询工具</title>
+  <meta name="description" content="HiJSON 是一款免费在线 JSON 解析工具，支持 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比、大纲导航，帮助开发者高效处理 JSON 数据。">
+  <meta name="keywords" content="JSON解析,JSON格式化,JSON压缩,JSON在线工具,JSON树形视图,JSONPath查询,JSON可视化,JSON美化,JSON校验,在线JSON编辑器">
+  <meta name="author" content="HiJSON">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="canonical" href="https://hijson.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="HiJSON - 在线 JSON 解析、格式化、压缩工具">
+  <meta property="og:description" content="免费在线 JSON 解析工具，支持格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比，开发者必备。">
+  <meta property="og:url" content="https://hijson.com/">
+  <meta property="og:site_name" content="HiJSON">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:image" content="https://hijson.com/og-image.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HiJSON - 在线 JSON 解析、格式化、压缩工具">
+  <meta name="twitter:description" content="免费在线 JSON 解析工具，支持格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比。">
+  <meta name="twitter:image" content="https://hijson.com/og-image.png">
+
+  <!-- Favicon SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "HiJSON",
+    "url": "https://hijson.com/",
+    "description": "免费在线 JSON 解析工具，支持 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比、大纲导航。",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CNY"
+    },
+    "featureList": [
+      "JSON 格式化与美化",
+      "JSON 压缩",
+      "JSON 树形可视化",
+      "JSONPath 路径查询",
+      "多字段对比表格",
+      "大纲导航",
+      "文件拖拽导入",
+      "键盘快捷键"
+    ],
+    "inLanguage": "zh-CN"
+  }
+  </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -85,13 +139,31 @@
 </head>
 <body class="bg-slate-50 text-slate-900" style="height:100vh;display:flex;flex-direction:column;overflow:hidden;">
 
+<noscript>
+  <div style="padding:40px;max-width:800px;margin:0 auto;font-family:sans-serif;">
+    <h1>HiJSON - 在线 JSON 解析、格式化、压缩工具</h1>
+    <p>HiJSON 是一款免费在线 JSON 工具，支持以下功能：</p>
+    <ul>
+      <li>JSON 格式化与美化 - 将压缩的 JSON 转为易读格式</li>
+      <li>JSON 压缩 - 去除空格换行，减小体积</li>
+      <li>JSON 树形可视化 - 以树形结构浏览 JSON 数据</li>
+      <li>JSONPath 路径查询 - 使用 $ 语法精准提取数据</li>
+      <li>多字段对比 - 以表格形式对比数组中的多个字段</li>
+      <li>大纲导航 - 快速浏览 JSON 结构</li>
+      <li>文件拖拽导入 - 支持 .json / .txt / .jsonl 文件</li>
+      <li>键盘快捷键 - 高效操作</li>
+    </ul>
+    <p>请启用 JavaScript 以使用 HiJSON。</p>
+  </div>
+</noscript>
+
 <!-- =========== HEADER =========== -->
-<header style="height:48px;flex-shrink:0;display:flex;align-items:center;gap:12px;padding:0 16px;background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);z-index:10;">
+<header style="height:48px;flex-shrink:0;display:flex;align-items:center;gap:12px;padding:0 16px;background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);z-index:10;" role="banner">
   <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-    <div style="width:28px;height:28px;background:#4f46e5;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+    <div style="width:28px;height:28px;background:#4f46e5;border-radius:8px;display:flex;align-items:center;justify-content:center;" aria-hidden="true">
       <span style="color:#fff;font-size:12px;font-weight:700;font-family:monospace;">{}</span>
     </div>
-    <span style="font-weight:600;color:#1e293b;font-size:15px;">HiJSON</span>
+    <h1 style="font-weight:600;color:#1e293b;font-size:15px;margin:0;">HiJSON</h1>
     <span style="font-size:12px;color:#94a3b8;">JSON 解析工具</span>
   </div>
   <div style="flex:1;"></div>
@@ -117,7 +189,7 @@
 </header>
 
 <!-- =========== MAIN =========== -->
-<main style="flex:1;display:flex;overflow:hidden;">
+<main style="flex:1;display:flex;overflow:hidden;" role="main" aria-label="JSON 解析工作区">
 
   <!-- LEFT PANEL -->
   <div id="leftPanel" style="width:360px;min-width:200px;max-width:580px;flex-shrink:0;display:flex;flex-direction:column;background:#fff;border-right:1px solid #e2e8f0;">
@@ -158,7 +230,7 @@
             onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">清空</button>
         </div>
       </div>
-      <textarea id="jsonInput" class="mono"
+      <textarea id="jsonInput" class="mono" aria-label="JSON 输入区域"
         style="flex:1;min-height:0;width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;resize:none;background:#f8fafc;outline:none;color:#1e293b;line-height:1.6;transition:border .15s,background .15s;"
         placeholder="粘贴 JSON 内容，或拖拽文件..."
         oninput="onInputChange()" onpaste="handlePaste(event)"
@@ -211,7 +283,7 @@
         <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:#94a3b8;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <input id="searchInput" type="text" placeholder="搜索键名/值 | $ 路径查询 | $.arr[*].{key1,key2} 多字段对比"
+        <input id="searchInput" type="text" aria-label="搜索键名、值或 JSONPath 路径查询" placeholder="搜索键名/值 | $ 路径查询 | $.arr[*].{key1,key2} 多字段对比"
           style="width:100%;padding:6px 10px 6px 32px;font-size:13px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;transition:border .15s;"
           oninput="onSearchOrQuery(this.value)"
           onfocus="this.style.borderColor='#818cf8'" onblur="if(!this.classList.contains('path-mode'))this.style.borderColor='#e2e8f0'">
@@ -1380,5 +1452,12 @@ init();
 </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6333255936362163"
      crossorigin="anonymous"></script>
+  <footer style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+    <h2>HiJSON - 在线 JSON 解析工具</h2>
+    <p>HiJSON 提供 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比等功能。适用于前端开发、后端调试、API 测试等场景。支持拖拽导入 JSON 文件，提供键盘快捷键操作，完全免费，无需注册。</p>
+    <nav>
+      <a href="https://hijson.com/">首页</a>
+    </nav>
+  </footer>
 </body>
 </html>
