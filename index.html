@@ -694,6 +694,7 @@ function makeNode(value, path, key, depth, lazy) {
   const row = document.createElement('div');
   row.className = 'node-row';
   row.style.cssText = `display:flex;align-items:center;gap:6px;padding:2px 8px 2px ${depth * 16 + 8}px;cursor:pointer;user-select:none;`;
+  row.title = '双击复制路径';
   wrap.appendChild(row);
 
   const tog = document.createElement('span');
@@ -749,6 +750,12 @@ function makeNode(value, path, key, depth, lazy) {
     valEl.textContent = fmtVal(value, type);
     row.appendChild(valEl);
   }
+
+  row.addEventListener('dblclick', (e) => {
+    e.preventDefault();
+    copyText(path);
+    showToast('路径已复制: ' + path);
+  });
 
   if (isComp) {
     const kids = document.createElement('div');
@@ -1382,7 +1389,8 @@ function handlePaste(e) {
   setTimeout(() => {
     const v = document.getElementById('jsonInput').value;
     updateSizeLabel();
-    if (v.length > WARN_SIZE) showToast('内容较大，建议使用文件拖拽导入');
+    if (v.length > WARN_SIZE) { showToast('内容较大，建议使用文件拖拽导入'); return; }
+    if (v.trim()) parseJson();
   }, 0);
 }
 function onInputChange() { updateSizeLabel(); }
