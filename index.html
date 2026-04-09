@@ -181,12 +181,12 @@
       <span style="color:#fff;font-size:12px;font-weight:700;font-family:monospace;">{}</span>
     </div>
     <h1 style="font-weight:600;color:#1e293b;font-size:15px;margin:0;">HiJSON</h1>
-    <span style="font-size:12px;color:#94a3b8;">JSON 解析工具</span>
+    <span style="font-size:12px;color:#94a3b8;" data-i18n="subtitle">JSON 解析工具</span>
   </div>
   <div style="flex:1;"></div>
 
   <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-    <span style="font-size:13px;color:#64748b;">记忆模式</span>
+    <span style="font-size:13px;color:#64748b;" data-i18n="memoryMode">记忆模式</span>
     <button id="memoryToggle" onclick="toggleMemory()"
       style="position:relative;width:40px;height:22px;border-radius:11px;border:none;cursor:pointer;background:#e2e8f0;transition:background .2s;outline:none;">
       <span id="memKnob" style="position:absolute;left:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s;display:block;"></span>
@@ -202,8 +202,18 @@
       <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z"/>
       <circle cx="12" cy="12" r="3"/>
     </svg>
-    <span>JSONBin 设置</span>
+    <span data-i18n="binSettings">JSONBin 设置</span>
     <span id="binKeyDot" style="display:none;width:6px;height:6px;background:#4ade80;border-radius:50%;flex-shrink:0;"></span>
+  </button>
+
+  <button onclick="switchLang()"
+    style="display:flex;align-items:center;gap:5px;font-size:13px;color:#64748b;background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:8px;transition:background .1s;"
+    onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'"
+    title="切换语言 / Switch Language">
+    <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+    </svg>
+    <span id="langLabel">En</span>
   </button>
 
   <button onclick="showShortcuts()"
@@ -212,7 +222,7 @@
     <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
     </svg>
-    快捷键
+    <span data-i18n="shortcuts">快捷键</span>
   </button>
 </header>
 
@@ -224,8 +234,8 @@
 
     <!-- Panel header with collapse button -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 12px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
-      <span style="font-size:12px;font-weight:600;color:#475569;">原始报文</span>
-      <button onclick="toggleLeftPanel()" title="折叠面板 (Ctrl+B)"
+      <span style="font-size:12px;font-weight:600;color:#475569;" data-i18n="rawPanel">原始报文</span>
+      <button onclick="toggleLeftPanel()" data-i18n="collapsePanel" data-i18n-attr="title" title="折叠面板 (Ctrl+B)"
         style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:none;background:none;cursor:pointer;border-radius:6px;color:#94a3b8;transition:all .1s;"
         onmouseover="this.style.background='#f1f5f9';this.style.color='#475569'" onmouseout="this.style.background='none';this.style.color='#94a3b8'">
         <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -245,17 +255,17 @@
       <svg class="drop-icon" style="width:24px;height:24px;color:#cbd5e1;transition:color .15s;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
       </svg>
-      <span style="font-size:12px;color:#94a3b8;">拖拽 JSON 文件 / <span style="color:#818cf8;">点击选择</span></span>
+      <span style="font-size:12px;color:#94a3b8;" data-i18n="dropHint" data-i18n-html="1">拖拽 JSON 文件 / <span style="color:#818cf8;">点击选择</span></span>
     </div>
 
     <!-- Input Area -->
     <div style="flex:1;display:flex;flex-direction:column;min-height:0;padding:12px;gap:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:12px;font-weight:500;color:#64748b;">JSON 输入</span>
+        <span style="font-size:12px;font-weight:500;color:#64748b;" data-i18n="jsonInput">JSON 输入</span>
         <div style="display:flex;align-items:center;gap:8px;">
           <span id="sizeLabel" style="display:none;font-size:11px;padding:2px 6px;border-radius:4px;background:#f1f5f9;color:#64748b;"></span>
           <button onclick="clearInput()" style="font-size:12px;color:#94a3b8;border:none;background:none;cursor:pointer;"
-            onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">清空</button>
+            onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'" data-i18n="clear">清空</button>
         </div>
       </div>
       <textarea id="jsonInput" class="mono" aria-label="JSON 输入区域"
@@ -274,29 +284,29 @@
       <button onclick="parseJson()"
         style="flex:1;background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;"
         onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">
-        解析
+        <span data-i18n="parse">解析</span>
         <kbd style="font-size:10px;background:#6366f1;color:#c7d2fe;padding:1px 5px;border-radius:3px;font-family:monospace;">Ctrl+↵</kbd>
       </button>
       <button onclick="formatJson()"
         style="background:#f1f5f9;color:#475569;border:none;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;transition:background .15s;"
-        onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">格式化</button>
+        onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'" data-i18n="format">格式化</button>
       <button onclick="compressJson()"
         style="background:#f1f5f9;color:#475569;border:none;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;transition:background .15s;"
-        onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">压缩</button>
+        onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'" data-i18n="compress">压缩</button>
     </div>
   </div>
 
   <!-- COLLAPSE BAR (visible when left panel collapsed) -->
   <div id="collapseBar"
     style="width:36px;flex-shrink:0;background:#fff;border-right:1px solid #e2e8f0;flex-direction:column;align-items:center;padding-top:8px;gap:8px;">
-    <button onclick="toggleLeftPanel()" title="展开面板 (Ctrl+B)"
+    <button onclick="toggleLeftPanel()" data-i18n="expandPanel" data-i18n-attr="title" title="展开面板 (Ctrl+B)"
       style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:none;background:#f1f5f9;cursor:pointer;border-radius:6px;color:#64748b;transition:all .1s;"
       onmouseover="this.style.background='#e0e7ff';this.style.color='#4f46e5'" onmouseout="this.style.background='#f1f5f9';this.style.color='#64748b'">
       <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
       </svg>
     </button>
-    <span style="writing-mode:vertical-lr;font-size:11px;color:#94a3b8;letter-spacing:0.05em;">原始报文</span>
+    <span style="writing-mode:vertical-lr;font-size:11px;color:#94a3b8;letter-spacing:0.05em;" data-i18n="rawPanel">原始报文</span>
   </div>
 
   <!-- RESIZE HANDLE -->
@@ -317,19 +327,19 @@
           onfocus="this.style.borderColor='#818cf8'" onblur="if(!this.classList.contains('path-mode'))this.style.borderColor='#e2e8f0'">
       </div>
       <button onclick="expandAll()" style="font-size:12px;color:#64748b;white-space:nowrap;border:none;background:none;cursor:pointer;padding:4px 8px;border-radius:6px;transition:background .1s;"
-        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">展开全部</button>
+        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'" data-i18n="expandAll">展开全部</button>
       <button onclick="collapseAll()" style="font-size:12px;color:#64748b;white-space:nowrap;border:none;background:none;cursor:pointer;padding:4px 8px;border-radius:6px;transition:background .1s;"
-        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">折叠全部</button>
+        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'" data-i18n="collapseAll">折叠全部</button>
 
       <div style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;"></div>
 
-      <button id="outlineToggle" onclick="toggleOutline()" title="大纲导航"
+      <button id="outlineToggle" onclick="toggleOutline()" data-i18n="outlineNav" data-i18n-attr="title" title="大纲导航"
         style="display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b;white-space:nowrap;border:none;background:none;cursor:pointer;padding:4px 8px;border-radius:6px;transition:background .1s;"
         onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
         <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
         </svg>
-        大纲
+        <span data-i18n="outline">大纲</span>
       </button>
 
     </div>
@@ -337,9 +347,9 @@
     <!-- Path Memory Panel (below toolbar) -->
     <div id="memPanel" style="display:none;background:#fff;border-bottom:1px solid #e2e8f0;flex-shrink:0;max-height:180px;overflow:hidden;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 16px;flex-shrink:0;">
-        <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;">路径记忆</span>
+        <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;" data-i18n="pathMemory">路径记忆</span>
         <button onclick="clearMemory()" style="font-size:11px;color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px 6px;border-radius:4px;"
-          onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">清空</button>
+          onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'" data-i18n="clearMem">清空</button>
       </div>
       <div id="memItems" style="overflow-y:auto;max-height:140px;padding-bottom:4px;"></div>
     </div>
@@ -355,13 +365,13 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
           </div>
-          <p style="font-size:15px;font-weight:500;color:#94a3b8;margin:0 0 4px;">等待解析</p>
-          <p style="font-size:13px;color:#cbd5e1;margin:0;">粘贴 JSON 或拖拽文件</p>
+          <p style="font-size:15px;font-weight:500;color:#94a3b8;margin:0 0 4px;" data-i18n="waitParse">等待解析</p>
+          <p style="font-size:13px;color:#cbd5e1;margin:0;" data-i18n="pasteOrDrop">粘贴 JSON 或拖拽文件</p>
           <div style="display:flex;align-items:center;gap:6px;margin-top:16px;">
             <kbd style="font-size:11px;background:#f1f5f9;color:#94a3b8;padding:3px 8px;border-radius:4px;font-family:monospace;">Ctrl</kbd>
             <span style="color:#cbd5e1;font-size:12px;">+</span>
             <kbd style="font-size:11px;background:#f1f5f9;color:#94a3b8;padding:3px 8px;border-radius:4px;font-family:monospace;">Enter</kbd>
-            <span style="font-size:12px;color:#cbd5e1;margin-left:4px;">快速解析</span>
+            <span style="font-size:12px;color:#cbd5e1;margin-left:4px;" data-i18n="quickParse">快速解析</span>
           </div>
         </div>
         <div id="jsonTree" class="mono" style="display:none;padding:12px;min-width:max-content;"></div>
@@ -370,7 +380,7 @@
       <!-- Outline Panel -->
       <div id="outlinePanel" class="collapsed" style="width:240px;min-width:0;flex-shrink:0;background:#fff;border-left:1px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
-          <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;">大纲导航</span>
+          <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;" data-i18n="outlineNav">大纲导航</span>
           <button onclick="toggleOutline()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px;border-radius:4px;"
             onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">
             <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -392,9 +402,9 @@
       <!-- Panel header -->
       <div style="display:flex;align-items:center;gap:12px;padding:6px 16px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
         <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
-          <span style="font-size:11px;font-weight:500;color:#94a3b8;flex-shrink:0;">路径</span>
-          <code id="selPath" class="mono" style="font-size:12px;color:#4f46e5;background:#eef2ff;border:1px solid #e0e7ff;padding:2px 8px;border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;flex:1;min-width:0;cursor:pointer;" title="点击复制路径" onclick="copyPath()"></code>
-          <button onclick="copyPath()" title="复制路径"
+          <span style="font-size:11px;font-weight:500;color:#94a3b8;flex-shrink:0;" data-i18n="path">路径</span>
+          <code id="selPath" class="mono" style="font-size:12px;color:#4f46e5;background:#eef2ff;border:1px solid #e0e7ff;padding:2px 8px;border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;flex:1;min-width:0;cursor:pointer;" data-i18n="clickCopyPath" data-i18n-attr="title" title="点击复制路径" onclick="copyPath()"></code>
+          <button onclick="copyPath()" data-i18n="copyPath" data-i18n-attr="title" title="复制路径"
             style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:none;background:none;cursor:pointer;border-radius:4px;color:#94a3b8;flex-shrink:0;transition:all .1s;"
             onmouseover="this.style.background='#eef2ff';this.style.color='#4f46e5'" onmouseout="this.style.background='none';this.style.color='#94a3b8'">
             <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -404,27 +414,27 @@
           <span id="selType" style="font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;"></span>
         </div>
         <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-          <button onclick="copySelFmt()" title="复制格式化 JSON"
+          <button onclick="copySelFmt()" title="Copy Formatted"
             style="display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b;border:none;background:none;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .1s;"
             onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
             <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
             </svg>
-            复制
+            <span data-i18n="copy">复制</span>
           </button>
-          <button onclick="copySelMin()" title="复制压缩 JSON"
+          <button onclick="copySelMin()" title="Copy Minified"
             style="font-size:12px;color:#64748b;border:none;background:none;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .1s;"
-            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">压缩复制</button>
-          <button id="shareBtn" onclick="shareResult()" title="分享到 JSONBin"
+            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'" data-i18n="compressCopy">压缩复制</button>
+          <button id="shareBtn" onclick="shareResult()" data-i18n="shareToJsonBin" data-i18n-attr="title" title="分享到 JSONBin"
             style="display:flex;align-items:center;gap:5px;font-size:12px;color:#4f46e5;border:none;background:none;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .1s;"
             onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='none'">
             <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
             </svg>
-            分享
+            <span data-i18n="share">分享</span>
           </button>
           <div style="width:1px;height:16px;background:#e2e8f0;margin:0 2px;"></div>
-          <button onclick="closeSelPanel()" title="关闭 (Esc)"
+          <button onclick="closeSelPanel()" data-i18n="closeEsc" data-i18n-attr="title" title="关闭 (Esc)"
             style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:5px;border-radius:6px;display:flex;align-items:center;transition:background .1s;"
             onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
             <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -443,7 +453,7 @@
   <div style="position:absolute;inset:0;background:rgba(0,0,0,.2);backdrop-filter:blur(4px);" onclick="hideShortcuts()"></div>
   <div style="position:relative;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:24px;width:100%;max-width:400px;margin:0 16px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:0;">键盘快捷键</h2>
+      <h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:0;" data-i18n="shortcutsTitle">键盘快捷键</h2>
       <button onclick="hideShortcuts()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:4px;border-radius:6px;"
         onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
         <svg style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -466,7 +476,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
           </svg>
         </div>
-        <h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:0;">JSONBin 设置</h2>
+        <h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:0;" data-i18n="binSettingsTitle">JSONBin 设置</h2>
       </div>
       <button onclick="hideBinSettings()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:4px;border-radius:6px;"
         onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
@@ -477,12 +487,12 @@
     </div>
 
     <div style="margin-bottom:16px;">
-      <label style="display:block;font-size:12px;font-weight:500;color:#475569;margin-bottom:6px;">JSONBin.io API Key（X-Master-Key）</label>
+      <label style="display:block;font-size:12px;font-weight:500;color:#475569;margin-bottom:6px;" data-i18n="binKeyLabel">JSONBin.io API Key（X-Master-Key）</label>
       <div style="position:relative;">
         <input id="binKeyInput" type="password" placeholder="$2a$10$xxxxxxxx..."
           style="width:100%;padding:8px 40px 8px 12px;font-size:13px;font-family:'JetBrains Mono',monospace;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;transition:border .15s;box-sizing:border-box;"
           onfocus="this.style.borderColor='#818cf8'" onblur="this.style.borderColor='#e2e8f0'">
-        <button onclick="toggleKeyVisibility()" title="显示/隐藏"
+        <button onclick="toggleKeyVisibility()" data-i18n="showHide" data-i18n-attr="title" title="显示/隐藏"
           style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:#94a3b8;padding:2px;"
           onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">
           <svg id="eyeIcon" style="width:16px;height:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -492,18 +502,18 @@
         </button>
       </div>
       <p style="font-size:11px;color:#94a3b8;margin:6px 0 0;">
-        从 <a href="https://jsonbin.io/app/api-keys" target="_blank" rel="noopener" style="color:#6366f1;text-decoration:none;"
-          onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">jsonbin.io/app/api-keys</a> 获取。Key 仅存储在本地浏览器。
+        <span data-i18n="binKeyFrom">从</span> <a href="https://jsonbin.io/app/api-keys" target="_blank" rel="noopener" style="color:#6366f1;text-decoration:none;"
+          onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">jsonbin.io/app/api-keys</a> <span data-i18n="binKeyHint">获取。Key 仅存储在本地浏览器。</span>
       </p>
     </div>
 
     <div style="display:flex;align-items:center;gap:8px;">
       <button onclick="saveBinKey()"
         style="flex:1;background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;"
-        onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">保存</button>
+        onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'" data-i18n="save">保存</button>
       <button onclick="clearBinKey()"
         style="background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;transition:background .15s;"
-        onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">清除</button>
+        onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'" data-i18n="clearKey">清除</button>
     </div>
 
     <div id="binKeyStatus" style="display:none;margin-top:12px;padding:8px 12px;border-radius:8px;font-size:12px;"></div>
@@ -521,7 +531,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:0;">分享链接已生成</h2>
+        <h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:0;" data-i18n="shareLinkTitle">分享链接已生成</h2>
       </div>
       <button onclick="hideShareLink()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:4px;border-radius:6px;"
         onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
@@ -532,7 +542,7 @@
     </div>
 
     <div style="margin-bottom:12px;">
-      <label style="display:block;font-size:11px;font-weight:500;color:#94a3b8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">分享链接</label>
+      <label style="display:block;font-size:11px;font-weight:500;color:#94a3b8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;" data-i18n="shareLink">分享链接</label>
       <div style="display:flex;gap:6px;">
         <input id="shareLinkInput" type="text" readonly
           style="flex:1;padding:8px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;color:#334155;min-width:0;">
@@ -542,13 +552,13 @@
           <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
           </svg>
-          复制
+          <span data-i18n="copy">复制</span>
         </button>
       </div>
     </div>
 
     <div style="margin-bottom:12px;">
-      <label style="display:block;font-size:11px;font-weight:500;color:#94a3b8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">JSONBin 直链</label>
+      <label style="display:block;font-size:11px;font-weight:500;color:#94a3b8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;" data-i18n="jsonbinDirect">JSONBin 直链</label>
       <div style="display:flex;gap:6px;">
         <input id="shareBinLink" type="text" readonly
           style="flex:1;padding:8px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;color:#334155;min-width:0;">
@@ -558,12 +568,12 @@
           <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
           </svg>
-          复制
+          <span data-i18n="copy">复制</span>
         </button>
       </div>
     </div>
 
-    <p style="font-size:11px;color:#94a3b8;margin:0;">对方打开链接后将自动加载并解析此 JSON 数据。</p>
+    <p style="font-size:11px;color:#94a3b8;margin:0;" data-i18n="shareLinkHint">对方打开链接后将自动加载并解析此 JSON 数据。</p>
   </div>
 </div>
 
@@ -586,8 +596,337 @@ let outlineOpen = false;
 const MAX_MEM   = 30;
 const WARN_SIZE = 2 * 1024 * 1024;
 
+// ==================== I18N ====================
+const I18N = {
+  zh: {
+    title: 'HiJSON',
+    subtitle: 'JSON 解析工具',
+    memoryMode: '记忆模式',
+    binSettings: 'JSONBin 设置',
+    shortcuts: '快捷键',
+    rawPanel: '原始报文',
+    collapsePanel: '折叠面板 (Ctrl+B)',
+    expandPanel: '展开面板 (Ctrl+B)',
+    dropHint: '拖拽 JSON 文件 / <span style="color:#818cf8;">点击选择</span>',
+    jsonInput: 'JSON 输入',
+    clear: '清空',
+    inputPlaceholder: '粘贴 JSON 内容，或拖拽文件...',
+    parse: '解析',
+    format: '格式化',
+    compress: '压缩',
+    searchPlaceholder: '搜索键名/值 | $ 路径查询 | $.arr[*].{key1,key2} 多字段对比',
+    expandAll: '展开全部',
+    collapseAll: '折叠全部',
+    outline: '大纲',
+    outlineNav: '大纲导航',
+    searchKeys: '搜索键名...',
+    pathMemory: '路径记忆',
+    clearMem: '清空',
+    waitParse: '等待解析',
+    pasteOrDrop: '粘贴 JSON 或拖拽文件',
+    quickParse: '快速解析',
+    path: '路径',
+    clickCopyPath: '点击复制路径',
+    copyPath: '复制路径',
+    copy: '复制',
+    compressCopy: '压缩复制',
+    share: '分享',
+    shareToJsonBin: '分享到 JSONBin',
+    close: '关闭',
+    closeEsc: '关闭 (Esc)',
+    shortcutsTitle: '键盘快捷键',
+    binSettingsTitle: 'JSONBin 设置',
+    binKeyLabel: 'JSONBin.io API Key（X-Master-Key）',
+    binKeyPlaceholder: '$2a$10$xxxxxxxx...',
+    showHide: '显示/隐藏',
+    binKeyHint: '获取。Key 仅存储在本地浏览器。',
+    binKeyFrom: '从',
+    save: '保存',
+    clearKey: '清除',
+    shareLinkTitle: '分享链接已生成',
+    shareLink: '分享链接',
+    jsonbinDirect: 'JSONBin 直链',
+    shareLinkHint: '对方打开链接后将自动加载并解析此 JSON 数据。',
+    dblClickCopyPath: '双击复制路径',
+    pathCopied: '路径已复制',
+    parseSuccess: '解析成功',
+    formatted: '已格式化',
+    compressed: '已压缩',
+    inputEmpty: '请输入 JSON 内容',
+    parseError: '解析错误: ',
+    copiedFmt: '已复制（格式化）',
+    copiedMin: '已复制（压缩）',
+    fileTooLarge: '内容较大，建议使用文件拖拽导入',
+    fileLoaded: '已加载: ',
+    fileReadFail: '文件读取失败',
+    configBinKey: '请先配置 JSONBin API Key',
+    noShareContent: '没有可分享的内容',
+    uploading: '上传中…',
+    shareLinkGenerated: '分享链接已生成',
+    shareFailed: '分享失败: ',
+    noBinId: '未返回 Bin ID',
+    shareLinkCopied: '分享链接已复制',
+    binLinkCopied: 'JSONBin 直链已复制',
+    loadingShare: '正在加载分享数据…',
+    shareLoaded: '已加载分享数据',
+    shareLoadSuccess: '分享数据加载成功',
+    loadFailed: '加载失败: ',
+    source: '来源: ',
+    pathLabel: '路径: ',
+    parseFirst: '请先解析 JSON',
+    pathQuery: '路径查询',
+    multiField: '多字段对比',
+    noMatch: '无匹配',
+    notFound: '未找到匹配路径',
+    syntaxHint: '支持语法:',
+    wildcardArr: '通配数组',
+    multiFieldCompare: '多字段对比',
+    items: '条',
+    rows: '行',
+    cols: '列',
+    autoMemo: '路径查询后自动记忆',
+    confirmClearMem: '确认清空全部路径记忆？',
+    enterApiKey: '请输入 API Key',
+    saved: '已保存',
+    cleared: '已清除',
+    sc_parse: '解析 JSON',
+    sc_format: '格式化 JSON',
+    sc_togglePanel: '折叠/展开原始报文面板',
+    sc_focusSearch: '聚焦搜索/查询框',
+    sc_copyNode: '复制选中节点（格式化）',
+    sc_expandAll: '展开全部',
+    sc_collapseAll: '折叠全部',
+    sc_close: '关闭面板',
+    langSwitch: '中/En',
+    seoTitle: 'HiJSON - 在线 JSON 解析、格式化、压缩、路径查询工具',
+    seoDesc: 'HiJSON 是一款免费在线 JSON 解析工具，支持 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比、大纲导航，帮助开发者高效处理 JSON 数据。',
+    seoKeywords: 'JSON解析,JSON格式化,JSON压缩,JSON在线工具,JSON树形视图,JSONPath查询,JSON可视化,JSON美化,JSON校验,在线JSON编辑器',
+    seoOgTitle: 'HiJSON - 在线 JSON 解析、格式化、压缩工具',
+    seoOgDesc: '免费在线 JSON 解析工具，支持格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比，开发者必备。',
+    seoFooterTitle: 'HiJSON - 在线 JSON 解析工具',
+    seoFooterDesc: 'HiJSON 提供 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比等功能。适用于前端开发、后端调试、API 测试等场景。支持拖拽导入 JSON 文件，提供键盘快捷键操作，完全免费，无需注册。',
+    seoFooterHome: '首页',
+    seoLdDesc: '免费在线 JSON 解析工具，支持 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比、大纲导航。',
+    seoLdFeatures: ['JSON 格式化与美化','JSON 压缩','JSON 树形可视化','JSONPath 路径查询','多字段对比表格','大纲导航','文件拖拽导入','键盘快捷键'],
+    seoNoscriptTitle: 'HiJSON - 在线 JSON 解析、格式化、压缩工具',
+    seoNoscriptIntro: 'HiJSON 是一款免费在线 JSON 工具，支持以下功能：',
+    seoNoscriptFeatures: [
+      'JSON 格式化与美化 - 将压缩的 JSON 转为易读格式',
+      'JSON 压缩 - 去除空格换行，减小体积',
+      'JSON 树形可视化 - 以树形结构浏览 JSON 数据',
+      'JSONPath 路径查询 - 使用 $ 语法精准提取数据',
+      '多字段对比 - 以表格形式对比数组中的多个字段',
+      '大纲导航 - 快速浏览 JSON 结构',
+      '文件拖拽导入 - 支持 .json / .txt / .jsonl 文件',
+      '键盘快捷键 - 高效操作',
+    ],
+    seoNoscriptEnable: '请启用 JavaScript 以使用 HiJSON。',
+  },
+  en: {
+    title: 'HiJSON',
+    subtitle: 'JSON Parser',
+    memoryMode: 'Memory',
+    binSettings: 'JSONBin Settings',
+    shortcuts: 'Shortcuts',
+    rawPanel: 'Raw Input',
+    collapsePanel: 'Collapse (Ctrl+B)',
+    expandPanel: 'Expand (Ctrl+B)',
+    dropHint: 'Drop JSON file / <span style="color:#818cf8;">Browse</span>',
+    jsonInput: 'JSON Input',
+    clear: 'Clear',
+    inputPlaceholder: 'Paste JSON here, or drop a file...',
+    parse: 'Parse',
+    format: 'Format',
+    compress: 'Minify',
+    searchPlaceholder: 'Search keys/values | $ path query | $.arr[*].{k1,k2} compare',
+    expandAll: 'Expand All',
+    collapseAll: 'Collapse All',
+    outline: 'Outline',
+    outlineNav: 'Outline Nav',
+    searchKeys: 'Search keys...',
+    pathMemory: 'Path Memory',
+    clearMem: 'Clear',
+    waitParse: 'Waiting',
+    pasteOrDrop: 'Paste JSON or drop a file',
+    quickParse: 'Quick Parse',
+    path: 'Path',
+    clickCopyPath: 'Click to copy path',
+    copyPath: 'Copy Path',
+    copy: 'Copy',
+    compressCopy: 'Copy Minified',
+    share: 'Share',
+    shareToJsonBin: 'Share to JSONBin',
+    close: 'Close',
+    closeEsc: 'Close (Esc)',
+    shortcutsTitle: 'Keyboard Shortcuts',
+    binSettingsTitle: 'JSONBin Settings',
+    binKeyLabel: 'JSONBin.io API Key (X-Master-Key)',
+    binKeyPlaceholder: '$2a$10$xxxxxxxx...',
+    showHide: 'Show/Hide',
+    binKeyHint: '. Key is stored locally in your browser only.',
+    binKeyFrom: 'Get it from',
+    save: 'Save',
+    clearKey: 'Clear',
+    shareLinkTitle: 'Share Link Generated',
+    shareLink: 'Share Link',
+    jsonbinDirect: 'JSONBin Direct Link',
+    shareLinkHint: 'The recipient can open the link to load and parse this JSON.',
+    dblClickCopyPath: 'Double-click to copy path',
+    pathCopied: 'Path copied',
+    parseSuccess: 'Parsed successfully',
+    formatted: 'Formatted',
+    compressed: 'Minified',
+    inputEmpty: 'Please enter JSON content',
+    parseError: 'Parse error: ',
+    copiedFmt: 'Copied (formatted)',
+    copiedMin: 'Copied (minified)',
+    fileTooLarge: 'Content too large, consider file drag & drop',
+    fileLoaded: 'Loaded: ',
+    fileReadFail: 'File read failed',
+    configBinKey: 'Please configure JSONBin API Key first',
+    noShareContent: 'No content to share',
+    uploading: 'Uploading…',
+    shareLinkGenerated: 'Share link generated',
+    shareFailed: 'Share failed: ',
+    noBinId: 'No Bin ID returned',
+    shareLinkCopied: 'Share link copied',
+    binLinkCopied: 'JSONBin direct link copied',
+    loadingShare: 'Loading shared data…',
+    shareLoaded: 'Shared data loaded',
+    shareLoadSuccess: 'Shared data loaded successfully',
+    loadFailed: 'Load failed: ',
+    source: 'Source: ',
+    pathLabel: 'Path: ',
+    parseFirst: 'Please parse JSON first',
+    pathQuery: 'Path Query',
+    multiField: 'Multi-field Compare',
+    noMatch: 'No Match',
+    notFound: 'No matching path found',
+    syntaxHint: 'Syntax:',
+    wildcardArr: 'wildcard array',
+    multiFieldCompare: 'multi-field compare',
+    items: ' items',
+    rows: ' rows',
+    cols: ' cols',
+    autoMemo: 'Auto-saved after path queries',
+    confirmClearMem: 'Clear all path memory?',
+    enterApiKey: 'Please enter API Key',
+    saved: 'Saved',
+    cleared: 'Cleared',
+    sc_parse: 'Parse JSON',
+    sc_format: 'Format JSON',
+    sc_togglePanel: 'Toggle raw input panel',
+    sc_focusSearch: 'Focus search box',
+    sc_copyNode: 'Copy selected node (formatted)',
+    sc_expandAll: 'Expand all',
+    sc_collapseAll: 'Collapse all',
+    sc_close: 'Close panel',
+    langSwitch: '中/En',
+    seoTitle: 'HiJSON - Online JSON Parser, Formatter, Minifier & Path Query Tool',
+    seoDesc: 'HiJSON is a free online JSON parser supporting formatting, minification, tree visualization, JSONPath queries, multi-field comparison, and outline navigation for developers.',
+    seoKeywords: 'JSON parser,JSON formatter,JSON minifier,online JSON tool,JSON tree view,JSONPath query,JSON visualizer,JSON beautifier,JSON validator,online JSON editor',
+    seoOgTitle: 'HiJSON - Online JSON Parser, Formatter & Minifier',
+    seoOgDesc: 'Free online JSON parser with formatting, minification, tree visualization, JSONPath queries, and multi-field comparison. Essential for developers.',
+    seoFooterTitle: 'HiJSON - Online JSON Parser',
+    seoFooterDesc: 'HiJSON provides JSON formatting, minification, tree visualization, JSONPath queries, multi-field comparison and more. Ideal for frontend development, backend debugging, and API testing. Supports drag & drop file import and keyboard shortcuts. Completely free, no registration required.',
+    seoFooterHome: 'Home',
+    seoLdDesc: 'Free online JSON parser supporting JSON formatting, minification, tree visualization, JSONPath queries, multi-field comparison, and outline navigation.',
+    seoLdFeatures: ['JSON Formatting & Beautifying','JSON Minification','JSON Tree Visualization','JSONPath Query','Multi-field Comparison Table','Outline Navigation','Drag & Drop File Import','Keyboard Shortcuts'],
+    seoNoscriptTitle: 'HiJSON - Online JSON Parser, Formatter & Minifier',
+    seoNoscriptIntro: 'HiJSON is a free online JSON tool with the following features:',
+    seoNoscriptFeatures: [
+      'JSON Formatting & Beautifying - Convert minified JSON to readable format',
+      'JSON Minification - Remove whitespace to reduce size',
+      'JSON Tree Visualization - Browse JSON data as a tree structure',
+      'JSONPath Query - Extract data using $ syntax',
+      'Multi-field Comparison - Compare multiple fields in arrays as a table',
+      'Outline Navigation - Quickly browse JSON structure',
+      'Drag & Drop File Import - Supports .json / .txt / .jsonl files',
+      'Keyboard Shortcuts - Efficient operations',
+    ],
+    seoNoscriptEnable: 'Please enable JavaScript to use HiJSON.',
+  }
+};
+
+let curLang = localStorage.getItem('hijson_lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+
+function t(key) {
+  return (I18N[curLang] && I18N[curLang][key]) || (I18N.zh[key]) || key;
+}
+
+function switchLang() {
+  curLang = curLang === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('hijson_lang', curLang);
+  applyI18n();
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const val = t(key);
+    if (el.dataset.i18nAttr) {
+      el.setAttribute(el.dataset.i18nAttr, val);
+    } else if (el.dataset.i18nHtml) {
+      el.innerHTML = val;
+    } else {
+      el.textContent = val;
+    }
+  });
+  document.getElementById('jsonInput').placeholder = t('inputPlaceholder');
+  document.getElementById('searchInput')?.setAttribute('placeholder', t('searchPlaceholder'));
+  document.getElementById('outlineSearch')?.setAttribute('placeholder', t('searchKeys'));
+  document.getElementById('langLabel').textContent = curLang === 'zh' ? 'En' : '中';
+  const lang = curLang === 'zh' ? 'zh-CN' : 'en';
+  document.documentElement.lang = lang;
+  buildShortcutsList();
+  applySeoI18n(lang);
+}
+
+function applySeoI18n(lang) {
+  document.title = t('seoTitle');
+  const setMeta = (sel, val) => { const el = document.querySelector(sel); if (el) el.setAttribute('content', val); };
+  setMeta('meta[name="description"]', t('seoDesc'));
+  setMeta('meta[name="keywords"]', t('seoKeywords'));
+  setMeta('meta[property="og:title"]', t('seoOgTitle'));
+  setMeta('meta[property="og:description"]', t('seoOgDesc'));
+  setMeta('meta[property="og:locale"]', lang === 'en' ? 'en_US' : 'zh_CN');
+  setMeta('meta[name="twitter:title"]', t('seoOgTitle'));
+  setMeta('meta[name="twitter:description"]', t('seoOgDesc'));
+
+  const ldEl = document.querySelector('script[type="application/ld+json"]');
+  if (ldEl) {
+    try {
+      const ld = JSON.parse(ldEl.textContent);
+      ld.description = t('seoLdDesc');
+      ld.featureList = t('seoLdFeatures');
+      ld.inLanguage = lang;
+      if (ld.offers) ld.offers.priceCurrency = lang === 'en' ? 'USD' : 'CNY';
+      ldEl.textContent = JSON.stringify(ld, null, 2);
+    } catch {}
+  }
+
+  const ns = document.querySelector('noscript');
+  if (ns) {
+    const features = t('seoNoscriptFeatures');
+    ns.innerHTML = `<div style="padding:40px;max-width:800px;margin:0 auto;font-family:sans-serif;">
+    <h1>${t('seoNoscriptTitle')}</h1>
+    <p>${t('seoNoscriptIntro')}</p>
+    <ul>${features.map(f => `<li>${f}</li>`).join('')}</ul>
+    <p>${t('seoNoscriptEnable')}</p>
+  </div>`;
+  }
+
+  const footer = document.querySelector('footer[aria-hidden="true"]');
+  if (footer) {
+    footer.innerHTML = `<h2>${t('seoFooterTitle')}</h2>
+    <p>${t('seoFooterDesc')}</p>
+    <nav><a href="https://hijson.com/">${t('seoFooterHome')}</a></nav>`;
+  }
+}
+
 // ==================== INIT ====================
 function init() {
+  applyI18n();
   loadMem();
   setupResize();
   setupKeys();
@@ -603,15 +942,15 @@ function init() {
 // ==================== PARSE ====================
 function parseJson() {
   const raw = document.getElementById('jsonInput').value.trim();
-  if (!raw) { showErr('请输入 JSON 内容'); return; }
+  if (!raw) { showErr(t('inputEmpty')); return; }
   try {
     parsedData = JSON.parse(raw);
     hideErr();
     renderTree(parsedData);
     renderOutline(parsedData);
-    showToast('解析成功');
+    showToast(t('parseSuccess'));
   } catch (e) {
-    showErr('解析错误: ' + e.message);
+    showErr(t('parseError') + e.message);
     clearTree();
   }
 }
@@ -622,8 +961,8 @@ function formatJson() {
   try {
     document.getElementById('jsonInput').value = JSON.stringify(JSON.parse(raw), null, 2);
     updateSizeLabel();
-    showToast('已格式化');
-  } catch (e) { showErr('解析错误: ' + e.message); }
+    showToast(t('formatted'));
+  } catch (e) { showErr(t('parseError') + e.message); }
 }
 
 function compressJson() {
@@ -632,8 +971,8 @@ function compressJson() {
   try {
     document.getElementById('jsonInput').value = JSON.stringify(JSON.parse(raw));
     updateSizeLabel();
-    showToast('已压缩');
-  } catch (e) { showErr('解析错误: ' + e.message); }
+    showToast(t('compressed'));
+  } catch (e) { showErr(t('parseError') + e.message); }
 }
 
 function clearInput() {
@@ -661,7 +1000,7 @@ function renderTree(data) {
   document.getElementById('treeToolbar').style.display = 'flex';
   if (memMode && memories.length) showMemPanel();
   closeSelPanel();
-  if (nodeCount > 3000) showToast(`节点数 ${nodeCount}，已启用懒展开以提升性能`);
+  if (nodeCount > 3000) showToast(curLang === 'zh' ? `节点数 ${nodeCount}，已启用懒展开以提升性能` : `${nodeCount} nodes, lazy rendering enabled`);
 }
 
 function clearTree() {
@@ -694,7 +1033,7 @@ function makeNode(value, path, key, depth, lazy) {
   const row = document.createElement('div');
   row.className = 'node-row';
   row.style.cssText = `display:flex;align-items:center;gap:6px;padding:2px 8px 2px ${depth * 16 + 8}px;cursor:pointer;user-select:none;`;
-  row.title = '双击复制路径';
+  row.title = t('dblClickCopyPath');
   wrap.appendChild(row);
 
   const tog = document.createElement('span');
@@ -754,7 +1093,7 @@ function makeNode(value, path, key, depth, lazy) {
   row.addEventListener('dblclick', (e) => {
     e.preventDefault();
     copyText(path);
-    showToast('路径已复制: ' + path);
+    showToast(t('pathCopied') + ': ' + path);
   });
 
   if (isComp) {
@@ -943,19 +1282,19 @@ function expandToNode(node) {
 function copyPath() {
   if (!selPath) return;
   copyText(selPath);
-  showToast('路径已复制');
+  showToast(t('pathCopied'));
 }
 
 function copySelFmt() {
   if (selValue === undefined) return;
   copyText(JSON.stringify(selValue, null, 2));
-  showToast('已复制（格式化）');
+  showToast(t('copiedFmt'));
 }
 
 function copySelMin() {
   if (selValue === undefined) return;
   copyText(JSON.stringify(selValue));
-  showToast('已复制（压缩）');
+  showToast(t('copiedMin'));
 }
 
 
@@ -1237,7 +1576,7 @@ function resolveJsonPath(data, pathStr) {
 }
 
 function runPathQuery(pathStr) {
-  if (!parsedData) { showToast('请先解析 JSON'); return; }
+  if (!parsedData) { showToast(t('parseFirst')); return; }
 
   const { results, multiKeys } = resolveJsonPath(parsedData, pathStr);
   if (results.length === 0) {
@@ -1257,16 +1596,16 @@ function showQueryResults(pathStr, results) {
   const panel = document.getElementById('selectedPanel');
 
   document.getElementById('breadcrumb').innerHTML =
-    `<span style="font-size:11px;font-weight:600;color:#4f46e5;padding:2px 8px;background:#eef2ff;border-radius:4px;flex-shrink:0;">路径查询</span>
+    `<span style="font-size:11px;font-weight:600;color:#4f46e5;padding:2px 8px;background:#eef2ff;border-radius:4px;flex-shrink:0;">${t('pathQuery')}</span>
      <span class="bc-sep">›</span>
      <span class="mono bc-seg" style="color:#475569;cursor:default;font-size:11px;">${esc(pathStr)}</span>
-     <span style="font-size:11px;color:#94a3b8;flex-shrink:0;margin-left:4px;">${results.length} 条</span>`;
+     <span style="font-size:11px;color:#94a3b8;flex-shrink:0;margin-left:4px;">${results.length}${t('items')}</span>`;
 
   document.getElementById('selPath').textContent = pathStr;
   document.getElementById('selPath').title = pathStr;
 
   const typeBadge = document.getElementById('selType');
-  typeBadge.textContent = `${results.length} 条`;
+  typeBadge.textContent = `${results.length}${t('items')}`;
   typeBadge.style.cssText = 'font-size:11px;padding:2px 6px;border-radius:4px;background:#ecfdf5;color:#059669;flex-shrink:0;';
 
   const allValues = results.map(r => r.value);
@@ -1288,10 +1627,10 @@ function showMultiFieldResults(pathStr, results, fields) {
   const panel = document.getElementById('selectedPanel');
 
   document.getElementById('breadcrumb').innerHTML =
-    `<span style="font-size:11px;font-weight:600;color:#4f46e5;padding:2px 8px;background:#eef2ff;border-radius:4px;flex-shrink:0;">多字段对比</span>
+    `<span style="font-size:11px;font-weight:600;color:#4f46e5;padding:2px 8px;background:#eef2ff;border-radius:4px;flex-shrink:0;">${t('multiField')}</span>
      <span class="bc-sep">›</span>
      <span class="mono bc-seg" style="color:#475569;cursor:default;font-size:11px;">${esc(pathStr)}</span>
-     <span style="font-size:11px;color:#94a3b8;flex-shrink:0;margin-left:4px;">${results.length} 行 × ${fields.length} 列</span>`;
+     <span style="font-size:11px;color:#94a3b8;flex-shrink:0;margin-left:4px;">${results.length}${t('rows')} × ${fields.length}${t('cols')}</span>`;
 
   document.getElementById('selPath').textContent = pathStr;
   document.getElementById('selPath').title = pathStr;
@@ -1340,19 +1679,19 @@ function showQueryNoResult(pathStr) {
   const panel = document.getElementById('selectedPanel');
 
   document.getElementById('breadcrumb').innerHTML =
-    `<span style="font-size:11px;font-weight:600;color:#dc2626;padding:2px 8px;background:#fef2f2;border-radius:4px;flex-shrink:0;">路径查询</span>
+    `<span style="font-size:11px;font-weight:600;color:#dc2626;padding:2px 8px;background:#fef2f2;border-radius:4px;flex-shrink:0;">${t('pathQuery')}</span>
      <span class="bc-sep">›</span>
      <span class="mono bc-seg" style="color:#475569;cursor:default;font-size:11px;">${esc(pathStr)}</span>`;
 
   document.getElementById('selPath').textContent = pathStr;
-  document.getElementById('selType').textContent = '无匹配';
+  document.getElementById('selType').textContent = t('noMatch');
   document.getElementById('selType').style.cssText = 'font-size:11px;padding:2px 6px;border-radius:4px;background:#fef2f2;color:#dc2626;flex-shrink:0;';
 
   document.getElementById('selContent').innerHTML =
     `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;color:#94a3b8;">
-      <p style="font-size:13px;margin:0 0 8px;">未找到匹配路径</p>
-      <p style="font-size:12px;margin:0;color:#cbd5e1;">支持语法: <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">[*]</code> 通配数组 &nbsp;
-      <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">.{key1,key2}</code> 多字段对比</p>
+      <p style="font-size:13px;margin:0 0 8px;">${t('notFound')}</p>
+      <p style="font-size:12px;margin:0;color:#cbd5e1;">${t('syntaxHint')} <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">[*]</code> ${t('wildcardArr')} &nbsp;
+      <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">.{key1,key2}</code> ${t('multiFieldCompare')}</p>
     </div>`;
 
   selValue = undefined;
@@ -1378,9 +1717,9 @@ function readFile(file) {
     document.getElementById('jsonInput').value = ev.target.result;
     updateSizeLabel();
     parseJson();
-    showToast(`已加载: ${file.name}`);
+    showToast(t('fileLoaded') + file.name);
   };
-  r.onerror = () => showErr('文件读取失败');
+  r.onerror = () => showErr(t('fileReadFail'));
   r.readAsText(file, 'utf-8');
 }
 
@@ -1389,7 +1728,7 @@ function handlePaste(e) {
   setTimeout(() => {
     const v = document.getElementById('jsonInput').value;
     updateSizeLabel();
-    if (v.length > WARN_SIZE) { showToast('内容较大，建议使用文件拖拽导入'); return; }
+    if (v.length > WARN_SIZE) { showToast(t('fileTooLarge')); return; }
     if (v.trim()) parseJson();
   }, 0);
 }
@@ -1461,7 +1800,7 @@ function savePathToMemory(pathStr, resultCount) {
 function renderMemItems() {
   const c = document.getElementById('memItems');
   if (!memories.length) {
-    c.innerHTML = '<p style="font-size:12px;color:#94a3b8;text-align:center;padding:12px;">路径查询后自动记忆</p>';
+    c.innerHTML = `<p style="font-size:12px;color:#94a3b8;text-align:center;padding:12px;">${t('autoMemo')}</p>`;
     return;
   }
   c.innerHTML = memories.map((m, i) => {
@@ -1473,7 +1812,7 @@ function renderMemItems() {
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
       </svg>
       <code class="mono" style="font-size:11px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;">${esc(pathShort)}</code>
-      <span style="font-size:10px;color:#94a3b8;flex-shrink:0;white-space:nowrap;">${m.count != null ? m.count + '条' : ''}</span>
+      <span style="font-size:10px;color:#94a3b8;flex-shrink:0;white-space:nowrap;">${m.count != null ? m.count + t('items') : ''}</span>
       <button style="opacity:0;flex-shrink:0;border:none;background:none;cursor:pointer;padding:2px;border-radius:4px;color:#94a3b8;transition:opacity .15s;"
         class="del-btn" onclick="event.stopPropagation();deleteMem(${i})"
         onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
@@ -1495,7 +1834,7 @@ function restoreMem(i) {
 }
 function deleteMem(i) { memories.splice(i, 1); saveMem(); renderMemItems(); }
 function clearMemory() {
-  if (!confirm('确认清空全部路径记忆？')) return;
+  if (!confirm(t('confirmClearMem'))) return;
   memories = []; saveMem(); renderMemItems();
 }
 
@@ -1549,18 +1888,20 @@ function setupResize() {
 }
 
 // ==================== SHORTCUTS MODAL ====================
-const SHORTCUTS = [
-  ['Ctrl + Enter',     '解析 JSON'],
-  ['Ctrl + Shift + F', '格式化 JSON'],
-  ['Ctrl + B',         '折叠/展开原始报文面板'],
-  ['Ctrl + F',         '聚焦搜索/查询框'],
-  ['Ctrl + Shift + C', '复制选中节点（格式化）'],
-  ['Alt + E',          '展开全部'],
-  ['Alt + C',          '折叠全部'],
-  ['Escape',           '关闭面板'],
-];
+function getShortcuts() {
+  return [
+    ['Ctrl + Enter',     t('sc_parse')],
+    ['Ctrl + Shift + F', t('sc_format')],
+    ['Ctrl + B',         t('sc_togglePanel')],
+    ['Ctrl + F',         t('sc_focusSearch')],
+    ['Ctrl + Shift + C', t('sc_copyNode')],
+    ['Alt + E',          t('sc_expandAll')],
+    ['Alt + C',          t('sc_collapseAll')],
+    ['Escape',           t('sc_close')],
+  ];
+}
 function buildShortcutsList() {
-  document.getElementById('shortcutsList').innerHTML = SHORTCUTS.map(([k, d]) => `
+  document.getElementById('shortcutsList').innerHTML = getShortcuts().map(([k, d]) => `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f8fafc;">
       <span style="font-size:13px;color:#475569;">${d}</span>
       <kbd style="font-size:11px;font-family:monospace;background:#f1f5f9;color:#475569;padding:3px 8px;border-radius:4px;white-space:nowrap;">${k}</kbd>
@@ -1629,10 +1970,10 @@ function toggleKeyVisibility() {
 
 function saveBinKey() {
   const key = document.getElementById('binKeyInput').value.trim();
-  if (!key) { showBinKeyStatus('请输入 API Key', false); return; }
+  if (!key) { showBinKeyStatus(t('enterApiKey'), false); return; }
   localStorage.setItem('hijson_binkey', key);
   updateBinKeyDot();
-  showBinKeyStatus('已保存', true);
+  showBinKeyStatus(t('saved'), true);
   setTimeout(hideBinSettings, 800);
 }
 
@@ -1640,7 +1981,7 @@ function clearBinKey() {
   localStorage.removeItem('hijson_binkey');
   document.getElementById('binKeyInput').value = '';
   updateBinKeyDot();
-  showBinKeyStatus('已清除', true);
+  showBinKeyStatus(t('cleared'), true);
 }
 
 function showBinKeyStatus(msg, ok) {
@@ -1657,12 +1998,12 @@ function updateBinKeyDot() {
 
 async function shareResult() {
   const key = getBinKey();
-  if (!key) { showBinSettings(); showToast('请先配置 JSONBin API Key'); return; }
-  if (selValue === undefined) { showToast('没有可分享的内容'); return; }
+  if (!key) { showBinSettings(); showToast(t('configBinKey')); return; }
+  if (selValue === undefined) { showToast(t('noShareContent')); return; }
 
   const btn = document.getElementById('shareBtn');
   const origHTML = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span> 上传中…';
+  btn.innerHTML = `<span class="spinner"></span> ${t('uploading')}`;
   btn.disabled = true;
   btn.style.opacity = '0.6';
 
@@ -1693,7 +2034,7 @@ async function shareResult() {
 
     const result = await resp.json();
     const binId = result.metadata?.id;
-    if (!binId) throw new Error('未返回 Bin ID');
+    if (!binId) throw new Error(t('noBinId'));
 
     const baseUrl = location.origin + location.pathname;
     const shareUrl = `${baseUrl}?bin=${binId}`;
@@ -1702,9 +2043,9 @@ async function shareResult() {
     document.getElementById('shareLinkInput').value = shareUrl;
     document.getElementById('shareBinLink').value = binUrl;
     document.getElementById('shareLinkModal').style.display = 'flex';
-    showToast('分享链接已生成');
+    showToast(t('shareLinkGenerated'));
   } catch (e) {
-    showToast('分享失败: ' + e.message);
+    showToast(t('shareFailed') + e.message);
   } finally {
     btn.innerHTML = origHTML;
     btn.disabled = false;
@@ -1717,11 +2058,11 @@ function hideShareLink() { document.getElementById('shareLinkModal').style.displ
 
 function copyShareLink() {
   copyText(document.getElementById('shareLinkInput').value);
-  showToast('分享链接已复制');
+  showToast(t('shareLinkCopied'));
 }
 function copyBinLink() {
   copyText(document.getElementById('shareBinLink').value);
-  showToast('JSONBin 直链已复制');
+  showToast(t('binLinkCopied'));
 }
 
 async function loadFromBinParam() {
@@ -1736,7 +2077,7 @@ async function loadFromBinParam() {
     <svg style="width:16px;height:16px;color:#4f46e5;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
     </svg>
-    <span style="font-size:13px;color:#4338ca;font-weight:500;"><span class="spinner" style="margin-right:6px;"></span>正在加载分享数据…</span>
+    <span style="font-size:13px;color:#4338ca;font-weight:500;"><span class="spinner" style="margin-right:6px;"></span>${t('loadingShare')}</span>
   `;
   const header = document.querySelector('header');
   header.insertAdjacentElement('afterend', banner);
@@ -1771,22 +2112,22 @@ async function loadFromBinParam() {
       <svg style="width:16px;height:16px;color:#059669;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
       </svg>
-      <span style="font-size:13px;color:#059669;font-weight:500;">已加载分享数据</span>
-      <span style="font-size:11px;color:#64748b;">来源: ${esc(binId)}</span>
-      ${path !== '$' ? `<span style="font-size:11px;color:#4f46e5;background:#eef2ff;padding:1px 6px;border-radius:4px;font-family:monospace;">路径: ${esc(path)}</span>` : ''}
+      <span style="font-size:13px;color:#059669;font-weight:500;">${t('shareLoaded')}</span>
+      <span style="font-size:11px;color:#64748b;">${t('source')}${esc(binId)}</span>
+      ${path !== '$' ? `<span style="font-size:11px;color:#4f46e5;background:#eef2ff;padding:1px 6px;border-radius:4px;font-family:monospace;">${t('pathLabel')}${esc(path)}</span>` : ''}
       <button onclick="this.parentElement.remove();history.replaceState(null,'',location.pathname)" style="margin-left:auto;font-size:11px;color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px 6px;border-radius:4px;"
-        onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">关闭</button>
+        onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">${t('close')}</button>
     `;
 
-    showToast('分享数据加载成功');
+    showToast(t('shareLoadSuccess'));
   } catch (e) {
     banner.innerHTML = `
       <svg style="width:16px;height:16px;color:#dc2626;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
       </svg>
-      <span style="font-size:13px;color:#dc2626;font-weight:500;">加载失败: ${esc(e.message)}</span>
+      <span style="font-size:13px;color:#dc2626;font-weight:500;">${t('loadFailed')}${esc(e.message)}</span>
       <button onclick="this.parentElement.remove();history.replaceState(null,'',location.pathname)" style="margin-left:auto;font-size:11px;color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px 6px;border-radius:4px;"
-        onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">关闭</button>
+        onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">${t('close')}</button>
     `;
   }
 }
