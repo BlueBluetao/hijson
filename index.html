@@ -339,7 +339,7 @@
         <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
         </svg>
-        <span data-i18n="outline">大纲</span>
+        <span data-i18n="outline">导航</span>
       </button>
 
     </div>
@@ -380,7 +380,7 @@
       <!-- Outline Panel -->
       <div id="outlinePanel" class="collapsed" style="width:240px;min-width:0;flex-shrink:0;background:#fff;border-left:1px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
-          <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;" data-i18n="outlineNav">大纲导航</span>
+          <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;" data-i18n="outlineNav">导航</span>
           <button onclick="toggleOutline()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px;border-radius:4px;"
             onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">
             <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -412,6 +412,12 @@
             </svg>
           </button>
           <span id="selType" style="font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;"></span>
+          <div id="viewToggle" style="display:none;margin-left:4px;background:#f1f5f9;border-radius:6px;padding:2px;flex-shrink:0;">
+            <button id="viewJsonBtn" onclick="setSelView('json')"
+              style="font-size:11px;font-weight:500;padding:2px 8px;border:none;border-radius:4px;cursor:pointer;transition:all .15s;background:#fff;color:#4f46e5;box-shadow:0 1px 2px rgba(0,0,0,.08);">JSON</button>
+            <button id="viewTableBtn" onclick="setSelView('table')"
+              style="font-size:11px;font-weight:500;padding:2px 8px;border:none;border-radius:4px;cursor:pointer;transition:all .15s;background:transparent;color:#64748b;">Table</button>
+          </div>
         </div>
         <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
           <button onclick="copySelFmt()" title="Copy Formatted"
@@ -590,9 +596,10 @@
 let parsedData  = null;
 let selValue    = undefined;
 let selPath     = '';
-let memMode     = false;
+let memMode     = true;
 let memories    = [];
 let outlineOpen = false;
+let selViewMode = 'json';
 const MAX_MEM   = 30;
 const WARN_SIZE = 2 * 1024 * 1024;
 
@@ -617,8 +624,8 @@ const I18N = {
     searchPlaceholder: '搜索键名/值 | $ 路径查询 | $.arr[*].{key1,key2} 多字段对比',
     expandAll: '展开全部',
     collapseAll: '折叠全部',
-    outline: '大纲',
-    outlineNav: '大纲导航',
+    outline: '导航',
+    outlineNav: '导航',
     searchKeys: '搜索键名...',
     pathMemory: '路径记忆',
     clearMem: '清空',
@@ -630,6 +637,8 @@ const I18N = {
     copyPath: '复制路径',
     copy: '复制',
     compressCopy: '压缩复制',
+    viewJson: 'JSON',
+    viewTable: 'Table',
     share: '分享',
     shareToJsonBin: '分享到 JSONBin',
     close: '关闭',
@@ -741,8 +750,8 @@ const I18N = {
     searchPlaceholder: 'Search keys/values | $ path query | $.arr[*].{k1,k2} compare',
     expandAll: 'Expand All',
     collapseAll: 'Collapse All',
-    outline: 'Outline',
-    outlineNav: 'Outline Nav',
+    outline: 'Nav',
+    outlineNav: 'Navigation',
     searchKeys: 'Search keys...',
     pathMemory: 'Path Memory',
     clearMem: 'Clear',
@@ -754,6 +763,8 @@ const I18N = {
     copyPath: 'Copy Path',
     copy: 'Copy',
     compressCopy: 'Copy Minified',
+    viewJson: 'JSON',
+    viewTable: 'Table',
     share: 'Share',
     shareToJsonBin: 'Share to JSONBin',
     close: 'Close',
@@ -932,7 +943,7 @@ function init() {
   setupKeys();
   buildShortcutsList();
   updateBinKeyDot();
-  if (localStorage.getItem('hijson_mem') === 'true') {
+  if (localStorage.getItem('hijson_mem') !== 'false') {
     memMode = true;
     applyMemUI(true);
   }
@@ -1000,7 +1011,17 @@ function renderTree(data) {
   document.getElementById('treeToolbar').style.display = 'flex';
   if (memMode && memories.length) showMemPanel();
   closeSelPanel();
+  expandFirstLevel(rootEl);
+  if (!outlineOpen) { outlineOpen = true; document.getElementById('outlinePanel').classList.remove('collapsed'); }
   if (nodeCount > 3000) showToast(curLang === 'zh' ? `节点数 ${nodeCount}，已启用懒展开以提升性能` : `${nodeCount} nodes, lazy rendering enabled`);
+}
+
+function expandFirstLevel(rootNode) {
+  if (!rootNode._kids) return;
+  if (typeof rootNode._lazyRender === 'function') rootNode._lazyRender();
+  rootNode._kids.style.display = 'block';
+  const svg = rootNode.querySelector(':scope > .node-row .tree-toggle svg');
+  if (svg) svg.style.transform = 'rotate(90deg)';
 }
 
 function clearTree() {
@@ -1196,9 +1217,78 @@ function showSelPanel(value, path) {
 
   buildBreadcrumb(path);
 
-  const json = JSON.stringify(value, null, 2);
-  document.getElementById('selContent').innerHTML = hlJson(json);
+  const canTable = isTableCompatible(value);
+  document.getElementById('viewToggle').style.display = canTable ? 'flex' : 'none';
+  if (!canTable) selViewMode = 'json';
+  renderSelContent(value);
   panel.style.display = 'flex';
+}
+
+function isTableCompatible(value) {
+  if (!Array.isArray(value) || value.length === 0) return false;
+  return value.some(item => item !== null && typeof item === 'object' && !Array.isArray(item));
+}
+
+function setSelView(mode) {
+  selViewMode = mode;
+  const jsonBtn = document.getElementById('viewJsonBtn');
+  const tableBtn = document.getElementById('viewTableBtn');
+  if (mode === 'json') {
+    jsonBtn.style.background = '#fff'; jsonBtn.style.color = '#4f46e5'; jsonBtn.style.boxShadow = '0 1px 2px rgba(0,0,0,.08)';
+    tableBtn.style.background = 'transparent'; tableBtn.style.color = '#64748b'; tableBtn.style.boxShadow = 'none';
+  } else {
+    tableBtn.style.background = '#fff'; tableBtn.style.color = '#4f46e5'; tableBtn.style.boxShadow = '0 1px 2px rgba(0,0,0,.08)';
+    jsonBtn.style.background = 'transparent'; jsonBtn.style.color = '#64748b'; jsonBtn.style.boxShadow = 'none';
+  }
+  renderSelContent(selValue);
+}
+
+function renderSelContent(value) {
+  const el = document.getElementById('selContent');
+  if (selViewMode === 'table' && isTableCompatible(value)) {
+    el.innerHTML = buildSelTable(value);
+  } else {
+    el.innerHTML = hlJson(JSON.stringify(value, null, 2));
+  }
+}
+
+function buildSelTable(arr) {
+  const keysSet = new Set();
+  arr.forEach(item => {
+    if (item && typeof item === 'object' && !Array.isArray(item)) {
+      Object.keys(item).forEach(k => keysSet.add(k));
+    }
+  });
+  const fields = Array.from(keysSet);
+  if (fields.length === 0) return hlJson(JSON.stringify(arr, null, 2));
+
+  let html = '<table class="cmp-table mono"><thead><tr>';
+  html += '<th style="width:30px;">#</th>';
+  fields.forEach(f => { html += `<th>${esc(f)}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  arr.forEach((item, i) => {
+    html += '<tr>';
+    html += `<td class="idx">${i}</td>`;
+    if (item && typeof item === 'object' && !Array.isArray(item)) {
+      fields.forEach(f => {
+        const v = item[f];
+        const cls = valCls(typeOf(v));
+        const display = v === undefined ? '<span style="color:#d1d5db;">—</span>' :
+                        typeof v === 'string' ? `<span class="${cls}">"${esc(v.length > 60 ? v.slice(0, 60) + '…' : v)}"</span>` :
+                        typeof v === 'object' ? `<span style="color:#94a3b8;">${esc(JSON.stringify(v).slice(0, 60))}</span>` :
+                        `<span class="${cls}">${esc(String(v))}</span>`;
+        html += `<td title="${esc(JSON.stringify(v))}">${display}</td>`;
+      });
+    } else {
+      const display = `<span class="${valCls(typeOf(item))}">${esc(JSON.stringify(item))}</span>`;
+      html += `<td colspan="${fields.length}" title="${esc(JSON.stringify(item))}">${display}</td>`;
+    }
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  return html;
 }
 
 function closeSelPanel() {
@@ -1207,6 +1297,7 @@ function closeSelPanel() {
   document.querySelectorAll('#jsonTree .tree-node.is-selected').forEach(n => n.classList.remove('is-selected'));
   selValue = undefined;
   selPath  = '';
+  selViewMode = 'json';
   highlightOutline('');
 }
 
@@ -1609,16 +1700,13 @@ function showQueryResults(pathStr, results) {
   typeBadge.style.cssText = 'font-size:11px;padding:2px 6px;border-radius:4px;background:#ecfdf5;color:#059669;flex-shrink:0;';
 
   const allValues = results.map(r => r.value);
-  selValue = allValues;
+  selValue = results.length === 1 && typeof results[0].value === 'object' && results[0].value !== null ? results[0].value : allValues;
   selPath = pathStr;
 
-  if (results.length === 1 && typeof results[0].value === 'object' && results[0].value !== null) {
-    const json = JSON.stringify(results[0].value, null, 2);
-    document.getElementById('selContent').innerHTML = hlJson(json);
-  } else {
-    const json = JSON.stringify(allValues, null, 2);
-    document.getElementById('selContent').innerHTML = hlJson(json);
-  }
+  const canTable = isTableCompatible(selValue);
+  document.getElementById('viewToggle').style.display = canTable ? 'flex' : 'none';
+  if (!canTable) selViewMode = 'json';
+  renderSelContent(selValue);
 
   panel.style.display = 'flex';
 }
@@ -1951,8 +2039,9 @@ function esc(s) {
 // ==================== JSONBIN SHARE ====================
 const JSONBIN_API = 'https://api.jsonbin.io/v3/b';
 
+const DEFAULT_BIN_KEY = '$2a$10$ijBj14GZuMEzF53kGJxa9uLXHepfztUDbNQqT/A6XdVwDJaJPakKi';
 function getBinKey() {
-  return localStorage.getItem('hijson_binkey') || '';
+  return localStorage.getItem('hijson_binkey') || DEFAULT_BIN_KEY;
 }
 
 function showBinSettings() {
