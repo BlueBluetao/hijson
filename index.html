@@ -106,9 +106,23 @@
     #collapseBar { display: none; }
     #leftPanel.collapsed ~ #collapseBar { display: flex; }
 
-    /* Outline panel */
-    #outlinePanel { transition: width 0.2s; }
+    /* Outline panel — middle column between input and tree */
+    #outlinePanel { transition: width 0.2s; border-right: 1px solid #e2e8f0; }
     #outlinePanel.collapsed { width: 0 !important; min-width: 0 !important; overflow: hidden; border: none; }
+    #outlinePanel.no-data { display: none !important; }
+    #outlineResizeHandle {
+      width: 4px; flex-shrink: 0; background: #e2e8f0; cursor: col-resize;
+      display: none; transition: background 0.15s;
+    }
+    #outlineResizeHandle.visible { display: block; }
+    #outlineResizeHandle:hover, #outlineResizeHandle.active { background: #6366f1; }
+    #outlineCollapseBar {
+      display: none; width: 32px; flex-shrink: 0; flex-direction: column; align-items: center;
+      padding-top: 8px; gap: 8px; background: #fff; border-right: 1px solid #e2e8f0;
+    }
+    #outlineCollapseBar.visible { display: flex; }
+    body.outline-resizing { cursor: col-resize !important; user-select: none !important; }
+    #outlineToggle.active { background: #e0e7ff !important; color: #4f46e5 !important; }
     .outline-node { padding: 2px 0 2px 14px; position: relative; }
     .outline-node::before { content: ''; position: absolute; left: 5px; top: 0; bottom: 0; width: 1px; background: #e2e8f0; }
     .outline-node:last-child::before { bottom: 50%; }
@@ -116,6 +130,16 @@
     .outline-row:hover { background: #f1f5f9; }
     .outline-row.active { background: #e0e7ff; color: #4f46e5; }
     .outline-type { font-size: 10px; padding: 0 4px; border-radius: 3px; flex-shrink: 0; }
+    .outline-toggle {
+      width: 14px; height: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      color: #94a3b8; cursor: pointer; border-radius: 3px;
+    }
+    .outline-toggle:hover { color: #64748b; background: #f1f5f9; }
+    .outline-toggle svg { width: 10px; height: 10px; transition: transform 0.15s; }
+    .outline-toggle.expanded svg { transform: rotate(90deg); }
+    .outline-toggle.placeholder { visibility: hidden; pointer-events: none; }
+    .outline-children { display: none; }
+    .outline-children.expanded { display: block; }
 
     /* Breadcrumb */
     .bc-seg { display: inline-flex; align-items: center; gap: 2px; padding: 1px 6px; border-radius: 4px; cursor: pointer; color: #475569; font-size: 12px; transition: background 0.1s, color 0.1s; white-space: nowrap; }
@@ -499,8 +523,40 @@
     <span style="writing-mode:vertical-lr;font-size:11px;color:#94a3b8;letter-spacing:0.05em;" data-i18n="rawPanel">原始报文</span>
   </div>
 
-  <!-- RESIZE HANDLE -->
+  <!-- RESIZE HANDLE (left panel) -->
   <div id="resizeHandle" style="background:#e2e8f0;flex-shrink:0;"></div>
+
+  <!-- OUTLINE PANEL (middle nav) -->
+  <div id="outlinePanel" class="collapsed no-data" style="width:200px;min-width:0;flex-shrink:0;background:#fff;display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
+      <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;" data-i18n="outlineNav">导航</span>
+      <button onclick="toggleOutline()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px;border-radius:4px;"
+        onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">
+        <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+    </div>
+    <div style="padding:6px 8px;flex-shrink:0;">
+      <input id="outlineSearch" type="text" placeholder="搜索键名..." oninput="filterOutline(this.value)">
+    </div>
+    <div id="outlineTree" class="mono" style="flex:1;overflow:auto;padding:4px 4px 6px;font-size:12px;"></div>
+  </div>
+
+  <!-- OUTLINE RESIZE HANDLE -->
+  <div id="outlineResizeHandle"></div>
+
+  <!-- OUTLINE COLLAPSE BAR (visible when nav collapsed) -->
+  <div id="outlineCollapseBar">
+    <button onclick="toggleOutline()" data-i18n="outlineNav" data-i18n-attr="title" title="展开导航"
+      style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border:none;background:#f1f5f9;cursor:pointer;border-radius:6px;color:#64748b;transition:all .1s;"
+      onmouseover="this.style.background='#e0e7ff';this.style.color='#4f46e5'" onmouseout="this.style.background='#f1f5f9';this.style.color='#64748b'">
+      <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
+      </svg>
+    </button>
+    <span style="writing-mode:vertical-lr;font-size:11px;color:#94a3b8;letter-spacing:0.05em;" data-i18n="outline">导航</span>
+  </div>
 
   <!-- RIGHT PANEL -->
   <div id="rightPanel" style="flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;background:#f8fafc;">
@@ -551,7 +607,7 @@
       <div id="memItems" style="overflow-y:auto;max-height:140px;padding-bottom:4px;"></div>
     </div>
 
-    <!-- View Area: Tree | Detail | Outline -->
+    <!-- View Area: Tree | Detail -->
     <div id="viewArea">
 
       <!-- Tree Container -->
@@ -623,23 +679,6 @@
           oninput="onDetailEdit()"
           onfocus="this.style.boxShadow='inset 0 0 0 1px #c7d2fe'" onblur="this.style.boxShadow='none'"></textarea>
         <div id="selContentTable" class="mono" style="flex:1;overflow:auto;padding:10px 12px;display:none;min-height:0;"></div>
-      </div>
-
-      <!-- Outline Panel -->
-      <div id="outlinePanel" class="collapsed" style="width:220px;min-width:0;flex-shrink:0;background:#fff;border-left:1px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden;">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
-          <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;" data-i18n="outlineNav">导航</span>
-          <button onclick="toggleOutline()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px;border-radius:4px;"
-            onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">
-            <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-        <div style="padding:6px 8px;flex-shrink:0;">
-          <input id="outlineSearch" type="text" placeholder="搜索键名..." oninput="filterOutline(this.value)">
-        </div>
-        <div id="outlineTree" class="mono" style="flex:1;overflow:auto;padding:4px 4px 6px;font-size:12px;"></div>
       </div>
     </div>
   </div>
@@ -864,6 +903,10 @@ let _detailSyncTimer = null;
 const MAX_MEM   = 30;
 const WARN_SIZE = 2 * 1024 * 1024;
 const EXPAND_ALL_MAX = 300;
+const OUTLINE_OPEN_KEY = 'hijson_outline_open';
+const OUTLINE_WIDTH_KEY = 'hijson_outline_width';
+let outlineWidth = 200;
+let outlineForceHidden = false;
 
 // ==================== I18N ====================
 const I18N = {
@@ -1282,6 +1325,11 @@ function init() {
     memMode = true;
     applyMemUI(true);
   }
+  outlineWidth = parseInt(localStorage.getItem(OUTLINE_WIDTH_KEY), 10) || 200;
+  outlineOpen = localStorage.getItem(OUTLINE_OPEN_KEY) === 'true';
+  const op = document.getElementById('outlinePanel');
+  if (op) op.style.width = outlineWidth + 'px';
+  applyOutlineUI();
   loadFromBinParam();
 }
 
@@ -1348,6 +1396,8 @@ function renderTree(data, opts = {}) {
   document.getElementById('emptyState').style.display = 'none';
   tree.style.display = 'block';
   document.getElementById('treeToolbar').style.display = 'flex';
+  document.getElementById('outlinePanel').classList.remove('no-data');
+  applyOutlineUI();
   if (memMode && memories.length) showMemPanel();
   if (!opts.preservePath) closeSelPanel();
   autoExpandTree(nodeCount, rootEl);
@@ -1387,6 +1437,8 @@ function clearTree() {
   document.getElementById('emptyState').style.display = 'flex';
   document.getElementById('treeToolbar').style.display = 'none';
   document.getElementById('outlineTree').innerHTML = '';
+  document.getElementById('outlinePanel').classList.add('no-data');
+  applyOutlineUI();
   parsedData = null;
   closeSelPanel();
 }
@@ -1837,9 +1889,26 @@ function copySelMin() {
 
 
 // ==================== OUTLINE ====================
-function toggleOutline() {
-  outlineOpen = !outlineOpen;
-  document.getElementById('outlinePanel').classList.toggle('collapsed', !outlineOpen);
+function applyOutlineUI() {
+  const panel = document.getElementById('outlinePanel');
+  const hasData = parsedData !== null;
+  const effectiveOpen = outlineOpen && !outlineForceHidden && hasData;
+  if (panel) {
+    panel.classList.toggle('no-data', !hasData);
+    panel.classList.toggle('collapsed', !effectiveOpen);
+    if (effectiveOpen) panel.style.width = outlineWidth + 'px';
+  }
+  document.getElementById('outlineResizeHandle')?.classList.toggle('visible', effectiveOpen);
+  document.getElementById('outlineCollapseBar')?.classList.toggle('visible', hasData && !effectiveOpen);
+  document.getElementById('outlineToggle')?.classList.toggle('active', effectiveOpen);
+}
+
+function toggleOutline(force) {
+  if (!parsedData) return;
+  if (typeof force === 'boolean') outlineOpen = force;
+  else outlineOpen = !outlineOpen;
+  localStorage.setItem(OUTLINE_OPEN_KEY, outlineOpen);
+  applyOutlineUI();
 }
 
 function renderOutline(data) {
@@ -1868,7 +1937,8 @@ function extractSchema(value, path, queryPath) {
   return { type, path, queryPath, label: parts[parts.length - 1] || path };
 }
 
-function buildOutlineNode(schema, path, isRoot) {
+function buildOutlineNode(schema, path, isRoot, depth) {
+  if (depth === undefined) depth = 0;
   const wrap = document.createElement('div');
   if (!isRoot) wrap.className = 'outline-node';
 
@@ -1876,6 +1946,33 @@ function buildOutlineNode(schema, path, isRoot) {
   row.className = 'outline-row';
   row.dataset.outlinePath = schema.path;
   row.dataset.queryPath = schema.queryPath || schema.path;
+
+  const childNodes = [];
+  if (schema.type === 'object' && schema.children) {
+    childNodes.push(...schema.children);
+  } else if (schema.type === 'array' && schema.itemSchema) {
+    if (schema.itemSchema.type === 'object' && schema.itemSchema.children) {
+      childNodes.push(...schema.itemSchema.children);
+    } else {
+      childNodes.push(schema.itemSchema);
+    }
+  }
+  const hasChildren = childNodes.length > 0;
+
+  const toggle = document.createElement('span');
+  toggle.className = 'outline-toggle' + (hasChildren ? '' : ' placeholder');
+  if (hasChildren) {
+    if (isRoot) toggle.classList.add('expanded');
+    toggle.innerHTML = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>';
+    toggle.addEventListener('click', e => {
+      e.stopPropagation();
+      const kids = wrap.querySelector(':scope > .outline-children');
+      if (!kids) return;
+      toggle.classList.toggle('expanded');
+      kids.classList.toggle('expanded');
+    });
+  }
+  row.appendChild(toggle);
 
   const typeTag = document.createElement('span');
   typeTag.className = 'outline-type';
@@ -1905,7 +2002,7 @@ function buildOutlineNode(schema, path, isRoot) {
 
   row.title = schema.queryPath || schema.path;
 
-  row.addEventListener('click', (e) => {
+  row.addEventListener('click', () => {
     if (schema.queryPath && schema.queryPath.includes('[*]')) {
       const si = document.getElementById('searchInput');
       si.value = schema.queryPath;
@@ -1918,22 +2015,28 @@ function buildOutlineNode(schema, path, isRoot) {
 
   wrap.appendChild(row);
 
-  if (schema.type === 'object' && schema.children) {
-    schema.children.forEach(child => {
-      wrap.appendChild(buildOutlineNode(child, child.path, false));
+  if (hasChildren) {
+    const childrenWrap = document.createElement('div');
+    childrenWrap.className = 'outline-children' + (isRoot ? ' expanded' : '');
+    childNodes.forEach(child => {
+      childrenWrap.appendChild(buildOutlineNode(child, child.path, false, depth + 1));
     });
-  }
-  if (schema.type === 'array' && schema.itemSchema) {
-    if (schema.itemSchema.type === 'object' && schema.itemSchema.children) {
-      schema.itemSchema.children.forEach(child => {
-        wrap.appendChild(buildOutlineNode(child, child.path, false));
-      });
-    } else {
-      wrap.appendChild(buildOutlineNode(schema.itemSchema, schema.itemSchema.path, false));
-    }
+    wrap.appendChild(childrenWrap);
   }
 
   return wrap;
+}
+
+function expandOutlineAncestors(row) {
+  let el = row.parentElement;
+  while (el && el.id !== 'outlineTree') {
+    const parent = el.parentElement;
+    if (parent?.classList.contains('outline-children')) {
+      parent.classList.add('expanded');
+      parent.parentElement?.querySelector(':scope > .outline-row .outline-toggle')?.classList.add('expanded');
+    }
+    el = parent;
+  }
 }
 
 function highlightOutline(path) {
@@ -1941,6 +2044,7 @@ function highlightOutline(path) {
   if (!path) return;
   const row = document.querySelector(`#outlineTree .outline-row[data-outline-path="${CSS.escape(path)}"]`);
   if (row) {
+    expandOutlineAncestors(row);
     row.classList.add('active');
     row.scrollIntoView({ block: 'nearest' });
   }
@@ -1962,6 +2066,7 @@ function filterOutline(q) {
     const node = row.parentElement;
     if (match) {
       node.classList.remove('outline-hidden');
+      expandOutlineAncestors(row);
       let p = node.parentElement;
       while (p && p.id !== 'outlineTree') {
         p.classList.remove('outline-hidden');
@@ -2461,6 +2566,27 @@ function setupResize() {
     document.body.classList.remove('detail-resizing'); dHandle.classList.remove('active');
     localStorage.setItem(DETAIL_WIDTH_KEY, detailWidth);
   });
+
+  const oHandle = document.getElementById('outlineResizeHandle');
+  const oPanel  = document.getElementById('outlinePanel');
+  let oDrag = false, osx = 0, osw = 0;
+  oHandle.addEventListener('mousedown', e => {
+    if (oPanel.classList.contains('collapsed') || oPanel.classList.contains('no-data')) return;
+    oDrag = true; osx = e.clientX; osw = oPanel.offsetWidth;
+    document.body.classList.add('outline-resizing'); oHandle.classList.add('active');
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!oDrag) return;
+    outlineWidth = Math.max(160, Math.min(400, osw + e.clientX - osx));
+    oPanel.style.width = outlineWidth + 'px';
+  });
+  window.addEventListener('mouseup', () => {
+    if (!oDrag) return;
+    oDrag = false;
+    document.body.classList.remove('outline-resizing'); oHandle.classList.remove('active');
+    localStorage.setItem(OUTLINE_WIDTH_KEY, outlineWidth);
+  });
 }
 
 // ==================== SHORTCUTS MODAL ====================
@@ -2754,6 +2880,8 @@ function switchLeftTab(tab) {
   document.getElementById('tabAi').classList.toggle('active', isAi);
   document.getElementById('jsonTabPanel').classList.toggle('hidden', isAi);
   document.getElementById('aiTabPanel').classList.toggle('open', isAi);
+  outlineForceHidden = isAi;
+  applyOutlineUI();
   if (isAi && lp.classList.contains('collapsed')) lp.classList.remove('collapsed');
 }
 
