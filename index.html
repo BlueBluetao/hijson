@@ -179,6 +179,95 @@
 
     /* Shared banner */
     #sharedBanner { background:linear-gradient(135deg,#eef2ff,#e0e7ff);border-bottom:1px solid #c7d2fe; }
+
+    /* Left panel tabs */
+    #leftPanel { transition: box-shadow .2s, border-color .2s; }
+    #leftPanel.mode-json { box-shadow: inset 4px 0 0 #4f46e5; }
+    #leftPanel.mode-ai { box-shadow: inset 4px 0 0 #7c3aed; border-right-color: #ddd6fe !important; }
+    .left-panel-tabs {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; flex-shrink: 0;
+      background: linear-gradient(180deg, #f1f5f9 0%, #fff 100%);
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .left-tab {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 11px 10px; font-size: 13px; font-weight: 600;
+      border: 2px solid #e2e8f0; border-radius: 10px;
+      background: #fff; color: #64748b; cursor: pointer;
+      transition: all .2s ease; box-shadow: 0 1px 3px rgba(15,23,42,.06);
+    }
+    .left-tab svg { width: 17px; height: 17px; flex-shrink: 0; opacity: .85; }
+    .left-tab:hover:not(.active) { border-color: #cbd5e1; color: #334155; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(15,23,42,.08); }
+    .left-tab-json.active {
+      background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+      border-color: #4338ca; color: #fff;
+      box-shadow: 0 4px 16px rgba(79,70,229,.4);
+    }
+    .left-tab-json.active svg { opacity: 1; }
+    .left-tab-ai.active {
+      background: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%);
+      border-color: #7c3aed; color: #fff;
+      box-shadow: 0 4px 16px rgba(124,58,237,.4);
+    }
+    .left-tab-ai.active svg { opacity: 1; }
+    .tab-ai-badge {
+      font-size: 9px; font-weight: 700; letter-spacing: .04em;
+      padding: 1px 5px; border-radius: 4px;
+      background: rgba(124,58,237,.15); color: #7c3aed;
+    }
+    .left-tab-ai.active .tab-ai-badge { background: rgba(255,255,255,.25); color: #fff; }
+    .left-tab-collapse {
+      flex: 0 0 32px !important; width: 32px; padding: 0 !important;
+      min-width: 32px;
+    }
+    #jsonTabPanel { flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;background:linear-gradient(180deg,#eef2ff22 0%,#fff 120px); }
+    #jsonTabPanel.hidden { display:none; }
+    #jsonInput { border-width: 2px !important; border-color: #c7d2fe !important; background: #fff !important; }
+    #jsonInput:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+    .json-input-label { font-size:13px !important; font-weight:600 !important; color:#4338ca !important; }
+    #aiTabPanel { display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden;background:linear-gradient(180deg,#f5f3ff 0%,#fff 180px); }
+    #aiTabPanel.open { display:flex; }
+    .ai-panel-banner {
+      display:flex;align-items:center;gap:8px;padding:10px 12px;flex-shrink:0;
+      background:linear-gradient(135deg,#7c3aed 0%,#a855f7 100%);
+      color:#fff;font-size:12px;font-weight:500;
+    }
+    .ai-panel-banner svg { width:18px;height:18px;flex-shrink:0;opacity:.95; }
+    .ai-scope-bar {
+      display:flex;align-items:center;gap:10px;padding:8px 12px;flex-shrink:0;
+      background:#faf5ff;border-bottom:1px solid #ede9fe;font-size:11px;color:#6b21a8;
+    }
+    .ai-scope-bar label { display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:500; }
+    .ai-input-area { padding:10px 12px;border-top:2px solid #ede9fe;flex-shrink:0;background:#faf5ff; }
+    #aiInput { border:2px solid #ddd6fe !important;background:#fff !important; }
+    #aiInput:focus { border-color:#a855f7 !important; box-shadow:0 0 0 3px rgba(168,85,247,.15); }
+    #aiSendBtn {
+      background:linear-gradient(135deg,#7c3aed,#9333ea) !important;
+      box-shadow:0 3px 12px rgba(124,58,237,.35);
+      font-weight:600 !important;
+    }
+    #aiSendBtn:hover { background:linear-gradient(135deg,#6d28d9,#7c3aed) !important; }
+    #treeAiBtn {
+      display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;
+      color:#fff !important;white-space:nowrap;border:none;cursor:pointer;
+      padding:5px 12px;border-radius:8px;
+      background:linear-gradient(135deg,#7c3aed,#a855f7);
+      box-shadow:0 2px 8px rgba(124,58,237,.3);
+      transition:all .15s;
+    }
+    #treeAiBtn:hover { box-shadow:0 4px 12px rgba(124,58,237,.45); transform:translateY(-1px); }
+    #aiMessages { flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:10px;min-height:0; }
+    .ai-msg { max-width:95%;padding:8px 10px;border-radius:10px;font-size:12px;line-height:1.55;word-break:break-word; }
+    .ai-msg.user { align-self:flex-end;background:#4f46e5;color:#fff;border-bottom-right-radius:3px; }
+    .ai-msg.assistant { align-self:flex-start;background:#f1f5f9;color:#334155;border-bottom-left-radius:3px; }
+    .ai-msg.system { align-self:center;background:#fef9c3;color:#854d0e;font-size:11px;padding:4px 10px;border-radius:6px; }
+    .ai-msg pre { margin:6px 0 0;padding:8px;background:#1e293b;color:#e2e8f0;border-radius:6px;font-size:11px;overflow-x:auto;white-space:pre-wrap; }
+    .ai-apply-btn { margin-top:6px;padding:4px 10px;font-size:11px;background:#059669;color:#fff;border:none;border-radius:6px;cursor:pointer; }
+    .ai-apply-btn:hover { background:#047857; }
+    .ai-profile-item { display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all .1s; }
+    .ai-profile-item:hover { border-color:#c7d2fe;background:#f8fafc; }
+    .ai-profile-item.active { border-color:#818cf8;background:#eef2ff; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900" style="height:100vh;display:flex;flex-direction:column;overflow:hidden;">
@@ -221,6 +310,16 @@
 
   <div style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;"></div>
 
+  <button id="aiSettingsBtn" onclick="showAiSettings()"
+    style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#7c3aed;background:#f5f3ff;border:1px solid #ddd6fe;cursor:pointer;padding:6px 12px;border-radius:8px;transition:all .15s;"
+    onmouseover="this.style.background='#ede9fe';this.style.borderColor='#c4b5fd'" onmouseout="this.style.background='#f5f3ff';this.style.borderColor='#ddd6fe'">
+    <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+    </svg>
+    <span data-i18n="aiSettings">AI 配置</span>
+    <span id="aiKeyDot" style="display:none;width:6px;height:6px;background:#4ade80;border-radius:50%;flex-shrink:0;"></span>
+  </button>
+
   <button id="binSettingsBtn" onclick="showBinSettings()"
     style="display:flex;align-items:center;gap:6px;font-size:13px;color:#64748b;background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:8px;transition:background .1s;"
     onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
@@ -256,20 +355,32 @@
 <main style="flex:1;display:flex;overflow:hidden;" role="main" aria-label="JSON 解析工作区">
 
   <!-- LEFT PANEL -->
-  <div id="leftPanel" style="width:360px;min-width:200px;max-width:580px;flex-shrink:0;display:flex;flex-direction:column;background:#fff;border-right:1px solid #e2e8f0;">
+  <div id="leftPanel" class="mode-json" style="width:360px;min-width:200px;max-width:580px;flex-shrink:0;display:flex;flex-direction:column;background:#fff;border-right:1px solid #e2e8f0;">
 
-    <!-- Panel header with collapse button -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 12px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
-      <span style="font-size:12px;font-weight:600;color:#475569;" data-i18n="rawPanel">原始报文</span>
-      <button onclick="toggleLeftPanel()" data-i18n="collapsePanel" data-i18n-attr="title" title="折叠面板 (Ctrl+B)"
-        style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:none;background:none;cursor:pointer;border-radius:6px;color:#94a3b8;transition:all .1s;"
-        onmouseover="this.style.background='#f1f5f9';this.style.color='#475569'" onmouseout="this.style.background='none';this.style.color='#94a3b8'">
+    <!-- Tabs: JSON | AI -->
+    <div class="left-panel-tabs">
+      <button id="tabJson" class="left-tab left-tab-json active" onclick="switchLeftTab('json')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+        </svg>
+        <span data-i18n="tabJson">JSON 输入</span>
+      </button>
+      <button id="tabAi" class="left-tab left-tab-ai" onclick="switchLeftTab('ai')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+        <span data-i18n="tabAi">AI 对话</span>
+        <span class="tab-ai-badge">AI</span>
+      </button>
+      <button class="left-tab left-tab-collapse" onclick="toggleLeftPanel()" data-i18n="collapsePanel" data-i18n-attr="title" title="折叠面板 (Ctrl+B)"
+        onmouseover="this.style.borderColor='#cbd5e1'" onmouseout="this.style.borderColor='#e2e8f0'">
         <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
         </svg>
       </button>
     </div>
 
+    <div id="jsonTabPanel">
     <!-- Drop Zone -->
     <div id="dropZone"
       style="margin:12px 12px 0;border:2px dashed #e2e8f0;border-radius:12px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all .15s;flex-shrink:0;"
@@ -287,7 +398,7 @@
     <!-- Input Area -->
     <div style="flex:1;display:flex;flex-direction:column;min-height:0;padding:12px;gap:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:12px;font-weight:500;color:#64748b;" data-i18n="jsonInput">JSON 输入</span>
+        <span class="json-input-label" data-i18n="jsonInput">JSON 输入</span>
         <div style="display:flex;align-items:center;gap:8px;">
           <span id="sizeLabel" style="display:none;font-size:11px;padding:2px 6px;border-radius:4px;background:#f1f5f9;color:#64748b;"></span>
           <button onclick="clearInput()" style="font-size:12px;color:#94a3b8;border:none;background:none;cursor:pointer;"
@@ -319,6 +430,59 @@
       <button onclick="compressJson()"
         style="background:#f1f5f9;color:#475569;border:none;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;transition:background .15s;"
         onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'" data-i18n="compress">压缩</button>
+    </div>
+    </div><!-- /jsonTabPanel -->
+
+    <!-- AI Chat Panel -->
+    <div id="aiTabPanel">
+      <div class="ai-panel-banner">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        <span data-i18n="aiBanner">AI 智能修改 JSON</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid #ede9fe;flex-shrink:0;background:#fff;">
+        <select id="aiProfileSelect" onchange="onAiProfileSelect()"
+          style="flex:1;font-size:12px;padding:6px 8px;border:2px solid #ddd6fe;border-radius:8px;background:#faf5ff;outline:none;color:#5b21b6;font-weight:500;min-width:0;"></select>
+        <button onclick="showAiSettings()" data-i18n="aiConfig" data-i18n-attr="title" title="AI 配置"
+          style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border:2px solid #ddd6fe;background:#faf5ff;border-radius:8px;cursor:pointer;color:#7c3aed;flex-shrink:0;"
+          onmouseover="this.style.borderColor='#a855f7';this.style.background='#f3e8ff'" onmouseout="this.style.borderColor='#ddd6fe';this.style.background='#faf5ff'">
+          <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div class="ai-scope-bar">
+        <span data-i18n="aiScope">上下文</span>
+        <label>
+          <input type="radio" name="aiScope" value="full" checked onchange="updateAiScopeLabel()">
+          <span data-i18n="aiScopeFull">全部 JSON</span>
+        </label>
+        <label>
+          <input type="radio" name="aiScope" value="selection" onchange="updateAiScopeLabel()">
+          <span id="aiScopeSelLabel" data-i18n="aiScopeSel">当前选中</span>
+        </label>
+      </div>
+      <div id="aiMessages"></div>
+      <div class="ai-input-area">
+        <textarea id="aiInput" class="mono" rows="3" data-i18n="aiInputPlaceholder" data-i18n-attr="placeholder" placeholder="描述你想如何修改 JSON…"
+          style="width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;font-size:12px;resize:none;outline:none;line-height:1.5;"
+          onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();sendAiMessage();}"></textarea>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
+          <button id="aiSendBtn" onclick="sendAiMessage()"
+            style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;color:#fff;border:none;border-radius:8px;padding:9px 12px;font-size:13px;cursor:pointer;">
+            <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            <span data-i18n="aiSend">发送</span>
+            <kbd style="font-size:10px;background:rgba(255,255,255,.2);color:#e9d5ff;padding:1px 5px;border-radius:3px;font-family:monospace;">Ctrl+↵</kbd>
+          </button>
+          <button onclick="clearAiChat()"
+            style="padding:9px 12px;font-size:12px;color:#7c3aed;background:#ede9fe;border:none;border-radius:8px;cursor:pointer;font-weight:500;"
+            onmouseover="this.style.background='#ddd6fe'" onmouseout="this.style.background='#ede9fe'" data-i18n="aiClearChat">清空</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -366,6 +530,13 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
         </svg>
         <span data-i18n="outline">导航</span>
+      </button>
+
+      <button id="treeAiBtn" onclick="openAiChat()" data-i18n="aiChat" data-i18n-attr="title" title="AI 对话">
+        <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        <span data-i18n="tabAi">AI 对话</span>
       </button>
 
     </div>
@@ -603,6 +774,72 @@
   </div>
 </div>
 
+<!-- =========== AI SETTINGS MODAL =========== -->
+<div id="aiSettingsModal" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,.2);backdrop-filter:blur(4px);" onclick="hideAiSettings()"></div>
+  <div style="position:relative;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:24px;width:100%;max-width:520px;margin:0 16px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;background:#f5f3ff;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <svg style="width:16px;height:16px;color:#7c3aed;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <h2 style="font-size:15px;font-weight:600;color:#1e293b;margin:0;" data-i18n="aiSettingsTitle">AI 配置</h2>
+      </div>
+      <button onclick="hideAiSettings()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:4px;border-radius:6px;"
+        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+        <svg style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="aiProfileList" style="margin-bottom:16px;max-height:160px;overflow-y:auto;"></div>
+
+    <div style="border-top:1px solid #f1f5f9;padding-top:16px;">
+      <p style="font-size:12px;font-weight:600;color:#475569;margin:0 0 12px;" id="aiFormTitle" data-i18n="aiAddProfile">添加 / 编辑配置</p>
+      <input type="hidden" id="aiEditId" value="">
+      <div style="margin-bottom:10px;">
+        <label style="display:block;font-size:11px;font-weight:500;color:#64748b;margin-bottom:4px;" data-i18n="aiName">名称</label>
+        <input id="aiFormName" type="text" placeholder="OpenAI / DeepSeek / 本地 Ollama"
+          style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:13px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;"
+          onfocus="this.style.borderColor='#818cf8'" onblur="this.style.borderColor='#e2e8f0'">
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="display:block;font-size:11px;font-weight:500;color:#64748b;margin-bottom:4px;" data-i18n="aiApiUrl">API URL</label>
+        <input id="aiFormUrl" type="text" placeholder="https://api.openai.com/v1/chat/completions"
+          style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:12px;font-family:'JetBrains Mono',monospace;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;"
+          onfocus="this.style.borderColor='#818cf8'" onblur="this.style.borderColor='#e2e8f0'">
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="display:block;font-size:11px;font-weight:500;color:#64748b;margin-bottom:4px;" data-i18n="aiToken">Token (API Key)</label>
+        <input id="aiFormToken" type="password" placeholder="sk-..."
+          style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:12px;font-family:'JetBrains Mono',monospace;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;"
+          onfocus="this.style.borderColor='#818cf8'" onblur="this.style.borderColor='#e2e8f0'">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:11px;font-weight:500;color:#64748b;margin-bottom:4px;" data-i18n="aiModel">Model</label>
+        <input id="aiFormModel" type="text" placeholder="gpt-4o-mini / deepseek-chat"
+          style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:13px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;"
+          onfocus="this.style.borderColor='#818cf8'" onblur="this.style.borderColor='#e2e8f0'">
+      </div>
+      <p style="font-size:11px;color:#94a3b8;margin:0 0 12px;" data-i18n="aiConfigHint">兼容 OpenAI Chat Completions 格式。配置仅保存在本地浏览器。</p>
+      <div style="display:flex;gap:8px;">
+        <button onclick="saveAiProfile()"
+          style="flex:1;background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;"
+          onmouseover="this.style.background='#6d28d9'" onmouseout="this.style.background='#7c3aed'" data-i18n="save">保存</button>
+        <button onclick="resetAiForm()"
+          style="background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;"
+          onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'" data-i18n="aiNewProfile">新建</button>
+        <button id="aiDeleteBtn" onclick="deleteAiProfile()" style="display:none;background:#fef2f2;color:#dc2626;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;"
+          onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'" data-i18n="aiDelete">删除</button>
+      </div>
+    </div>
+    <div id="aiConfigStatus" style="display:none;margin-top:12px;padding:8px 12px;border-radius:8px;font-size:12px;"></div>
+  </div>
+</div>
+
 <!-- =========== TOAST =========== -->
 <div id="toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;background:#1e293b;color:#fff;font-size:13px;padding:8px 16px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.2);align-items:center;gap:8px;white-space:nowrap;">
   <svg style="width:14px;height:14px;color:#4ade80;flex-shrink:0;" viewBox="0 0 20 20" fill="currentColor">
@@ -755,6 +992,39 @@ const I18N = {
       '键盘快捷键 - 高效操作',
     ],
     seoNoscriptEnable: '请启用 JavaScript 以使用 HiJSON。',
+    aiSettings: 'AI 配置',
+    aiSettingsTitle: 'AI 配置',
+    aiConfig: '配置',
+    tabJson: 'JSON 输入',
+    tabAi: 'AI 对话',
+    aiBanner: 'AI 智能修改 JSON',
+    aiChat: 'AI 对话',
+    aiScope: '上下文',
+    aiScopeFull: '全部 JSON',
+    aiScopeSel: '当前选中',
+    aiInputPlaceholder: '描述你想如何修改 JSON，例如：把 receiver_info.receiver_name 改成 John',
+    aiSend: '发送',
+    aiClearChat: '清空',
+    aiAddProfile: '添加 / 编辑配置',
+    aiName: '名称',
+    aiApiUrl: 'API URL',
+    aiToken: 'Token (API Key)',
+    aiModel: 'Model',
+    aiConfigHint: '兼容 OpenAI Chat Completions 格式。配置仅保存在本地浏览器。',
+    aiNewProfile: '新建',
+    aiDelete: '删除',
+    aiNoProfile: '请先添加 AI 配置',
+    aiNeedJson: '请先输入或解析 JSON',
+    aiThinking: '思考中…',
+    aiApplyJson: '应用此 JSON',
+    aiApplied: 'JSON 已应用',
+    aiApplyFailed: 'JSON 应用失败: ',
+    aiRequestFailed: 'AI 请求失败: ',
+    aiChatCleared: '对话已清空',
+    aiProfileSaved: '配置已保存',
+    aiProfileDeleted: '配置已删除',
+    aiSelectProfile: '选择 LLM…',
+    aiSystemWelcome: '选择 LLM 后开始对话，AI 可帮你分析或修改 JSON。',
   },
   en: {
     title: 'HiJSON',
@@ -881,6 +1151,39 @@ const I18N = {
       'Keyboard Shortcuts - Efficient operations',
     ],
     seoNoscriptEnable: 'Please enable JavaScript to use HiJSON.',
+    aiSettings: 'AI Config',
+    aiSettingsTitle: 'AI Configuration',
+    aiConfig: 'Config',
+    tabJson: 'JSON Input',
+    tabAi: 'AI Chat',
+    aiBanner: 'AI JSON Assistant',
+    aiChat: 'AI Chat',
+    aiScope: 'Context',
+    aiScopeFull: 'Full JSON',
+    aiScopeSel: 'Selection',
+    aiInputPlaceholder: 'Describe how to modify JSON, e.g. change receiver_info.receiver_name to John',
+    aiSend: 'Send',
+    aiClearChat: 'Clear',
+    aiAddProfile: 'Add / Edit Profile',
+    aiName: 'Name',
+    aiApiUrl: 'API URL',
+    aiToken: 'Token (API Key)',
+    aiModel: 'Model',
+    aiConfigHint: 'OpenAI-compatible Chat Completions API. Stored locally only.',
+    aiNewProfile: 'New',
+    aiDelete: 'Delete',
+    aiNoProfile: 'Please add an AI profile first',
+    aiNeedJson: 'Please enter or parse JSON first',
+    aiThinking: 'Thinking…',
+    aiApplyJson: 'Apply JSON',
+    aiApplied: 'JSON applied',
+    aiApplyFailed: 'Failed to apply JSON: ',
+    aiRequestFailed: 'AI request failed: ',
+    aiChatCleared: 'Chat cleared',
+    aiProfileSaved: 'Profile saved',
+    aiProfileDeleted: 'Profile deleted',
+    aiSelectProfile: 'Select LLM…',
+    aiSystemWelcome: 'Select an LLM to start. AI can analyze or modify your JSON.',
   }
 };
 
@@ -916,6 +1219,12 @@ function applyI18n() {
   document.documentElement.lang = lang;
   buildShortcutsList();
   applySeoI18n(lang);
+  renderAiProfileSelect();
+  updateAiScopeLabel();
+  if (aiMessages.length === 1 && aiMessages[0].role === 'system') {
+    aiMessages[0].content = t('aiSystemWelcome');
+    renderAiMessages();
+  }
 }
 
 function applySeoI18n(lang) {
@@ -968,6 +1277,7 @@ function init() {
   setupKeys();
   buildShortcutsList();
   updateBinKeyDot();
+  loadAiProfiles();
   if (localStorage.getItem('hijson_mem') !== 'false') {
     memMode = true;
     applyMemUI(true);
@@ -1264,6 +1574,7 @@ function doSelect(value, path, nodeEl) {
   selValue = value;
   selPath  = path;
   detailSyncEnabled = true;
+  updateAiScopeLabel();
   showSelPanel(value, path);
   highlightOutline(path);
 }
@@ -2101,7 +2412,8 @@ function setupKeys() {
     else if (e.altKey && e.key.toLowerCase() === 'e') { e.preventDefault(); expandAll(); }
     else if (e.altKey && e.key.toLowerCase() === 'c' && !inInput) { e.preventDefault(); collapseAll(); }
     else if (e.key === 'Escape') {
-      if (document.getElementById('shareLinkModal').style.display !== 'none') hideShareLink();
+      if (document.getElementById('aiSettingsModal').style.display !== 'none') hideAiSettings();
+      else if (document.getElementById('shareLinkModal').style.display !== 'none') hideShareLink();
       else if (document.getElementById('binSettingsModal').style.display !== 'none') hideBinSettings();
       else if (document.getElementById('shortcutsModal').style.display !== 'none') hideShortcuts();
       else closeSelPanel();
@@ -2394,6 +2706,383 @@ async function loadFromBinParam() {
       <button onclick="this.parentElement.remove();history.replaceState(null,'',location.pathname)" style="margin-left:auto;font-size:11px;color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px 6px;border-radius:4px;"
         onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">${t('close')}</button>
     `;
+  }
+}
+
+// ==================== AI CHAT ====================
+const AI_PROFILES_KEY = 'hijson_ai_profiles';
+const AI_ACTIVE_KEY = 'hijson_ai_active';
+const AI_CHAT_KEY = 'hijson_ai_chat';
+let aiProfiles = [];
+let aiActiveId = '';
+let aiMessages = [];
+let aiSending = false;
+
+function loadAiProfiles() {
+  try { aiProfiles = JSON.parse(localStorage.getItem(AI_PROFILES_KEY) || '[]'); }
+  catch { aiProfiles = []; }
+  aiActiveId = localStorage.getItem(AI_ACTIVE_KEY) || (aiProfiles[0]?.id || '');
+  try { aiMessages = JSON.parse(localStorage.getItem(AI_CHAT_KEY) || '[]'); }
+  catch { aiMessages = []; }
+  if (!aiMessages.length) aiMessages = [{ role: 'system', content: t('aiSystemWelcome') }];
+  renderAiProfileSelect();
+  renderAiProfileList();
+  renderAiMessages();
+  updateAiKeyDot();
+}
+
+function saveAiProfilesStore() {
+  localStorage.setItem(AI_PROFILES_KEY, JSON.stringify(aiProfiles));
+  localStorage.setItem(AI_ACTIVE_KEY, aiActiveId);
+  localStorage.setItem(AI_CHAT_KEY, JSON.stringify(aiMessages.slice(-50)));
+}
+
+function getActiveAiProfile() {
+  return aiProfiles.find(p => p.id === aiActiveId) || null;
+}
+
+function updateAiKeyDot() {
+  document.getElementById('aiKeyDot').style.display = aiProfiles.length ? 'inline-block' : 'none';
+}
+
+function switchLeftTab(tab) {
+  const isAi = tab === 'ai';
+  const lp = document.getElementById('leftPanel');
+  lp.classList.toggle('mode-ai', isAi);
+  lp.classList.toggle('mode-json', !isAi);
+  document.getElementById('tabJson').classList.toggle('active', !isAi);
+  document.getElementById('tabAi').classList.toggle('active', isAi);
+  document.getElementById('jsonTabPanel').classList.toggle('hidden', isAi);
+  document.getElementById('aiTabPanel').classList.toggle('open', isAi);
+  if (isAi && lp.classList.contains('collapsed')) lp.classList.remove('collapsed');
+}
+
+function openAiChat() {
+  switchLeftTab('ai');
+  document.getElementById('aiInput').focus();
+}
+
+function updateAiScopeLabel() {
+  const el = document.getElementById('aiScopeSelLabel');
+  if (!el) return;
+  el.textContent = selPath && selPath !== '$'
+    ? (curLang === 'zh' ? `选中: ${selPath}` : `Sel: ${selPath}`)
+    : t('aiScopeSel');
+}
+
+function getAiScope() {
+  const r = document.querySelector('input[name="aiScope"]:checked');
+  return r ? r.value : 'full';
+}
+
+function getAiContextJson() {
+  const scope = getAiScope();
+  if (scope === 'selection' && selPath && selValue !== undefined) {
+    return { path: selPath, data: selValue };
+  }
+  if (parsedData !== null) return { path: '$', data: parsedData };
+  const raw = document.getElementById('jsonInput').value.trim();
+  if (!raw) return null;
+  try { return { path: '$', data: JSON.parse(raw) }; }
+  catch { return null; }
+}
+
+function renderAiProfileSelect() {
+  const sel = document.getElementById('aiProfileSelect');
+  if (!sel) return;
+  if (!aiProfiles.length) {
+    sel.innerHTML = `<option value="">${t('aiSelectProfile')}</option>`;
+    return;
+  }
+  sel.innerHTML = aiProfiles.map(p =>
+    `<option value="${p.id}"${p.id === aiActiveId ? ' selected' : ''}>${esc(p.name)} · ${esc(p.model)}</option>`
+  ).join('');
+}
+
+function onAiProfileSelect() {
+  aiActiveId = document.getElementById('aiProfileSelect').value;
+  localStorage.setItem(AI_ACTIVE_KEY, aiActiveId);
+  renderAiProfileList();
+}
+
+function renderAiProfileList() {
+  const c = document.getElementById('aiProfileList');
+  if (!c) return;
+  if (!aiProfiles.length) {
+    c.innerHTML = `<p style="font-size:12px;color:#94a3b8;text-align:center;padding:12px;">${t('aiNoProfile')}</p>`;
+    return;
+  }
+  c.innerHTML = aiProfiles.map(p => `
+    <div class="ai-profile-item${p.id === aiActiveId ? ' active' : ''}" onclick="editAiProfile('${p.id}')">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:500;color:#334155;">${esc(p.name)}</div>
+        <div style="font-size:11px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.model)} · ${esc(p.apiUrl)}</div>
+      </div>
+      ${p.id === aiActiveId ? `<span style="font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:4px;flex-shrink:0;">✓</span>` : ''}
+    </div>`).join('');
+}
+
+function showAiSettings() {
+  renderAiProfileList();
+  resetAiForm();
+  document.getElementById('aiConfigStatus').style.display = 'none';
+  document.getElementById('aiSettingsModal').style.display = 'flex';
+}
+
+function hideAiSettings() {
+  document.getElementById('aiSettingsModal').style.display = 'none';
+}
+
+function resetAiForm() {
+  document.getElementById('aiEditId').value = '';
+  document.getElementById('aiFormName').value = '';
+  document.getElementById('aiFormUrl').value = '';
+  document.getElementById('aiFormToken').value = '';
+  document.getElementById('aiFormModel').value = '';
+  document.getElementById('aiDeleteBtn').style.display = 'none';
+}
+
+function editAiProfile(id) {
+  const p = aiProfiles.find(x => x.id === id);
+  if (!p) return;
+  aiActiveId = id;
+  document.getElementById('aiEditId').value = p.id;
+  document.getElementById('aiFormName').value = p.name;
+  document.getElementById('aiFormUrl').value = p.apiUrl;
+  document.getElementById('aiFormToken').value = p.token;
+  document.getElementById('aiFormModel').value = p.model;
+  document.getElementById('aiDeleteBtn').style.display = 'inline-block';
+  renderAiProfileList();
+  renderAiProfileSelect();
+}
+
+function showAiConfigStatus(msg, ok) {
+  const el = document.getElementById('aiConfigStatus');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = ok ? '#ecfdf5' : '#fef2f2';
+  el.style.color = ok ? '#059669' : '#dc2626';
+}
+
+function saveAiProfile() {
+  const name = document.getElementById('aiFormName').value.trim();
+  const apiUrl = document.getElementById('aiFormUrl').value.trim();
+  const token = document.getElementById('aiFormToken').value.trim();
+  const model = document.getElementById('aiFormModel').value.trim();
+  const editId = document.getElementById('aiEditId').value;
+  if (!name || !apiUrl || !token || !model) {
+    showAiConfigStatus(t('enterApiKey'), false);
+    return;
+  }
+  if (editId) {
+    const idx = aiProfiles.findIndex(p => p.id === editId);
+    if (idx !== -1) aiProfiles[idx] = { id: editId, name, apiUrl, token, model };
+  } else {
+    const id = 'ai_' + Date.now();
+    aiProfiles.push({ id, name, apiUrl, token, model });
+    aiActiveId = id;
+  }
+  saveAiProfilesStore();
+  renderAiProfileSelect();
+  renderAiProfileList();
+  updateAiKeyDot();
+  showAiConfigStatus(t('aiProfileSaved'), true);
+  setTimeout(hideAiSettings, 700);
+}
+
+function deleteAiProfile() {
+  const editId = document.getElementById('aiEditId').value;
+  if (!editId || !confirm(t('aiDelete') + '?')) return;
+  aiProfiles = aiProfiles.filter(p => p.id !== editId);
+  if (aiActiveId === editId) aiActiveId = aiProfiles[0]?.id || '';
+  saveAiProfilesStore();
+  resetAiForm();
+  renderAiProfileSelect();
+  renderAiProfileList();
+  updateAiKeyDot();
+  showAiConfigStatus(t('aiProfileDeleted'), true);
+}
+
+function renderAiMessages() {
+  const c = document.getElementById('aiMessages');
+  if (!c) return;
+  c.innerHTML = '';
+  aiMessages.forEach((m, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = `ai-msg ${m.role}`;
+    if (m.role === 'system') {
+      wrap.textContent = decodeHtmlEntities(m.content);
+    } else {
+      appendAiContent(wrap, m.content);
+      if (m.role === 'assistant' && extractJsonFromText(m.content)) {
+        const btn = document.createElement('button');
+        btn.className = 'ai-apply-btn';
+        btn.textContent = t('aiApplyJson');
+        btn.onclick = () => applyAiJson(i);
+        wrap.appendChild(btn);
+      }
+    }
+    c.appendChild(wrap);
+  });
+  c.scrollTop = c.scrollHeight;
+}
+
+function decodeHtmlEntities(s) {
+  if (!s || !/&(?:#\d+|#x[\da-f]+|\w+);/i.test(s)) return String(s);
+  const t = document.createElement('textarea');
+  t.innerHTML = String(s);
+  return t.value;
+}
+
+function appendAiContent(container, text) {
+  text = decodeHtmlEntities(text);
+  const re = /```(?:json)?\s*([\s\S]*?)```/gi;
+  let last = 0;
+  let m;
+  let matched = false;
+  while ((m = re.exec(text)) !== null) {
+    matched = true;
+    if (m.index > last) {
+      const span = document.createElement('span');
+      span.innerHTML = esc(text.slice(last, m.index)).replace(/\n/g, '<br>');
+      container.appendChild(span);
+    }
+    const pre = document.createElement('pre');
+    pre.textContent = m[1].trim();
+    container.appendChild(pre);
+    last = re.lastIndex;
+  }
+  if (!matched || last < text.length) {
+    const span = document.createElement('span');
+    span.innerHTML = esc(text.slice(last)).replace(/\n/g, '<br>');
+    container.appendChild(span);
+  }
+}
+
+function formatAiContent(text) {
+  const tmp = document.createElement('div');
+  appendAiContent(tmp, text);
+  return tmp.innerHTML;
+}
+
+function extractJsonFromText(text) {
+  text = decodeHtmlEntities(text);
+  const m = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (m) return m[1].trim();
+  const trimmed = text.trim();
+  if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+    return trimmed;
+  }
+  return null;
+}
+
+function clearAiChat() {
+  aiMessages = [{ role: 'system', content: t('aiSystemWelcome') }];
+  saveAiProfilesStore();
+  renderAiMessages();
+  showToast(t('aiChatCleared'));
+}
+
+async function sendAiMessage() {
+  if (aiSending) return;
+  const profile = getActiveAiProfile();
+  if (!profile) { showAiSettings(); showToast(t('aiNoProfile')); return; }
+
+  const input = document.getElementById('aiInput');
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  const ctx = getAiContextJson();
+  if (!ctx) { showToast(t('aiNeedJson')); return; }
+
+  const scope = getAiScope();
+  const ctxStr = JSON.stringify(ctx.data, null, 2);
+  const userContent = scope === 'selection'
+    ? `JSON path: ${ctx.path}\nCurrent value:\n\`\`\`json\n${ctxStr}\n\`\`\`\n\nRequest: ${userText}`
+    : `Full JSON:\n\`\`\`json\n${ctxStr}\n\`\`\`\n\nRequest: ${userText}`;
+
+  aiMessages.push({ role: 'user', content: userText });
+  input.value = '';
+  renderAiMessages();
+
+  const btn = document.getElementById('aiSendBtn');
+  const origHtml = btn.innerHTML;
+  btn.innerHTML = `<span class="spinner"></span> ${t('aiThinking')}`;
+  btn.disabled = true;
+  aiSending = true;
+
+  const systemPrompt = curLang === 'zh'
+    ? '你是 HiJSON 的 JSON 编辑助手。用户会提供 JSON 数据和修改需求。修改 JSON 时，必须在 ```json 代码块中输出完整、合法的结果。若用户选中特定路径，输出该路径对应值的 JSON（不是整个文档）。先用简短中文解释，再给出 json 代码块。'
+    : 'You are HiJSON\'s JSON editing assistant. When modifying JSON, output valid JSON in a ```json code block. For path-specific edits, output only the value at that path. Explain briefly first, then the json block.';
+
+  const chatForApi = [{ role: 'system', content: systemPrompt }];
+  const hist = aiMessages.filter(m => m.role !== 'system');
+  for (let i = 0; i < hist.length - 1; i++) {
+    chatForApi.push({ role: hist[i].role, content: hist[i].content });
+  }
+  chatForApi.push({ role: 'user', content: userContent });
+
+  try {
+    const resp = await fetch(profile.apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + profile.token
+      },
+      body: JSON.stringify({ model: profile.model, messages: chatForApi, temperature: 0.2 })
+    });
+    if (!resp.ok) {
+      const errBody = await resp.text();
+      throw new Error(errBody.slice(0, 200) || `HTTP ${resp.status}`);
+    }
+    const data = await resp.json();
+    const reply = data.choices?.[0]?.message?.content || data.message?.content || '';
+    if (!reply) throw new Error('Empty response');
+    aiMessages.push({ role: 'assistant', content: reply });
+    saveAiProfilesStore();
+    renderAiMessages();
+  } catch (e) {
+    aiMessages.push({ role: 'assistant', content: (curLang === 'zh' ? '请求失败: ' : 'Error: ') + e.message });
+    renderAiMessages();
+    showToast(t('aiRequestFailed') + e.message);
+  } finally {
+    btn.innerHTML = origHtml;
+    btn.disabled = false;
+    aiSending = false;
+  }
+}
+
+function applyAiJson(msgIndex) {
+  const msg = aiMessages[msgIndex];
+  if (!msg || msg.role !== 'assistant') return;
+  const jsonStr = extractJsonFromText(msg.content);
+  if (!jsonStr) { showToast(t('aiApplyFailed') + 'no json'); return; }
+  try {
+    const newVal = JSON.parse(jsonStr);
+    _syncing = true;
+    const scope = getAiScope();
+    if (scope === 'selection' && selPath && selPath !== '$') {
+      if (parsedData === null) {
+        parsedData = JSON.parse(document.getElementById('jsonInput').value.trim());
+      }
+      setValueAtPath(parsedData, selPath, newVal);
+      selValue = newVal;
+    } else {
+      parsedData = newVal;
+      selPath = '$';
+      selValue = newVal;
+    }
+    syncInputFromData();
+    hideErr();
+    const opts = (scope === 'selection' && selPath && selPath !== '$') ? { preservePath: selPath } : undefined;
+    renderTree(parsedData, opts);
+    renderOutline(parsedData);
+    showToast(t('aiApplied'));
+    switchLeftTab('json');
+  } catch (e) {
+    showToast(t('aiApplyFailed') + e.message);
+  } finally {
+    _syncing = false;
   }
 }
 
