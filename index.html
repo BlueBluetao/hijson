@@ -125,7 +125,10 @@
     #memItems > div:hover .del-btn { opacity: 1 !important; }
 
     /* Detail panel syntax highlighting (softer background) */
-    #selContent { background: #fafbfc; }
+    #selContent { background: #fff; border: none; outline: none; resize: none; width: 100%; box-sizing: border-box; }
+    #selContent:focus { background: #fff; box-shadow: inset 0 0 0 1px #c7d2fe; }
+    #selContent:read-only { background: #fafbfc; cursor: default; }
+    #selContentTable { background: #fafbfc; }
 
     /* Path query mode indicator */
     #searchInput.path-mode { border-color: #818cf8 !important; background: #eef2ff !important; }
@@ -144,6 +147,29 @@
     #outlineSearch { width: 100%; padding: 4px 8px; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 5px; outline: none; background: #f8fafc; transition: border .15s; }
     #outlineSearch:focus { border-color: #818cf8; }
     .outline-node.outline-hidden { display: none; }
+
+    /* Detail panel — right side drawer */
+    #viewArea { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+    #selectedPanel.detail-panel {
+      display: none; flex-direction: column; flex-shrink: 0;
+      width: 0; min-width: 0; max-width: 0; overflow: hidden;
+      background: #fff; border-left: none;
+    }
+    #selectedPanel.detail-panel.open {
+      display: flex; width: 400px; min-width: 280px; max-width: 60vw;
+      border-left: 1px solid #e2e8f0;
+    }
+    #detailResizeHandle {
+      width: 4px; flex-shrink: 0; background: #e2e8f0; cursor: col-resize;
+      display: none; transition: background 0.15s;
+    }
+    #detailResizeHandle.visible { display: block; }
+    #detailResizeHandle:hover, #detailResizeHandle.active { background: #6366f1; }
+    body.detail-resizing { cursor: col-resize !important; user-select: none !important; }
+    #selectedPanel .detail-bc { padding: 4px 10px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; overflow-x: auto; max-height: 30px; }
+    #selectedPanel .detail-toolbar { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; flex-wrap: wrap; }
+    #memPanel { max-height: 120px !important; }
+    #memItems { max-height: 80px !important; }
 
     /* Share loading overlay */
     .share-loading { position:relative;pointer-events:none;opacity:.6; }
@@ -354,8 +380,8 @@
       <div id="memItems" style="overflow-y:auto;max-height:140px;padding-bottom:4px;"></div>
     </div>
 
-    <!-- Tree + Outline container -->
-    <div style="flex:1;display:flex;overflow:hidden;min-height:0;">
+    <!-- View Area: Tree | Detail | Outline -->
+    <div id="viewArea">
 
       <!-- Tree Container -->
       <div id="treeContainer" style="flex:1;overflow:auto;min-width:0;">
@@ -377,8 +403,59 @@
         <div id="jsonTree" class="mono" style="display:none;padding:12px;min-width:max-content;"></div>
       </div>
 
+      <!-- Detail resize handle -->
+      <div id="detailResizeHandle"></div>
+
+      <!-- Selected Node Panel (right drawer) -->
+      <div id="selectedPanel" class="detail-panel">
+        <div class="detail-bc" id="breadcrumb"></div>
+        <div class="detail-toolbar">
+          <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">
+            <code id="selPath" class="mono" style="font-size:11px;color:#4f46e5;background:#eef2ff;border:1px solid #e0e7ff;padding:2px 6px;border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;cursor:pointer;" data-i18n="clickCopyPath" data-i18n-attr="title" title="点击复制路径" onclick="copyPath()"></code>
+            <span id="selType" style="font-size:10px;padding:1px 5px;border-radius:4px;flex-shrink:0;"></span>
+            <div id="viewToggle" style="display:none;background:#f1f5f9;border-radius:6px;padding:2px;flex-shrink:0;">
+              <button id="viewJsonBtn" onclick="setSelView('json')"
+                style="font-size:10px;font-weight:500;padding:2px 7px;border:none;border-radius:4px;cursor:pointer;transition:all .15s;background:#fff;color:#4f46e5;box-shadow:0 1px 2px rgba(0,0,0,.08);">JSON</button>
+              <button id="viewTableBtn" onclick="setSelView('table')"
+                style="font-size:10px;font-weight:500;padding:2px 7px;border:none;border-radius:4px;cursor:pointer;transition:all .15s;background:transparent;color:#64748b;">Table</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:2px;flex-shrink:0;">
+            <button onclick="copySelFmt()" title="Copy Formatted"
+              style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;font-size:12px;color:#64748b;border:none;background:none;cursor:pointer;border-radius:6px;transition:background .1s;"
+              onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+              <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+            </button>
+            <button onclick="copySelMin()" title="Copy Minified"
+              style="font-size:11px;color:#64748b;border:none;background:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .1s;"
+              onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'" data-i18n="compressCopy">压缩</button>
+            <button id="shareBtn" onclick="shareResult()" data-i18n="shareToJsonBin" data-i18n-attr="title" title="分享到 JSONBin"
+              style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#4f46e5;border:none;background:none;cursor:pointer;border-radius:6px;transition:background .1s;"
+              onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='none'">
+              <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+              </svg>
+            </button>
+            <button onclick="closeSelPanel()" data-i18n="closeEsc" data-i18n-attr="title" title="关闭 (Esc)"
+              style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#94a3b8;border:none;background:none;cursor:pointer;border-radius:6px;transition:background .1s;"
+              onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+              <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <textarea id="selContent" class="mono" aria-label="JSON 详情编辑"
+          style="flex:1;overflow:auto;padding:10px 12px;margin:0;font-size:12px;line-height:1.65;min-height:0;"
+          oninput="onDetailEdit()"
+          onfocus="this.style.boxShadow='inset 0 0 0 1px #c7d2fe'" onblur="this.style.boxShadow='none'"></textarea>
+        <div id="selContentTable" class="mono" style="flex:1;overflow:auto;padding:10px 12px;display:none;min-height:0;"></div>
+      </div>
+
       <!-- Outline Panel -->
-      <div id="outlinePanel" class="collapsed" style="width:240px;min-width:0;flex-shrink:0;background:#fff;border-left:1px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden;">
+      <div id="outlinePanel" class="collapsed" style="width:220px;min-width:0;flex-shrink:0;background:#fff;border-left:1px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
           <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;" data-i18n="outlineNav">导航</span>
           <button onclick="toggleOutline()" style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:2px;border-radius:4px;"
@@ -393,63 +470,6 @@
         </div>
         <div id="outlineTree" class="mono" style="flex:1;overflow:auto;padding:4px 4px 6px;font-size:12px;"></div>
       </div>
-    </div>
-
-    <!-- Selected Node Panel -->
-    <div id="selectedPanel" style="display:none;flex-direction:column;border-top:1px solid #e2e8f0;background:#fff;max-height:45%;min-height:120px;">
-      <!-- Breadcrumb path -->
-      <div style="display:flex;align-items:center;gap:4px;padding:6px 16px;border-bottom:1px solid #f1f5f9;flex-shrink:0;overflow-x:auto;flex-wrap:nowrap;" id="breadcrumb"></div>
-      <!-- Panel header -->
-      <div style="display:flex;align-items:center;gap:12px;padding:6px 16px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
-        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
-          <span style="font-size:11px;font-weight:500;color:#94a3b8;flex-shrink:0;" data-i18n="path">路径</span>
-          <code id="selPath" class="mono" style="font-size:12px;color:#4f46e5;background:#eef2ff;border:1px solid #e0e7ff;padding:2px 8px;border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;flex:1;min-width:0;cursor:pointer;" data-i18n="clickCopyPath" data-i18n-attr="title" title="点击复制路径" onclick="copyPath()"></code>
-          <button onclick="copyPath()" data-i18n="copyPath" data-i18n-attr="title" title="复制路径"
-            style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:none;background:none;cursor:pointer;border-radius:4px;color:#94a3b8;flex-shrink:0;transition:all .1s;"
-            onmouseover="this.style.background='#eef2ff';this.style.color='#4f46e5'" onmouseout="this.style.background='none';this.style.color='#94a3b8'">
-            <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-            </svg>
-          </button>
-          <span id="selType" style="font-size:11px;padding:2px 6px;border-radius:4px;flex-shrink:0;"></span>
-          <div id="viewToggle" style="display:none;margin-left:4px;background:#f1f5f9;border-radius:6px;padding:2px;flex-shrink:0;">
-            <button id="viewJsonBtn" onclick="setSelView('json')"
-              style="font-size:11px;font-weight:500;padding:2px 8px;border:none;border-radius:4px;cursor:pointer;transition:all .15s;background:#fff;color:#4f46e5;box-shadow:0 1px 2px rgba(0,0,0,.08);">JSON</button>
-            <button id="viewTableBtn" onclick="setSelView('table')"
-              style="font-size:11px;font-weight:500;padding:2px 8px;border:none;border-radius:4px;cursor:pointer;transition:all .15s;background:transparent;color:#64748b;">Table</button>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-          <button onclick="copySelFmt()" title="Copy Formatted"
-            style="display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b;border:none;background:none;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .1s;"
-            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
-            <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-            </svg>
-            <span data-i18n="copy">复制</span>
-          </button>
-          <button onclick="copySelMin()" title="Copy Minified"
-            style="font-size:12px;color:#64748b;border:none;background:none;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .1s;"
-            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'" data-i18n="compressCopy">压缩复制</button>
-          <button id="shareBtn" onclick="shareResult()" data-i18n="shareToJsonBin" data-i18n-attr="title" title="分享到 JSONBin"
-            style="display:flex;align-items:center;gap:5px;font-size:12px;color:#4f46e5;border:none;background:none;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .1s;"
-            onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='none'">
-            <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-            </svg>
-            <span data-i18n="share">分享</span>
-          </button>
-          <div style="width:1px;height:16px;background:#e2e8f0;margin:0 2px;"></div>
-          <button onclick="closeSelPanel()" data-i18n="closeEsc" data-i18n-attr="title" title="关闭 (Esc)"
-            style="color:#94a3b8;border:none;background:none;cursor:pointer;padding:5px;border-radius:6px;display:flex;align-items:center;transition:background .1s;"
-            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
-            <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <pre id="selContent" class="mono" style="flex:1;overflow:auto;padding:14px 16px;margin:0;font-size:13px;line-height:1.7;"></pre>
     </div>
   </div>
 </main>
@@ -600,8 +620,13 @@ let memMode     = true;
 let memories    = [];
 let outlineOpen = false;
 let selViewMode = 'json';
+let detailSyncEnabled = false;
+let _syncing = false;
+let _inputSyncTimer = null;
+let _detailSyncTimer = null;
 const MAX_MEM   = 30;
 const WARN_SIZE = 2 * 1024 * 1024;
+const EXPAND_ALL_MAX = 300;
 
 // ==================== I18N ====================
 const I18N = {
@@ -970,8 +995,12 @@ function formatJson() {
   const raw = document.getElementById('jsonInput').value.trim();
   if (!raw) return;
   try {
-    document.getElementById('jsonInput').value = JSON.stringify(JSON.parse(raw), null, 2);
+    parsedData = JSON.parse(raw);
+    document.getElementById('jsonInput').value = JSON.stringify(parsedData, null, 2);
     updateSizeLabel();
+    hideErr();
+    renderTree(parsedData);
+    renderOutline(parsedData);
     showToast(t('formatted'));
   } catch (e) { showErr(t('parseError') + e.message); }
 }
@@ -1000,7 +1029,7 @@ function toggleLeftPanel() {
 }
 
 // ==================== TREE ====================
-function renderTree(data) {
+function renderTree(data, opts = {}) {
   const tree = document.getElementById('jsonTree');
   tree.innerHTML = '';
   const nodeCount = countNodes(data);
@@ -1010,10 +1039,27 @@ function renderTree(data) {
   tree.style.display = 'block';
   document.getElementById('treeToolbar').style.display = 'flex';
   if (memMode && memories.length) showMemPanel();
-  closeSelPanel();
-  expandFirstLevel(rootEl);
-  if (!outlineOpen) { outlineOpen = true; document.getElementById('outlinePanel').classList.remove('collapsed'); }
+  if (!opts.preservePath) closeSelPanel();
+  autoExpandTree(nodeCount, rootEl);
   if (nodeCount > 3000) showToast(curLang === 'zh' ? `节点数 ${nodeCount}，已启用懒展开以提升性能` : `${nodeCount} nodes, lazy rendering enabled`);
+  if (opts.preservePath && selPath) {
+    requestAnimationFrame(() => {
+      const node = findTreeNode(selPath);
+      if (node) {
+        expandToNode(node);
+        node.scrollIntoView({ block: 'nearest' });
+        doSelect(node._value, selPath, node);
+      }
+    });
+  }
+}
+
+function autoExpandTree(nodeCount, rootEl) {
+  if (nodeCount <= EXPAND_ALL_MAX) {
+    expandAll();
+  } else {
+    expandFirstLevel(rootEl);
+  }
 }
 
 function expandFirstLevel(rootNode) {
@@ -1193,12 +1239,31 @@ function collapseAll() {
   document.querySelectorAll('#jsonTree .tree-toggle svg').forEach(svg => svg.style.transform = '');
 }
 
+// ==================== DETAIL PANEL ====================
+const DETAIL_WIDTH_KEY = 'hijson_detail_w';
+let detailWidth = Math.min(560, Math.max(280, parseInt(localStorage.getItem(DETAIL_WIDTH_KEY)) || 400));
+
+function openDetailPanel() {
+  const panel = document.getElementById('selectedPanel');
+  panel.classList.add('open');
+  panel.style.width = detailWidth + 'px';
+  document.getElementById('detailResizeHandle').classList.add('visible');
+}
+
+function closeDetailPanel() {
+  const panel = document.getElementById('selectedPanel');
+  panel.classList.remove('open');
+  panel.style.width = '';
+  document.getElementById('detailResizeHandle').classList.remove('visible');
+}
+
 // ==================== SELECT ====================
 function doSelect(value, path, nodeEl) {
   document.querySelectorAll('#jsonTree .tree-node.is-selected').forEach(n => n.classList.remove('is-selected'));
   nodeEl.classList.add('is-selected');
   selValue = value;
   selPath  = path;
+  detailSyncEnabled = true;
   showSelPanel(value, path);
   highlightOutline(path);
 }
@@ -1221,7 +1286,7 @@ function showSelPanel(value, path) {
   document.getElementById('viewToggle').style.display = canTable ? 'flex' : 'none';
   if (!canTable) selViewMode = 'json';
   renderSelContent(value);
-  panel.style.display = 'flex';
+  openDetailPanel();
 }
 
 function isTableCompatible(value) {
@@ -1244,11 +1309,82 @@ function setSelView(mode) {
 }
 
 function renderSelContent(value) {
-  const el = document.getElementById('selContent');
+  const ta = document.getElementById('selContent');
+  const tableEl = document.getElementById('selContentTable');
   if (selViewMode === 'table' && isTableCompatible(value)) {
-    el.innerHTML = buildSelTable(value);
+    ta.style.display = 'none';
+    tableEl.style.display = 'block';
+    tableEl.innerHTML = buildSelTable(value);
   } else {
-    el.innerHTML = hlJson(JSON.stringify(value, null, 2));
+    tableEl.style.display = 'none';
+    ta.style.display = 'block';
+    if (!_syncing) ta.value = JSON.stringify(value, null, 2);
+    ta.readOnly = !detailSyncEnabled;
+  }
+}
+
+function showSelHtml(html) {
+  detailSyncEnabled = false;
+  document.getElementById('selContent').style.display = 'none';
+  const tableEl = document.getElementById('selContentTable');
+  tableEl.style.display = 'block';
+  tableEl.innerHTML = html;
+}
+
+function setValueAtPath(data, path, value) {
+  if (path === '$') return value;
+  const tokens = [];
+  let rest = path.slice(1);
+  const re = /\.([^.\[\]]+)|\[(\d+)\]/g;
+  let m;
+  while ((m = re.exec(rest)) !== null) {
+    if (m[1] !== undefined) tokens.push({ type: 'key', value: m[1] });
+    else tokens.push({ type: 'index', value: parseInt(m[2], 10) });
+  }
+  let cur = data;
+  for (let i = 0; i < tokens.length - 1; i++) {
+    cur = tokens[i].type === 'key' ? cur[tokens[i].value] : cur[tokens[i].value];
+  }
+  const last = tokens[tokens.length - 1];
+  if (last.type === 'key') cur[last.value] = value;
+  else cur[last.value] = value;
+  return data;
+}
+
+function syncInputFromData() {
+  document.getElementById('jsonInput').value = JSON.stringify(parsedData, null, 2);
+  updateSizeLabel();
+}
+
+function onDetailEdit() {
+  if (_syncing || selViewMode !== 'json' || !detailSyncEnabled || selValue === undefined) return;
+  clearTimeout(_detailSyncTimer);
+  _detailSyncTimer = setTimeout(applyDetailEdit, 500);
+}
+
+function applyDetailEdit() {
+  if (!detailSyncEnabled || selPath === '') return;
+  const ta = document.getElementById('selContent');
+  const raw = ta.value.trim();
+  const caret = ta.selectionStart;
+  try {
+    const newVal = JSON.parse(raw);
+    _syncing = true;
+    if (selPath === '$') parsedData = newVal;
+    else setValueAtPath(parsedData, selPath, newVal);
+    selValue = newVal;
+    syncInputFromData();
+    hideErr();
+    renderTree(parsedData, { preservePath: selPath });
+    renderOutline(parsedData);
+    requestAnimationFrame(() => {
+      const el = document.getElementById('selContent');
+      if (el && el.style.display !== 'none') el.setSelectionRange(caret, caret);
+    });
+  } catch (e) {
+    showErr(t('parseError') + e.message);
+  } finally {
+    _syncing = false;
   }
 }
 
@@ -1292,12 +1428,12 @@ function buildSelTable(arr) {
 }
 
 function closeSelPanel() {
-  const panel = document.getElementById('selectedPanel');
-  panel.style.display = 'none';
+  closeDetailPanel();
   document.querySelectorAll('#jsonTree .tree-node.is-selected').forEach(n => n.classList.remove('is-selected'));
   selValue = undefined;
   selPath  = '';
   selViewMode = 'json';
+  detailSyncEnabled = false;
   highlightOutline('');
 }
 
@@ -1684,7 +1820,7 @@ function runPathQuery(pathStr) {
 }
 
 function showQueryResults(pathStr, results) {
-  const panel = document.getElementById('selectedPanel');
+  detailSyncEnabled = false;
 
   document.getElementById('breadcrumb').innerHTML =
     `<span style="font-size:11px;font-weight:600;color:#4f46e5;padding:2px 8px;background:#eef2ff;border-radius:4px;flex-shrink:0;">${t('pathQuery')}</span>
@@ -1708,11 +1844,11 @@ function showQueryResults(pathStr, results) {
   if (!canTable) selViewMode = 'json';
   renderSelContent(selValue);
 
-  panel.style.display = 'flex';
+  openDetailPanel();
 }
 
 function showMultiFieldResults(pathStr, results, fields) {
-  const panel = document.getElementById('selectedPanel');
+  detailSyncEnabled = false;
 
   document.getElementById('breadcrumb').innerHTML =
     `<span style="font-size:11px;font-weight:600;color:#4f46e5;padding:2px 8px;background:#eef2ff;border-radius:4px;flex-shrink:0;">${t('multiField')}</span>
@@ -1758,13 +1894,13 @@ function showMultiFieldResults(pathStr, results, fields) {
   });
 
   html += '</tbody></table>';
-  document.getElementById('selContent').innerHTML = html;
+  showSelHtml(html);
 
-  panel.style.display = 'flex';
+  openDetailPanel();
 }
 
 function showQueryNoResult(pathStr) {
-  const panel = document.getElementById('selectedPanel');
+  detailSyncEnabled = false;
 
   document.getElementById('breadcrumb').innerHTML =
     `<span style="font-size:11px;font-weight:600;color:#dc2626;padding:2px 8px;background:#fef2f2;border-radius:4px;flex-shrink:0;">${t('pathQuery')}</span>
@@ -1775,16 +1911,16 @@ function showQueryNoResult(pathStr) {
   document.getElementById('selType').textContent = t('noMatch');
   document.getElementById('selType').style.cssText = 'font-size:11px;padding:2px 6px;border-radius:4px;background:#fef2f2;color:#dc2626;flex-shrink:0;';
 
-  document.getElementById('selContent').innerHTML =
+  showSelHtml(
     `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;color:#94a3b8;">
       <p style="font-size:13px;margin:0 0 8px;">${t('notFound')}</p>
       <p style="font-size:12px;margin:0;color:#cbd5e1;">${t('syntaxHint')} <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">[*]</code> ${t('wildcardArr')} &nbsp;
       <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">.{key1,key2}</code> ${t('multiFieldCompare')}</p>
-    </div>`;
+    </div>`);
 
   selValue = undefined;
   selPath = pathStr;
-  panel.style.display = 'flex';
+  openDetailPanel();
 }
 
 function closeQueryResults() {}
@@ -1820,7 +1956,26 @@ function handlePaste(e) {
     if (v.trim()) parseJson();
   }, 0);
 }
-function onInputChange() { updateSizeLabel(); }
+function onInputChange() {
+  updateSizeLabel();
+  if (_syncing) return;
+  clearTimeout(_inputSyncTimer);
+  _inputSyncTimer = setTimeout(() => {
+    const raw = document.getElementById('jsonInput').value.trim();
+    if (!raw) { hideErr(); clearTree(); return; }
+    try {
+      _syncing = true;
+      parsedData = JSON.parse(raw);
+      hideErr();
+      renderTree(parsedData);
+      renderOutline(parsedData);
+    } catch (e) {
+      showErr(t('parseError') + e.message);
+    } finally {
+      _syncing = false;
+    }
+  }, 450);
+}
 function updateSizeLabel() {
   const v = document.getElementById('jsonInput').value;
   const lbl = document.getElementById('sizeLabel');
@@ -1972,6 +2127,27 @@ function setupResize() {
     if (!drag) return;
     drag = false;
     document.body.classList.remove('resizing'); handle.classList.remove('active');
+  });
+
+  const dHandle = document.getElementById('detailResizeHandle');
+  const dPanel  = document.getElementById('selectedPanel');
+  let dDrag = false, dsx = 0, dsw = 0;
+  dHandle.addEventListener('mousedown', e => {
+    if (!dPanel.classList.contains('open')) return;
+    dDrag = true; dsx = e.clientX; dsw = dPanel.offsetWidth;
+    document.body.classList.add('detail-resizing'); dHandle.classList.add('active');
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dDrag) return;
+    detailWidth = Math.max(280, Math.min(Math.floor(window.innerWidth * 0.6), dsw + dsx - e.clientX));
+    dPanel.style.width = detailWidth + 'px';
+  });
+  window.addEventListener('mouseup', () => {
+    if (!dDrag) return;
+    dDrag = false;
+    document.body.classList.remove('detail-resizing'); dHandle.classList.remove('active');
+    localStorage.setItem(DETAIL_WIDTH_KEY, detailWidth);
   });
 }
 
