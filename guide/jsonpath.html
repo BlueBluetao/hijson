@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSONPath 路径查询入门 - HiJSON</title>
+  <meta name="description" content="JSONPath 入门教程：从 $ 根节点到通配符、数组过滤、递归下降，掌握在 HiJSON 中快速提取 JSON 数据的技巧。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/guide/jsonpath.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-white border-b border-slate-200 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 no-underline text-slate-900">
+        <span class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold font-mono">{}</span>
+        <span class="font-semibold">HiJSON</span>
+      </a>
+      <nav class="flex gap-4 text-sm">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">工具</a>
+        <a href="/guide/json-formatting.html" class="text-slate-500 hover:text-indigo-600 no-underline">格式化教程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-sm text-indigo-600 font-medium mb-2">使用教程</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">JSONPath 路径查询入门</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">JSONPath 是一种用于从 JSON 文档中提取数据的查询语言，语法类似 XPath。在调试复杂 API 响应时，JSONPath 能帮你快速定位深层字段，无需手动展开整个树形结构。本文介绍核心语法及在 HiJSON 中的使用方法。</p>
+
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">示例数据</h2>
+        <p>以下教程基于如下 JSON 示例：</p>
+        <pre>{
+  "store": {
+    "name": "Book Store",
+    "books": [
+      { "title": "JSON Guide", "price": 29.9, "category": "tech" },
+      { "title": "Web Dev", "price": 39.9, "category": "tech" },
+      { "title": "Cooking", "price": 19.9, "category": "life" }
+    ],
+    "location": { "city": "Shanghai", "zip": "200000" }
+  }
+}</pre>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">基础语法</h2>
+        <table class="w-full text-sm border-collapse">
+          <thead><tr class="bg-slate-100"><th class="text-left p-3 border border-slate-200">表达式</th><th class="text-left p-3 border border-slate-200">含义</th><th class="text-left p-3 border border-slate-200">结果</th></tr></thead>
+          <tbody>
+            <tr><td class="p-3 border border-slate-200"><code>$</code></td><td class="p-3 border border-slate-200">根节点</td><td class="p-3 border border-slate-200">整个 JSON</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>$.store.name</code></td><td class="p-3 border border-slate-200">点号访问属性</td><td class="p-3 border border-slate-200">"Book Store"</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>$.store['name']</code></td><td class="p-3 border border-slate-200">方括号访问</td><td class="p-3 border border-slate-200">"Book Store"</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>$.store.books[0]</code></td><td class="p-3 border border-slate-200">数组索引</td><td class="p-3 border border-slate-200">第一本书对象</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>$.store.books[-1]</code></td><td class="p-3 border border-slate-200">倒数第一个</td><td class="p-3 border border-slate-200">最后一本书</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>$.store.books[*].title</code></td><td class="p-3 border border-slate-200">通配符</td><td class="p-3 border border-slate-200">所有书名数组</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">数组切片与过滤</h2>
+        <pre>$.store.books[0:2]       → 前 2 本书
+$.store.books[?(@.price &lt; 30)]  → 价格低于 30 的书
+$.store.books[?(@.category=='tech')] → tech 分类的书</pre>
+        <p class="mt-3">过滤器 <code>[?(表达式)]</code> 中，<code>@</code> 代表当前数组元素。支持比较运算符 <code>==</code>、<code>!=</code>、<code>&lt;</code>、<code>&gt;</code> 及逻辑与 <code>&amp;&amp;</code>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">递归下降</h2>
+        <p>使用 <code>..</code> 可以在任意深度搜索字段名，无需知道完整路径：</p>
+        <pre>$.store..title    → 所有层级的 title 字段
+$..price         → 所有 price 字段</pre>
+        <p class="mt-3">这在处理结构不统一或嵌套层级很深的 JSON 时特别有用，例如日志数据或第三方 API 响应。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">HiJSON 多字段对比语法</h2>
+        <p>HiJSON 扩展支持一种特殊的 JSONPath 语法，用于将数组中多个对象的指定字段提取为对比表格：</p>
+        <pre>$.store.books[*].{title, price, category}</pre>
+        <p class="mt-3">这将在 HiJSON 中生成一个三列对比表格，每行对应一本书，方便快速核对数据。在搜索框中输入上述表达式即可触发多字段对比模式。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">在 HiJSON 中使用 JSONPath</h2>
+        <ol class="list-decimal pl-6 space-y-2">
+          <li>在 HiJSON 中解析 JSON 数据（粘贴后点击「解析」）。</li>
+          <li>在顶部搜索框中输入以 <code>$</code> 开头的 JSONPath 表达式。</li>
+          <li>HiJSON 将高亮匹配节点，并在下方显示查询结果列表。</li>
+          <li>点击结果项可跳转到对应树节点，查看完整上下文。</li>
+          <li>开启「记忆模式」后，路径查询结果会自动保存，方便反复对比。</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">实用技巧</h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li><strong>键名含特殊字符</strong>：使用方括号语法，如 <code>$['field-name']</code></li>
+          <li><strong>不确定路径</strong>：先用 <code>$..fieldName</code> 递归搜索，再根据结果精确定位</li>
+          <li><strong>组合查询</strong>：先过滤再提取，如 <code>$.items[?(@.status=='active')].id</code></li>
+          <li><strong>复制路径</strong>：在树形视图中点击节点，详情面板显示完整 JSONPath，可一键复制</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">相关教程</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><a href="/guide/json-formatting.html" class="text-indigo-600">JSON 格式化与压缩完全指南</a></li>
+          <li><a href="/guide/api-debugging.html" class="text-indigo-600">API 调试中的 JSON 实践</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <p class="font-semibold text-indigo-900 mb-2">立即体验 JSONPath 查询</p>
+      <p class="text-indigo-700 text-sm mb-4">在 HiJSON 搜索框中输入 $ 开头的表达式，实时查询 JSON 数据。</p>
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">打开 HiJSON 工具 →</a>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
+    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+      <span>© 2025 HiJSON</span>
+      <nav class="flex gap-4">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
+        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
+        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

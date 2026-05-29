@@ -18,22 +18,22 @@
   <meta name="author" content="HiJSON">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#4f46e5">
-  <link rel="canonical" href="https://hijson.com/">
+  <link rel="canonical" href="https://hijson.online/">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="HiJSON - 在线 JSON 解析、格式化、压缩工具">
   <meta property="og:description" content="免费在线 JSON 解析工具，支持格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比，开发者必备。">
-  <meta property="og:url" content="https://hijson.com/">
+  <meta property="og:url" content="https://hijson.online/">
   <meta property="og:site_name" content="HiJSON">
   <meta property="og:locale" content="zh_CN">
-  <meta property="og:image" content="https://hijson.com/og-image.png">
+  <meta property="og:image" content="https://hijson.online/og-image.png">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="HiJSON - 在线 JSON 解析、格式化、压缩工具">
   <meta name="twitter:description" content="免费在线 JSON 解析工具，支持格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比。">
-  <meta name="twitter:image" content="https://hijson.com/og-image.png">
+  <meta name="twitter:image" content="https://hijson.online/og-image.png">
 
   <!-- Favicon SVG -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
@@ -44,7 +44,7 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "HiJSON",
-    "url": "https://hijson.com/",
+    "url": "https://hijson.online/",
     "description": "免费在线 JSON 解析工具，支持 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比、大纲导航。",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Web",
@@ -71,8 +71,38 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    html, body { height: 100%; overflow: hidden; }
-    body { font-family: 'Inter', system-ui, sans-serif; }
+    html { scroll-behavior: smooth; }
+    html, body { min-height: 100%; }
+    body { font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; }
+    #appViewport { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    .site-content { background: #fff; border-top: 1px solid #e2e8f0; }
+    .site-content-inner { max-width: 960px; margin: 0 auto; padding: 48px 24px 32px; }
+    .site-content h2 { font-size: 1.5rem; font-weight: 700; color: #1e293b; margin: 0 0 12px; }
+    .site-content h3 { font-size: 1.125rem; font-weight: 600; color: #334155; margin: 32px 0 16px; }
+    .site-content p, .site-content li { color: #475569; line-height: 1.75; font-size: 0.9375rem; }
+    .site-content .intro-lead { font-size: 1rem; color: #64748b; margin-bottom: 8px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 8px; }
+    .feature-card { padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; }
+    .feature-card h4 { font-size: 0.875rem; font-weight: 600; color: #1e293b; margin: 0 0 6px; }
+    .feature-card p { font-size: 0.8125rem; color: #64748b; margin: 0; line-height: 1.6; }
+    .guide-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .guide-link { display: block; padding: 14px 16px; border: 1px solid #e2e8f0; border-radius: 10px; text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+    .guide-link:hover { border-color: #818cf8; box-shadow: 0 2px 8px rgba(79,70,229,.08); }
+    .guide-link strong { display: block; font-size: 0.875rem; color: #4338ca; margin-bottom: 4px; }
+    .guide-link span { font-size: 0.8125rem; color: #64748b; }
+    .faq-list { display: flex; flex-direction: column; gap: 16px; }
+    .faq-item dt { font-weight: 600; color: #1e293b; font-size: 0.9375rem; margin-bottom: 4px; }
+    .faq-item dd { margin: 0; color: #64748b; font-size: 0.875rem; line-height: 1.7; }
+    .steps-list { padding-left: 1.25rem; margin: 0; }
+    .steps-list li { margin-bottom: 8px; }
+    #siteFooter { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px; }
+    #siteFooter .footer-inner { max-width: 960px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+    #siteFooter p { margin: 0; font-size: 0.8125rem; color: #94a3b8; }
+    #siteFooter nav { display: flex; flex-wrap: wrap; gap: 16px; }
+    #siteFooter nav a { font-size: 0.8125rem; color: #64748b; text-decoration: none; }
+    #siteFooter nav a:hover { color: #4f46e5; }
+    .header-nav a { font-size: 13px; color: #64748b; text-decoration: none; padding: 6px 10px; border-radius: 8px; transition: background .1s, color .1s; white-space: nowrap; }
+    .header-nav a:hover { background: #f1f5f9; color: #4f46e5; }
     .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
 
     .jc-key    { color: #2563eb; font-weight: 500; }
@@ -294,7 +324,8 @@
     .ai-profile-item.active { border-color:#818cf8;background:#eef2ff; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900" style="height:100vh;display:flex;flex-direction:column;overflow:hidden;">
+<body class="bg-slate-50 text-slate-900">
+<div id="appViewport">
 <noscript>
   <div style="padding:40px;max-width:800px;margin:0 auto;font-family:sans-serif;">
     <h1>HiJSON - 在线 JSON 解析、格式化、压缩工具</h1>
@@ -322,7 +353,14 @@
     <h1 style="font-weight:600;color:#1e293b;font-size:15px;margin:0;">HiJSON</h1>
     <span style="font-size:12px;color:#94a3b8;" data-i18n="subtitle">JSON 解析工具</span>
   </div>
-  <div style="flex:1;"></div>
+  <nav class="header-nav" style="display:flex;align-items:center;gap:4px;flex-shrink:0;" aria-label="站点导航">
+    <a href="#siteContent" data-i18n="navGuide">使用指南</a>
+    <a href="/guide/json-formatting.html" data-i18n="navTutorials">教程</a>
+    <a href="/about.html" data-i18n="navAbout">关于</a>
+    <a href="/privacy.html" data-i18n="navPrivacy">隐私政策</a>
+  </nav>
+
+  <div style="flex:1;min-width:8px;"></div>
 
   <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
     <span style="font-size:13px;color:#64748b;" data-i18n="memoryMode">记忆模式</span>
@@ -683,6 +721,67 @@
     </div>
   </div>
 </main>
+</div><!-- /appViewport -->
+
+<!-- =========== SITE CONTENT (visible for SEO & AdSense) =========== -->
+<section id="siteContent" class="site-content" aria-label="HiJSON 介绍与使用指南">
+  <div class="site-content-inner">
+    <h2 data-i18n="contentIntroTitle">HiJSON — 开发者必备的在线 JSON 工具</h2>
+    <p class="intro-lead" data-i18n="contentIntroLead">免费、无需注册，在浏览器中完成 JSON 解析、格式化、压缩与可视化。</p>
+    <p data-i18n="contentIntroDesc">HiJSON 面向前端工程师、后端开发者和测试人员，帮助你在调试 API、阅读日志、对比数据结构时更高效。所有数据处理均在本地浏览器完成，不上传至服务器（分享功能需自行配置 JSONBin）。</p>
+
+    <h3 data-i18n="contentFeaturesTitle">核心功能</h3>
+    <div class="features-grid">
+      <div class="feature-card"><h4 data-i18n="featFormatTitle">JSON 格式化</h4><p data-i18n="featFormatDesc">将压缩的单行 JSON 转为带缩进的可读格式，便于阅读和排查问题。</p></div>
+      <div class="feature-card"><h4 data-i18n="featMinifyTitle">JSON 压缩</h4><p data-i18n="featMinifyDesc">去除空格与换行，生成最小体积 JSON，适合网络传输与存储。</p></div>
+      <div class="feature-card"><h4 data-i18n="featTreeTitle">树形可视化</h4><p data-i18n="featTreeDesc">以树形结构展开嵌套对象与数组，点击节点查看详情并编辑。</p></div>
+      <div class="feature-card"><h4 data-i18n="featPathTitle">JSONPath 查询</h4><p data-i18n="featPathDesc">使用 $ 语法快速提取深层字段，支持通配符与数组过滤。</p></div>
+      <div class="feature-card"><h4 data-i18n="featCompareTitle">多字段对比</h4><p data-i18n="featCompareDesc">将数组中多个对象的指定字段并排展示，方便数据核对。</p></div>
+      <div class="feature-card"><h4 data-i18n="featAiTitle">AI 辅助编辑</h4><p data-i18n="featAiDesc">接入兼容 OpenAI 的 LLM，用自然语言描述即可修改 JSON 结构。</p></div>
+      <div class="feature-card"><h4 data-i18n="featFileTitle">文件导入</h4><p data-i18n="featFileDesc">支持拖拽或选择 .json、.txt、.jsonl 文件，快速加载大型数据。</p></div>
+      <div class="feature-card"><h4 data-i18n="featShareTitle">链接分享</h4><p data-i18n="featShareDesc">配合 JSONBin.io 生成分享链接，便于团队协作调试。</p></div>
+    </div>
+
+    <h3 data-i18n="contentHowTitle">快速上手</h3>
+    <ol class="steps-list">
+      <li data-i18n="step1">在左侧输入框粘贴 JSON，或拖拽文件到上传区域。</li>
+      <li data-i18n="step2">点击「解析」或按 Ctrl+Enter，右侧将显示树形结构。</li>
+      <li data-i18n="step3">使用搜索框输入键名进行过滤，或以 $ 开头进行 JSONPath 路径查询。</li>
+      <li data-i18n="step4">点击任意节点可在详情面板中查看、编辑并复制格式化或压缩后的值。</li>
+      <li data-i18n="step5">需要批量对比数组字段时，使用 $.items[*].{name,price} 语法生成对比表格。</li>
+    </ol>
+
+    <h3 data-i18n="contentGuidesTitle">使用教程</h3>
+    <div class="guide-links">
+      <a class="guide-link" href="/guide/json-formatting.html"><strong data-i18n="guide1Title">JSON 格式化与压缩完全指南</strong><span data-i18n="guide1Desc">了解何时格式化、何时压缩，以及常见错误处理。</span></a>
+      <a class="guide-link" href="/guide/jsonpath.html"><strong data-i18n="guide2Title">JSONPath 路径查询入门</strong><span data-i18n="guide2Desc">从 $ 根节点到通配符、过滤器，掌握数据提取技巧。</span></a>
+      <a class="guide-link" href="/guide/api-debugging.html"><strong data-i18n="guide3Title">API 调试中的 JSON 实践</strong><span data-i18n="guide3Desc">REST 接口响应分析、日志排查与多字段对比工作流。</span></a>
+    </div>
+
+    <h3 data-i18n="contentFaqTitle">常见问题</h3>
+    <dl class="faq-list">
+      <div class="faq-item"><dt data-i18n="faq1Q">什么是 JSON？</dt><dd data-i18n="faq1A">JSON（JavaScript Object Notation）是一种轻量级数据交换格式，由键值对和数组组成，广泛用于 Web API、配置文件和数据存储。HiJSON 帮助你快速查看和编辑 JSON 数据。</dd></div>
+      <div class="faq-item"><dt data-i18n="faq2Q">我的数据会上传到服务器吗？</dt><dd data-i18n="faq2A">不会。解析、格式化、树形展示等核心功能完全在浏览器本地执行。仅当你主动使用「分享到 JSONBin」功能时，数据才会上传至 JSONBin.io（需自行配置 API Key）。</dd></div>
+      <div class="faq-item"><dt data-i18n="faq3Q">JSON 解析报错怎么办？</dt><dd data-i18n="faq3A">常见原因包括：末尾多余逗号、单引号代替双引号、未转义的特殊字符、注释混入等。HiJSON 会在输入框下方显示具体错误位置，修正后重新点击解析即可。</dd></div>
+      <div class="faq-item"><dt data-i18n="faq4Q">JSONPath 和 XPath 有什么区别？</dt><dd data-i18n="faq4A">JSONPath 是专为 JSON 设计的查询语言，以 $ 表示根节点，用点号或方括号访问属性。HiJSON 支持在搜索框中直接输入 JSONPath 表达式进行查询。</dd></div>
+      <div class="faq-item"><dt data-i18n="faq5Q">AI 功能如何使用？</dt><dd data-i18n="faq5A">切换到「AI 对话」标签，在设置中添加兼容 OpenAI Chat Completions 的 API 配置。AI 可帮你分析 JSON 结构或按自然语言描述修改数据，修改结果可一键应用到编辑器。</dd></div>
+      <div class="faq-item"><dt data-i18n="faq6Q">HiJSON 是免费的吗？</dt><dd data-i18n="faq6A">是的，HiJSON 核心功能完全免费，无需注册账号。AI 功能需使用您自己的 LLM API Key，JSONBin 分享功能需自行注册 JSONBin.io 获取 Key。</dd></div>
+    </dl>
+  </div>
+</section>
+
+<footer id="siteFooter" role="contentinfo">
+  <div class="footer-inner">
+    <p>© 2025 HiJSON · <span data-i18n="footerTagline">免费在线 JSON 工具</span></p>
+    <nav aria-label="页脚导航">
+      <a href="/" data-i18n="seoFooterHome">首页</a>
+      <a href="/guide/json-formatting.html" data-i18n="navTutorials">教程</a>
+      <a href="/about.html" data-i18n="navAbout">关于</a>
+      <a href="/privacy.html" data-i18n="navPrivacy">隐私政策</a>
+      <a href="mailto:blueyian487@gmail.com" data-i18n="navContact">联系我们</a>
+    </nav>
+  </div>
+</footer>
 
 <!-- =========== SHORTCUTS MODAL =========== -->
 <div id="shortcutsModal" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;">
@@ -1020,6 +1119,58 @@ const I18N = {
     seoFooterTitle: 'HiJSON - 在线 JSON 解析工具',
     seoFooterDesc: 'HiJSON 提供 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比等功能。适用于前端开发、后端调试、API 测试等场景。支持拖拽导入 JSON 文件，提供键盘快捷键操作，完全免费，无需注册。',
     seoFooterHome: '首页',
+    navGuide: '使用指南',
+    navTutorials: '教程',
+    navAbout: '关于',
+    navPrivacy: '隐私政策',
+    navContact: '联系我们',
+    footerTagline: '免费在线 JSON 工具',
+    contentIntroTitle: 'HiJSON — 开发者必备的在线 JSON 工具',
+    contentIntroLead: '免费、无需注册，在浏览器中完成 JSON 解析、格式化、压缩与可视化。',
+    contentIntroDesc: 'HiJSON 面向前端工程师、后端开发者和测试人员，帮助你在调试 API、阅读日志、对比数据结构时更高效。所有数据处理均在本地浏览器完成，不上传至服务器（分享功能需自行配置 JSONBin）。',
+    contentFeaturesTitle: '核心功能',
+    contentHowTitle: '快速上手',
+    contentGuidesTitle: '使用教程',
+    contentFaqTitle: '常见问题',
+    featFormatTitle: 'JSON 格式化',
+    featFormatDesc: '将压缩的单行 JSON 转为带缩进的可读格式，便于阅读和排查问题。',
+    featMinifyTitle: 'JSON 压缩',
+    featMinifyDesc: '去除空格与换行，生成最小体积 JSON，适合网络传输与存储。',
+    featTreeTitle: '树形可视化',
+    featTreeDesc: '以树形结构展开嵌套对象与数组，点击节点查看详情并编辑。',
+    featPathTitle: 'JSONPath 查询',
+    featPathDesc: '使用 $ 语法快速提取深层字段，支持通配符与数组过滤。',
+    featCompareTitle: '多字段对比',
+    featCompareDesc: '将数组中多个对象的指定字段并排展示，方便数据核对。',
+    featAiTitle: 'AI 辅助编辑',
+    featAiDesc: '接入兼容 OpenAI 的 LLM，用自然语言描述即可修改 JSON 结构。',
+    featFileTitle: '文件导入',
+    featFileDesc: '支持拖拽或选择 .json、.txt、.jsonl 文件，快速加载大型数据。',
+    featShareTitle: '链接分享',
+    featShareDesc: '配合 JSONBin.io 生成分享链接，便于团队协作调试。',
+    step1: '在左侧输入框粘贴 JSON，或拖拽文件到上传区域。',
+    step2: '点击「解析」或按 Ctrl+Enter，右侧将显示树形结构。',
+    step3: '使用搜索框输入键名进行过滤，或以 $ 开头进行 JSONPath 路径查询。',
+    step4: '点击任意节点可在详情面板中查看、编辑并复制格式化或压缩后的值。',
+    step5: '需要批量对比数组字段时，使用 $.items[*].{name,price} 语法生成对比表格。',
+    guide1Title: 'JSON 格式化与压缩完全指南',
+    guide1Desc: '了解何时格式化、何时压缩，以及常见错误处理。',
+    guide2Title: 'JSONPath 路径查询入门',
+    guide2Desc: '从 $ 根节点到通配符、过滤器，掌握数据提取技巧。',
+    guide3Title: 'API 调试中的 JSON 实践',
+    guide3Desc: 'REST 接口响应分析、日志排查与多字段对比工作流。',
+    faq1Q: '什么是 JSON？',
+    faq1A: 'JSON（JavaScript Object Notation）是一种轻量级数据交换格式，由键值对和数组组成，广泛用于 Web API、配置文件和数据存储。HiJSON 帮助你快速查看和编辑 JSON 数据。',
+    faq2Q: '我的数据会上传到服务器吗？',
+    faq2A: '不会。解析、格式化、树形展示等核心功能完全在浏览器本地执行。仅当你主动使用「分享到 JSONBin」功能时，数据才会上传至 JSONBin.io（需自行配置 API Key）。',
+    faq3Q: 'JSON 解析报错怎么办？',
+    faq3A: '常见原因包括：末尾多余逗号、单引号代替双引号、未转义的特殊字符、注释混入等。HiJSON 会在输入框下方显示具体错误位置，修正后重新点击解析即可。',
+    faq4Q: 'JSONPath 和 XPath 有什么区别？',
+    faq4A: 'JSONPath 是专为 JSON 设计的查询语言，以 $ 表示根节点，用点号或方括号访问属性。HiJSON 支持在搜索框中直接输入 JSONPath 表达式进行查询。',
+    faq5Q: 'AI 功能如何使用？',
+    faq5A: '切换到「AI 对话」标签，在设置中添加兼容 OpenAI Chat Completions 的 API 配置。AI 可帮你分析 JSON 结构或按自然语言描述修改数据，修改结果可一键应用到编辑器。',
+    faq6Q: 'HiJSON 是免费的吗？',
+    faq6A: '是的，HiJSON 核心功能完全免费，无需注册账号。AI 功能需使用您自己的 LLM API Key，JSONBin 分享功能需自行注册 JSONBin.io 获取 Key。',
     seoLdDesc: '免费在线 JSON 解析工具，支持 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比、大纲导航。',
     seoLdFeatures: ['JSON 格式化与美化','JSON 压缩','JSON 树形可视化','JSONPath 路径查询','多字段对比表格','大纲导航','文件拖拽导入','键盘快捷键'],
     seoNoscriptTitle: 'HiJSON - 在线 JSON 解析、格式化、压缩工具',
@@ -1179,6 +1330,58 @@ const I18N = {
     seoFooterTitle: 'HiJSON - Online JSON Parser',
     seoFooterDesc: 'HiJSON provides JSON formatting, minification, tree visualization, JSONPath queries, multi-field comparison and more. Ideal for frontend development, backend debugging, and API testing. Supports drag & drop file import and keyboard shortcuts. Completely free, no registration required.',
     seoFooterHome: 'Home',
+    navGuide: 'Guide',
+    navTutorials: 'Tutorials',
+    navAbout: 'About',
+    navPrivacy: 'Privacy',
+    navContact: 'Contact',
+    footerTagline: 'Free Online JSON Tool',
+    contentIntroTitle: 'HiJSON — Essential Online JSON Tool for Developers',
+    contentIntroLead: 'Free, no sign-up required. Parse, format, minify and visualize JSON in your browser.',
+    contentIntroDesc: 'HiJSON is built for frontend engineers, backend developers and QA engineers. Debug APIs, read logs and compare data structures more efficiently. All processing runs locally in your browser — nothing is uploaded (sharing requires your own JSONBin setup).',
+    contentFeaturesTitle: 'Core Features',
+    contentHowTitle: 'Quick Start',
+    contentGuidesTitle: 'Tutorials',
+    contentFaqTitle: 'FAQ',
+    featFormatTitle: 'JSON Formatting',
+    featFormatDesc: 'Convert minified single-line JSON into readable indented format for easier debugging.',
+    featMinifyTitle: 'JSON Minification',
+    featMinifyDesc: 'Remove whitespace and line breaks to produce the smallest JSON for transport and storage.',
+    featTreeTitle: 'Tree Visualization',
+    featTreeDesc: 'Expand nested objects and arrays as a tree. Click nodes to view, edit and copy values.',
+    featPathTitle: 'JSONPath Query',
+    featPathDesc: 'Extract deep fields quickly using $ syntax with wildcards and array filters.',
+    featCompareTitle: 'Multi-field Compare',
+    featCompareDesc: 'Display selected fields from array items side by side for easy data verification.',
+    featAiTitle: 'AI-assisted Editing',
+    featAiDesc: 'Connect an OpenAI-compatible LLM and modify JSON structure using natural language.',
+    featFileTitle: 'File Import',
+    featFileDesc: 'Drag & drop or browse .json, .txt and .jsonl files to load large datasets quickly.',
+    featShareTitle: 'Link Sharing',
+    featShareDesc: 'Generate share links via JSONBin.io for team collaboration during debugging.',
+    step1: 'Paste JSON in the left input area, or drag a file to the upload zone.',
+    step2: 'Click Parse or press Ctrl+Enter to display the tree view on the right.',
+    step3: 'Filter by key name in the search box, or start with $ for JSONPath queries.',
+    step4: 'Click any node to view, edit and copy formatted or minified values in the detail panel.',
+    step5: 'For batch field comparison, use syntax like $.items[*].{name,price} to generate a table.',
+    guide1Title: 'Complete Guide to JSON Formatting & Minification',
+    guide1Desc: 'Learn when to format vs minify and how to handle common errors.',
+    guide2Title: 'JSONPath Query Getting Started',
+    guide2Desc: 'From the $ root to wildcards and filters — master data extraction.',
+    guide3Title: 'JSON Practices in API Debugging',
+    guide3Desc: 'REST response analysis, log troubleshooting and multi-field comparison workflows.',
+    faq1Q: 'What is JSON?',
+    faq1A: 'JSON (JavaScript Object Notation) is a lightweight data interchange format made of key-value pairs and arrays. It is widely used in Web APIs, config files and data storage. HiJSON helps you view and edit JSON data quickly.',
+    faq2Q: 'Is my data uploaded to a server?',
+    faq2A: 'No. Parsing, formatting and tree visualization run entirely in your browser. Data is only uploaded when you actively use the Share to JSONBin feature (requires your own API Key).',
+    faq3Q: 'What if JSON parsing fails?',
+    faq3A: 'Common causes: trailing commas, single quotes instead of double quotes, unescaped special characters, or embedded comments. HiJSON shows the error location below the input — fix and parse again.',
+    faq4Q: 'How is JSONPath different from XPath?',
+    faq4A: 'JSONPath is a query language designed for JSON. $ represents the root node; use dot notation or brackets to access properties. HiJSON supports JSONPath expressions directly in the search box.',
+    faq5Q: 'How do I use the AI feature?',
+    faq5A: 'Switch to the AI Chat tab and add an OpenAI-compatible Chat Completions API profile in settings. AI can analyze JSON structure or modify data from natural language — apply results with one click.',
+    faq6Q: 'Is HiJSON free?',
+    faq6A: 'Yes, all core features are completely free with no account required. AI requires your own LLM API Key; JSONBin sharing requires registering at JSONBin.io.',
     seoLdDesc: 'Free online JSON parser supporting JSON formatting, minification, tree visualization, JSONPath queries, multi-field comparison, and outline navigation.',
     seoLdFeatures: ['JSON Formatting & Beautifying','JSON Minification','JSON Tree Visualization','JSONPath Query','Multi-field Comparison Table','Outline Navigation','Drag & Drop File Import','Keyboard Shortcuts'],
     seoNoscriptTitle: 'HiJSON - Online JSON Parser, Formatter & Minifier',
@@ -1302,13 +1505,6 @@ function applySeoI18n(lang) {
     <ul>${features.map(f => `<li>${f}</li>`).join('')}</ul>
     <p>${t('seoNoscriptEnable')}</p>
   </div>`;
-  }
-
-  const footer = document.querySelector('footer[aria-hidden="true"]');
-  if (footer) {
-    footer.innerHTML = `<h2>${t('seoFooterTitle')}</h2>
-    <p>${t('seoFooterDesc')}</p>
-    <nav><a href="https://hijson.com/">${t('seoFooterHome')}</a></nav>`;
   }
 }
 
@@ -3219,12 +3415,5 @@ init();
 </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6333255936362163"
      crossorigin="anonymous"></script>
-  <footer style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
-    <h2>HiJSON - 在线 JSON 解析工具</h2>
-    <p>HiJSON 提供 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比等功能。适用于前端开发、后端调试、API 测试等场景。支持拖拽导入 JSON 文件，提供键盘快捷键操作，完全免费，无需注册。</p>
-    <nav>
-      <a href="https://hijson.com/">首页</a>
-    </nav>
-  </footer>
 </body>
 </html>

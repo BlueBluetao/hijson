@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON 格式化与压缩完全指南 - HiJSON</title>
+  <meta name="description" content="学习 JSON 格式化与压缩的最佳实践：何时美化、何时最小化、常见语法错误排查，以及 HiJSON 工具使用技巧。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/guide/json-formatting.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-white border-b border-slate-200 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 no-underline text-slate-900">
+        <span class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold font-mono">{}</span>
+        <span class="font-semibold">HiJSON</span>
+      </a>
+      <nav class="flex gap-4 text-sm">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">工具</a>
+        <a href="/guide/jsonpath.html" class="text-slate-500 hover:text-indigo-600 no-underline">JSONPath 教程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-sm text-indigo-600 font-medium mb-2">使用教程</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">JSON 格式化与压缩完全指南</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">JSON 是 Web 开发中最常用的数据格式之一。无论是调试 API 响应还是编辑配置文件，格式化与压缩都是开发者日常必备技能。本文将介绍两者的区别、使用场景，以及如何用 <a href="/" class="text-indigo-600">HiJSON</a> 高效处理。</p>
+
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">什么是 JSON 格式化？</h2>
+        <p>JSON 格式化（也称「美化」或 Pretty Print）是指在 JSON 文本中添加适当的缩进和换行，使嵌套结构一目了然。API 返回的 JSON 通常是压缩的单行格式，直接阅读非常困难。</p>
+        <p class="mt-3">格式化后的 JSON 示例：</p>
+        <pre>{
+  "name": "HiJSON",
+  "version": "1.0",
+  "features": ["format", "minify", "tree"]
+}</pre>
+        <p class="mt-3">对比压缩格式 <code class="bg-slate-100 px-1 rounded">{"name":"HiJSON","version":"1.0","features":["format","minify","tree"]}</code>，格式化版本更便于人工阅读和排查问题。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">什么是 JSON 压缩？</h2>
+        <p>JSON 压缩（Minify）是格式化的逆操作：去除所有不必要的空格、换行和缩进，生成体积最小的 JSON 字符串。压缩后的 JSON 在语义上与原始数据完全等价，但体积更小，适合：</p>
+        <ul class="list-disc pl-6 mt-2 space-y-1">
+          <li>HTTP 请求/响应体，减少网络传输量</li>
+          <li>日志存储，节省磁盘空间</li>
+          <li>嵌入 HTML 或 JavaScript 中，减少页面体积</li>
+          <li>数据库或缓存中存储 JSON 字段</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">何时格式化，何时压缩？</h2>
+        <table class="w-full text-sm border-collapse mt-3">
+          <thead><tr class="bg-slate-100"><th class="text-left p-3 border border-slate-200">场景</th><th class="text-left p-3 border border-slate-200">建议</th></tr></thead>
+          <tbody>
+            <tr><td class="p-3 border border-slate-200">调试 API 响应</td><td class="p-3 border border-slate-200">格式化 — 便于阅读嵌套结构</td></tr>
+            <tr><td class="p-3 border border-slate-200">Code Review 配置文件</td><td class="p-3 border border-slate-200">格式化 — 便于发现差异</td></tr>
+            <tr><td class="p-3 border border-slate-200">生产环境 API 传输</td><td class="p-3 border border-slate-200">压缩 — 减少带宽</td></tr>
+            <tr><td class="p-3 border border-slate-200">前端打包嵌入</td><td class="p-3 border border-slate-200">压缩 — 减小 bundle 体积</td></tr>
+            <tr><td class="p-3 border border-slate-200">Git 版本控制</td><td class="p-3 border border-slate-200">格式化 — 便于 diff 对比</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">用 HiJSON 格式化和压缩</h2>
+        <ol class="list-decimal pl-6 space-y-2">
+          <li>打开 <a href="/" class="text-indigo-600">HiJSON 首页</a>，在左侧输入框粘贴 JSON 文本或拖拽 .json 文件。</li>
+          <li>点击<strong>「格式化」</strong>按钮，输入框中的 JSON 将自动添加 2 空格缩进。</li>
+          <li>点击<strong>「压缩」</strong>按钮，JSON 将变为单行最小格式。</li>
+          <li>点击<strong>「解析」</strong>（或 Ctrl+Enter），右侧树形视图将展示完整结构，便于进一步浏览和编辑。</li>
+        </ol>
+        <p class="mt-4">在树形视图中选中任意节点后，详情面板提供「复制格式化」和「复制压缩」两种复制方式，方便粘贴到代码或文档中。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">常见 JSON 语法错误</h2>
+        <p>格式化或解析前，JSON 必须是合法语法。以下是开发中最常见的错误：</p>
+        <ul class="list-disc pl-6 mt-3 space-y-3">
+          <li><strong>末尾多余逗号</strong> — JSON 不允许对象或数组最后一个元素后加逗号。<br><code class="bg-red-50 text-red-700 px-1 rounded">{"a": 1, "b": 2,}</code> ✗</li>
+          <li><strong>使用单引号</strong> — JSON 标准要求字符串必须使用双引号。<br><code class="bg-red-50 text-red-700 px-1 rounded">{'name': 'test'}</code> ✗</li>
+          <li><strong>未转义的特殊字符</strong> — 字符串中的换行、制表符、双引号需转义。<br><code class="bg-red-50 text-red-700 px-1 rounded">{"msg": "line1\nline2"}</code> ✓</li>
+          <li><strong>混入注释</strong> — 标准 JSON 不支持 <code>//</code> 或 <code>/* */</code> 注释（JSONC 除外）。</li>
+          <li><strong>NaN / Infinity</strong> — JSON 不支持 JavaScript 的 NaN 和 Infinity，应使用 null 或字符串。</li>
+        </ul>
+        <p class="mt-4">HiJSON 在解析失败时会在输入框下方显示具体错误信息，帮助快速定位问题行。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">格式化最佳实践</h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li><strong>统一缩进</strong>：团队内约定 2 空格或 4 空格，HiJSON 默认使用 2 空格。</li>
+          <li><strong>键名排序</strong>：对于配置文件，可按字母序排列键名便于 diff（HiJSON AI 功能可辅助完成）。</li>
+          <li><strong>大文件处理</strong>：超过 1MB 的 JSON 建议使用文件拖拽导入，避免浏览器粘贴板限制。</li>
+          <li><strong>敏感数据</strong>：HiJSON 在本地处理数据，不会上传至服务器，适合处理含密钥的调试数据。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">相关教程</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><a href="/guide/jsonpath.html" class="text-indigo-600">JSONPath 路径查询入门</a></li>
+          <li><a href="/guide/api-debugging.html" class="text-indigo-600">API 调试中的 JSON 实践</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <p class="font-semibold text-indigo-900 mb-2">立即体验</p>
+      <p class="text-indigo-700 text-sm mb-4">在 HiJSON 中免费格式化、压缩和可视化 JSON 数据。</p>
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">打开 HiJSON 工具 →</a>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
+    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+      <span>© 2025 HiJSON</span>
+      <nav class="flex gap-4">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
+        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
+        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
