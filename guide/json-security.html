@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>处理 JSON 时的安全注意 - HiJSON</title>
+  <meta name="description" content="调试 JSON 时的安全问题：密钥与隐私、本地解析与分享、原型污染、XSS，以及不要把 JSON 当 HTML 插入页面。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/guide/json-security.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-white border-b border-slate-200 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 no-underline text-slate-900">
+        <span class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold font-mono">{}</span>
+        <span class="font-semibold">HiJSON</span>
+      </a>
+      <nav class="flex gap-4 text-sm">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">工具</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-sm text-indigo-600 font-medium mb-2"><a href="/guide/" class="text-indigo-600 no-underline">教程</a> · 安全</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">处理 JSON 时的安全注意</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">调试工具解决的是「看得见」，不是「可以随便传」。生产响应里经常夹着 token、身份证、内部主机名。下面几条是实际会踩的，不是清单式恐吓。</p>
+
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">默认本地，分享是另一回事</h2>
+        <p>HiJSON 的解析、格式化、树、JSONPath 在浏览器里完成，不会把 JSON 传到我们的服务器。这一点写在 <a href="/privacy.html" class="text-indigo-600">隐私政策</a>。</p>
+        <p class="mt-3">两条例外是你自己打开的：</p>
+        <ul class="list-disc pl-6 mt-2 space-y-2">
+          <li><strong>JSONBin 分享</strong>：生成链接等于把内容交给 JSONBin。链接能打开的人都能看到原文。</li>
+          <li><strong>AI 对话</strong>：上下文会发到你填的 API 地址。公司密钥、用户 PII 不要当「示例」丢进去。</li>
+        </ul>
+        <p class="mt-3">给同事看结构，优先复制一段打码后的 JSON，或只发路径：<code>$.data.user.phone</code> 有值，而不是整包响应。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">先扫一眼再转发</h2>
+        <p>贴进树之后，用搜索或 <code>$..token</code>、<code>$..password</code>、<code>$..authorization</code> 扫一遍。列表接口用 <code>$.data.list[*].{id,mobile}</code> 看有没有不该出现的列。树和对比的用法见 <a href="/guide/json-tree.html" class="text-indigo-600">树视图</a>、<a href="/guide/api-debugging.html" class="text-indigo-600">API 调试</a>。</p>
+        <p class="mt-3">日志平台导出的 JSONL 同样对待，见 <a href="/guide/jsonl-logs.html" class="text-indigo-600">JSON Lines</a>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">不要把不可信 JSON 当 HTML 插进去</h2>
+        <p>字段里出现 <code>&lt;script&gt;</code> 或事件处理属性，若你 <code>innerHTML = obj.comment</code>，就是 XSS。展示用户可控字段用文本节点或框架的转义插值。调试工具里看到尖括号，说明数据脏，不要复制到管理后台的「富文本」里图省事。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">原型污染（主要在 JS）</h2>
+        <p>不可信对象里若带 <code>__proto__</code>、<code>constructor</code>，浅合并进普通对象可能改到原型。自己写 <code>for (k in payload) target[k] = payload[k]</code> 时要过滤这些键，或用 <code>Object.create(null)</code>。HiJSON 只是展示解析结果；你在业务代码里合并 webhook 时，这个坑还在。</p>
+        <pre>{
+  "__proto__": { "admin": true }
+}</pre>
+        <p class="mt-3">树上能看见这个键。看见了就不要当普通业务字段合并。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">JWT 和「看起来像 JSON 的中间段」</h2>
+        <p>JWT 中间一段是 Base64URL 的 JSON。解码后能看到 <code>sub</code>、<code>exp</code>。这不表示令牌可以公开。截图、分享链接、聊天记录里出现完整 JWT，等于泄露会话。只讨论结构时用假 payload。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">eval 和「把 JSON 当 JS 跑」</h2>
+        <p>有人用 <code>eval("(" + text + ")")</code> 兼容尾逗号。这会执行任意脚本。只用 <code>JSON.parse</code>。不合法就修文本，见 <a href="/guide/json-errors.html" class="text-indigo-600">语法错误排查</a>，不要用 eval 放水。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">本机工具也不是保险箱</h2>
+        <p>浏览器扩展、同步的剪贴板、录屏、公司 DLP 都可能留下副本。敏感调试在隔离环境做，用完关标签。大文件占内存，用完刷新，见 <a href="/guide/large-json.html" class="text-indigo-600">大 JSON</a>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">常见问题</h2>
+        <dl class="space-y-4">
+          <div>
+            <dt class="font-medium text-slate-800">解析在本地，为什么还要提安全？</dt>
+            <dd class="mt-1">本地只保证我们没存。你的下一步（微信、邮件、AI、分享）才是泄露点。页面本身也阻止不了你粘贴机密。</dd>
+          </div>
+          <div>
+            <dt class="font-medium text-slate-800">发现站点问题怎么说？</dt>
+            <dd class="mt-1">发 <a href="/contact.html" class="text-indigo-600">联系页</a> 上的邮箱，不要附带真实用户数据。</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">相关教程</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><a href="/privacy.html" class="text-indigo-600">隐私政策</a></li>
+          <li><a href="/guide/api-debugging.html" class="text-indigo-600">API 调试中的 JSON 实践</a></li>
+          <li><a href="/guide/json-in-languages.html" class="text-indigo-600">JS / Python / Go 解析 JSON</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <p class="font-semibold text-indigo-900 mb-2">先看结构，再决定是否分享</p>
+      <p class="text-indigo-700 text-sm mb-4">默认解析不出站。分享和 AI 是显式操作。</p>
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">打开 HiJSON →</a>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
+    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+      <span>© 2026 HiJSON</span>
+      <nav class="flex gap-4">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
+        <a href="/contact.html" class="text-slate-500 hover:text-indigo-600 no-underline">联系</a>
+        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

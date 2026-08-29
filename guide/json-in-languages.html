@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JS / Python / Go 解析 JSON - HiJSON</title>
+  <meta name="description" content="JavaScript、Python、Go 解析和序列化 JSON 的默认行为差异：undefined、ensure_ascii、数字精度、omitempty 与字段 tag。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/guide/json-in-languages.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-white border-b border-slate-200 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 no-underline text-slate-900">
+        <span class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold font-mono">{}</span>
+        <span class="font-semibold">HiJSON</span>
+      </a>
+      <nav class="flex gap-4 text-sm">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">工具</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-sm text-indigo-600 font-medium mb-2"><a href="/guide/" class="text-indigo-600 no-underline">教程</a> · 语言</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">JS / Python / Go 解析 JSON</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">同一段合法 JSON，三种语言读出来的「对象」并不一样。联调时经常出现：前端觉得字段没了，Go 觉得类型对不上，Python 日志里中文全是 <code>\\u</code>。先把默认行为搞清楚，再怪接口。</p>
+
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">JavaScript</h2>
+        <p>浏览器和 Node 用 <code>JSON.parse</code> / <code>JSON.stringify</code>。HiJSON 也在这个语义上工作，所以你在树上看到的，基本就是 JS 解析后的值。</p>
+        <pre>JSON.parse('{"a":1}')
+JSON.stringify({ a: 1, b: undefined, c: () => {} })
+// '{"a":1}'  —— b、函数都丢了</pre>
+        <ul class="list-disc pl-6 mt-3 space-y-2">
+          <li><code>undefined</code>、函数、Symbol 不会出现在输出里。</li>
+          <li><code>Date</code> 会被 <code>toJSON</code> 成 ISO 字符串，对端若当时间戳数字，对不上。</li>
+          <li><code>NaN</code> / <code>Infinity</code> 变成 <code>null</code>。</li>
+          <li>大于 <code>Number.MAX_SAFE_INTEGER</code> 的整数会丢精度。雪花 ID、订单号用字符串。</li>
+          <li>要保留大整数，得上 <code>json-bigint</code> 一类库，或让接口改类型。</li>
+        </ul>
+        <p class="mt-3"><code>JSON.parse</code> 的第二个参数 reviver 可以改键。写了 reviver 再和「原始文本」对比，别忘了自己改过。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">Python</h2>
+        <pre>import json
+json.loads('{"name":"测试"}')
+json.dumps({"name": "测试"})          # 默认 ensure_ascii=True，中文变 \\u
+json.dumps({"name": "测试"}, ensure_ascii=False)</pre>
+        <ul class="list-disc pl-6 mt-3 space-y-2">
+          <li>对象变成 <code>dict</code>，数组变成 <code>list</code>，<code>true/false/null</code> 变成 <code>True/False/None</code>。打印出来不像 JSON，不要把 <code>repr(dict)</code> 当 JSON 发出去（单引号）。</li>
+          <li><code>datetime</code> 不能直接 <code>dumps</code>，要 <code>default=str</code> 或自定义 encoder。</li>
+          <li>数字：JSON 里的整数在 Python 3 可以任意大；和 JS 对同一字段时，JS 可能已经漂了。</li>
+          <li><code>json.loads</code> 遇到重复键，后写的覆盖先写的，和多数 JS 引擎类似。</li>
+        </ul>
+        <p class="mt-3">从日志复制 Python dict 到 HiJSON，先换成双引号，或在 Python 里 <code>print(json.dumps(obj, ensure_ascii=False))</code> 再复制。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">Go</h2>
+        <pre>type Order struct {
+    ID     string  `json:"order_id"`
+    Amount float64 `json:"amount"`
+    Note   string  `json:"note,omitempty"`
+}</pre>
+        <ul class="list-disc pl-6 mt-3 space-y-2">
+          <li>字段要导出（大写）才会被编码。小写字段静默消失，这是新手第一坑。</li>
+          <li>tag 决定线上键名。<code>order_id</code> 和结构体里的 <code>ID</code> 不是一回事。</li>
+          <li><code>omitempty</code>：零值不输出。 <code>false</code>、<code>0</code>、<code>""</code> 都会省掉。前端以为「没这个字段」，其实是零值被吃了。</li>
+          <li>没有 tag 的数字，解码进 <code>interface{}</code> 时是 <code>float64</code>。整数 1 变成 1.0，再 <code>Marshal</code> 可能带小数点。</li>
+          <li>未知字段默认丢掉。要严格，用 <code>Decoder.DisallowUnknownFields</code>。</li>
+        </ul>
+        <p class="mt-3">Go 的 <code>json.Number</code> 可以保原文。和前端对大整数时，结构体用 <code>string</code> 或 <code>json.Number</code>，不要用 <code>int64</code> 去接已经在 JS 里漂过的数。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">对照表</h2>
+        <table class="w-full text-sm border-collapse">
+          <thead><tr class="bg-slate-100"><th class="text-left p-3 border border-slate-200">情况</th><th class="text-left p-3 border border-slate-200">JS</th><th class="text-left p-3 border border-slate-200">Python</th><th class="text-left p-3 border border-slate-200">Go</th></tr></thead>
+          <tbody>
+            <tr><td class="p-3 border border-slate-200">字段值为 undefined / 未设置</td><td class="p-3 border border-slate-200">stringify 丢掉</td><td class="p-3 border border-slate-200">没有 undefined，用缺键或 None</td><td class="p-3 border border-slate-200">omitempty 可能丢掉零值</td></tr>
+            <tr><td class="p-3 border border-slate-200">中文</td><td class="p-3 border border-slate-200">默认原文</td><td class="p-3 border border-slate-200">默认 \\uXXXX</td><td class="p-3 border border-slate-200">默认原文</td></tr>
+            <tr><td class="p-3 border border-slate-200">超大整数</td><td class="p-3 border border-slate-200">精度危险</td><td class="p-3 border border-slate-200">int 够用</td><td class="p-3 border border-slate-200">看类型，interface 是 float64</td></tr>
+            <tr><td class="p-3 border border-slate-200">时间</td><td class="p-3 border border-slate-200">Date → ISO 字符串</td><td class="p-3 border border-slate-200">要自己编码</td><td class="p-3 border border-slate-200">time.Time → RFC3339</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">联调时怎么用 HiJSON</h2>
+        <p>把各端实际发出的 body 分别贴进 <a href="/" class="text-indigo-600">HiJSON</a>，不要对比「语言里的对象打印」。看三件事：</p>
+        <ol class="list-decimal pl-6 mt-3 space-y-2">
+          <li>键在不在（omitempty / undefined）。</li>
+          <li>类型是数字还是字符串（金额、ID）。</li>
+          <li>列表长度是否被单对象吃掉。</li>
+        </ol>
+        <p class="mt-3">路径对齐用 JSONPath，见 <a href="/guide/jsonpath.html" class="text-indigo-600">JSONPath 入门</a>。结构约定可以写成 schema，见 <a href="/guide/json-schema.html" class="text-indigo-600">JSON Schema</a>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">常见问题</h2>
+        <dl class="space-y-4">
+          <div>
+            <dt class="font-medium text-slate-800">为什么 Go 收得到、Chrome 控制台里数字不对？</dt>
+            <dd class="mt-1">先在 HiJSON 里看原始文本里的数字有多少位。超过 15–16 位有效数字，JS 已经圆整。问题在浏览器，不在 Go。</dd>
+          </div>
+          <div>
+            <dt class="font-medium text-slate-800">Java / PHP 呢？</dt>
+            <dd class="mt-1">套路类似：类型系统和「缺字段 / null / 零值」三套语义。先抓实际 JSON 文本，再对语言文档。不要用语言内部的 debug 打印当契约。</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">相关教程</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><a href="/guide/json-errors.html" class="text-indigo-600">JSON 常见语法错误排查</a></li>
+          <li><a href="/guide/json-schema.html" class="text-indigo-600">JSON Schema 入门</a></li>
+          <li><a href="/guide/api-debugging.html" class="text-indigo-600">API 调试中的 JSON 实践</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <p class="font-semibold text-indigo-900 mb-2">对比各端真正发出的 JSON</p>
+      <p class="text-indigo-700 text-sm mb-4">以文本为准，不以 console.log 的对象展开为准。</p>
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">打开 HiJSON →</a>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
+    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+      <span>© 2026 HiJSON</span>
+      <nav class="flex gap-4">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
+        <a href="/contact.html" class="text-slate-500 hover:text-indigo-600 no-underline">联系</a>
+        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

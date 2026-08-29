@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Schema 入门 - HiJSON</title>
+  <meta name="description" content="用 JSON Schema 描述字段类型、必填和数组结构。适合接口联调前把约定写死，减少「字段突然变成字符串」的扯皮。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/guide/json-schema.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-white border-b border-slate-200 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 no-underline text-slate-900">
+        <span class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold font-mono">{}</span>
+        <span class="font-semibold">HiJSON</span>
+      </a>
+      <nav class="flex gap-4 text-sm">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">工具</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-sm text-indigo-600 font-medium mb-2"><a href="/guide/" class="text-indigo-600 no-underline">教程</a> · 结构</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">JSON Schema 入门</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">语法过了只说明「这是一份 JSON」，不说明「这是我们说好的那份」。金额变成字符串、少了 <code>items</code>、多了没文档的字段，parse 都成功。JSON Schema 用来写约定：类型、必填、枚举。HiJSON 负责把真实响应摊开看，schema 负责卡结构。</p>
+
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">一份最小 schema</h2>
+        <p>假设下单接口的响应长这样：</p>
+        <pre>{
+  "code": 0,
+  "data": {
+    "order_id": "20260829001",
+    "amount": 99.5,
+    "paid": false
+  }
+}</pre>
+        <p class="mt-3">对应的 schema 可以写成：</p>
+        <pre>{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["code", "data"],
+  "properties": {
+    "code": { "type": "integer" },
+    "data": {
+      "type": "object",
+      "required": ["order_id", "amount", "paid"],
+      "properties": {
+        "order_id": { "type": "string" },
+        "amount": { "type": "number" },
+        "paid": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  }
+}</pre>
+        <p class="mt-3"><code>additionalProperties: false</code> 表示 <code>data</code> 里多出来的键也算失败。联调早期可以先开着，逼双方把字段写进文档；上线后如果要做兼容，再改成 <code>true</code> 或列出允许的扩展。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">常用关键字</h2>
+        <table class="w-full text-sm border-collapse">
+          <thead><tr class="bg-slate-100"><th class="text-left p-3 border border-slate-200">关键字</th><th class="text-left p-3 border border-slate-200">作用</th></tr></thead>
+          <tbody>
+            <tr><td class="p-3 border border-slate-200"><code>type</code></td><td class="p-3 border border-slate-200">object / array / string / number / integer / boolean / null</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>properties</code></td><td class="p-3 border border-slate-200">对象有哪些字段</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>required</code></td><td class="p-3 border border-slate-200">哪些字段必须出现</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>items</code></td><td class="p-3 border border-slate-200">数组每个元素的 schema</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>enum</code></td><td class="p-3 border border-slate-200">只能是列出的几个值</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>minLength</code> / <code>minimum</code></td><td class="p-3 border border-slate-200">字符串长度、数字下界</td></tr>
+            <tr><td class="p-3 border border-slate-200"><code>$ref</code></td><td class="p-3 border border-slate-200">复用另一段定义，避免复制粘贴</td></tr>
+          </tbody>
+        </table>
+        <p class="mt-3"><code>integer</code> 和 <code>number</code> 不一样：<code>99.5</code> 过不了 <code>integer</code>。金额用 <code>number</code>，或按你们财务约定改成「分」的整数。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">数组怎么写</h2>
+        <pre>{
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "enum": ["pending", "paid", "closed"] }
+        }
+      }
+    }
+  }
+}</pre>
+        <p class="mt-3">空数组 <code>[]</code> 在 <code>minItems</code> 为 0 时合法。如果产品说「至少一条」，把 <code>minItems</code> 改成 1，比在群里口嗨有用。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">和「看一眼树」怎么配合</h2>
+        <p>Schema 不会告诉你这次响应里 <code>amount</code> 为什么是 0.01。它只保证是数字。真实值还是要打开 <a href="/" class="text-indigo-600">HiJSON</a> 看树，或用 <code>$.data.amount</code> 抽出来。流程可以是：</p>
+        <ol class="list-decimal pl-6 mt-3 space-y-2">
+          <li>后端或前端先写一份 schema，放进仓库。</li>
+          <li>CI 或本地用 AJV、Python <code>jsonschema</code> 跑样例。</li>
+          <li>线上偶发结构不对，把响应贴进 HiJSON，对照 schema 看缺了哪一层。</li>
+        </ol>
+        <p class="mt-3">OpenAPI 的 <code>components.schemas</code> 本质上也是 JSON Schema 的超集。你在 Swagger 里看到的模型，导出后往往能直接当校验输入。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">容易写错的地方</h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li><strong>把 <code>null</code> 忘了</strong>：字段声明 <code>"type": "string"</code>，接口却回 <code>null</code>。要允许空，写成 <code>"type": ["string", "null"]</code>。</li>
+          <li><strong>数字当字符串</strong>：<code>"amount": "99.5"</code> 过不了 <code>number</code>。先统一类型，再谈校验。</li>
+          <li><strong>draft 版本混用</strong>：<code>draft-04</code> 和 <code>2020-12</code> 的 <code>items</code>、<code>$ref</code> 细节不同。项目里锁一个版本。</li>
+          <li><strong>schema 本身也是 JSON</strong>：尾逗号、单引号同样会导致 schema 文件解析失败，见 <a href="/guide/json-errors.html" class="text-indigo-600">语法错误排查</a>。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">什么时候不必上 schema</h2>
+        <p>一次性看一段日志、改一份 mock，用树和 JSONPath 就够。两三个服务要长期对字段，或者开放平台给外部调用，再写 schema 才划算。为了「看起来专业」给内部一次性脚本写 200 行 schema，维护成本会反噬。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">常见问题</h2>
+        <dl class="space-y-4">
+          <div>
+            <dt class="font-medium text-slate-800">HiJSON 会按 schema 校验吗？</dt>
+            <dd class="mt-1">目前以查看和查询为主。校验可以在本地用 AJV 等库跑；结构对不上时，把实例贴进来对照路径。</dd>
+          </div>
+          <div>
+            <dt class="font-medium text-slate-800">和 TypeScript 类型是不是一回事？</dt>
+            <dd class="mt-1">运行时 JSON 不会走 tsc。类型只约束编译期。运行时仍要靠校验或契约测试。两边可以互相生成，但不要假设「有 interface 就不会出现字符串金额」。</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">相关教程</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><a href="/guide/json-errors.html" class="text-indigo-600">JSON 常见语法错误排查</a></li>
+          <li><a href="/guide/json-vs-yaml.html" class="text-indigo-600">JSON、YAML、XML 怎么选</a></li>
+          <li><a href="/guide/api-debugging.html" class="text-indigo-600">API 调试中的 JSON 实践</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <p class="font-semibold text-indigo-900 mb-2">对照真实响应</p>
+      <p class="text-indigo-700 text-sm mb-4">把接口返回贴进 HiJSON，按路径核对 schema 里的字段。</p>
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">打开 HiJSON →</a>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
+    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+      <span>© 2026 HiJSON</span>
+      <nav class="flex gap-4">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
+        <a href="/contact.html" class="text-slate-500 hover:text-indigo-600 no-underline">联系</a>
+        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用树视图读复杂 JSON - HiJSON</title>
+  <meta name="description" content="如何用树形视图阅读嵌套 JSON：对象与数组、路径复制、大纲跳转、多字段对比。适合读 API 响应和配置。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/guide/json-tree.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-white border-b border-slate-200 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 no-underline text-slate-900">
+        <span class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold font-mono">{}</span>
+        <span class="font-semibold">HiJSON</span>
+      </a>
+      <nav class="flex gap-4 text-sm">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">工具</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-sm text-indigo-600 font-medium mb-2"><a href="/guide/" class="text-indigo-600 no-underline">教程</a> · 入门</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">用树视图读复杂 JSON</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">接口一返回 80 个字段，左右缩进对眼睛不友好。树视图把每一层收成节点：对象是一组命名子节点，数组是下标。这篇只讲怎么读，不讲新语法。</p>
+
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">先看根是什么</h2>
+        <p>合法 JSON 的根只能是一个值。日常碰到的几乎都是对象 <code>{...}</code> 或数组 <code>[...]</code>。根是对象，第一层就是业务字段：<code>code</code>、<code>data</code>、<code>message</code>。根是数组，多半是列表接口或导出文件，第一层只有 <code>0</code>、<code>1</code>、<code>2</code>。</p>
+        <p class="mt-3">有人会把分页包在对象里，列表放在 <code>data.list</code>。树上一眼能看出来：先展开 <code>data</code>，再展开 <code>list</code>，不要在根上找订单号。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">对象和数组不要混着读</h2>
+        <p>对象的键是名字，顺序在规范里不保证（多数实现会保持写入顺序，但别依赖它写业务）。数组的顺序有意义：第一页第一条就是 <code>[0]</code>。</p>
+        <p class="mt-3">嵌套一深，人容易把「第 3 个地址对象」和「名叫 address 的字段」搞混。树节点上会同时标键名和类型。点进去看详情，确认你改的是那一层，而不是外面套着的包装对象。</p>
+        <pre>{
+  "user": {
+    "addresses": [
+      { "city": "上海", "primary": true },
+      { "city": "杭州", "primary": false }
+    ]
+  }
+}</pre>
+        <p class="mt-3">杭州那条的路径是 <code>$.user.addresses[1]</code>，不是 <code>$.user.address</code>。键名抄错，后面 JSONPath 全空，见 <a href="/guide/jsonpath.html" class="text-indigo-600">JSONPath 入门</a>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">点节点，抄路径，再决定查还是改</h2>
+        <p>在 HiJSON 里解析之后，点任意节点，右侧详情会给出这一支的值和路径。调试时先抄路径，再决定：</p>
+        <ul class="list-disc pl-6 mt-3 space-y-2">
+          <li>只要看一个字段：用搜索框贴 JSONPath，比手搓展开快。</li>
+          <li>要改 mock：在详情里改完再复制格式化结果，不要在压缩的单行上找逗号。</li>
+          <li>要给同事定位：「问题在 <code>$.data.items[2].sku</code>」，比截一张折叠图清楚。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">大纲栏：大文件时的目录</h2>
+        <p>层级超过四五层，树会变得很长。中间的大纲相当于目录，按顶层或主要分支跳。导入较大文件时，先别全展开，用大纲跳到 <code>errors</code> 或 <code>data</code>，再局部打开。</p>
+        <p class="mt-3">全展开几千个节点会卡，这是浏览器在画 DOM，不是 JSON 坏了。大文件策略见 <a href="/guide/large-json.html" class="text-indigo-600">大 JSON 怎么读才不卡</a>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">列表接口：别一行行对眼睛</h2>
+        <p>数组里每个对象字段差不多时，用多字段对比更合适：</p>
+        <pre>$.data.items[*].{id, status, amount}</pre>
+        <p class="mt-3">会得到一张表。缺字段、类型不一致（有的 <code>amount</code> 是数字有的是字符串）会比较显眼。联调清单接口时，这比展开 50 个节点省事。完整工作流在 <a href="/guide/api-debugging.html" class="text-indigo-600">API 调试实践</a>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">空值怎么读</h2>
+        <p><code>null</code>、空对象 <code>{}</code>、空数组 <code>[]</code>、空字符串 <code>""</code> 在树上都看得到，含义不同。字段没返回，树上根本没有这个键；字段返回了 <code>null</code>，键在，值是空。前端判空时这两种要分开写。树视图能避免「我以为没这个字段，其实是 null」这种扯皮。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">操作顺序（我自己用的）</h2>
+        <ol class="list-decimal pl-6 space-y-2">
+          <li>粘贴或拖文件，Ctrl+Enter 解析。</li>
+          <li>看根类型，展开到业务那一层就停。</li>
+          <li>点可疑节点，复制路径。</li>
+          <li>需要扫列表就上对比语法；需要搜深层未知位置，用 <code>$..field</code>。</li>
+          <li>确认没问题再格式化拷回编辑器。敏感数据不要点分享，见 <a href="/guide/json-security.html" class="text-indigo-600">安全注意</a>。</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">常见问题</h2>
+        <dl class="space-y-4">
+          <div>
+            <dt class="font-medium text-slate-800">树上数字显示成了科学计数？</dt>
+            <dd class="mt-1">超大整数在 JS 里会丢精度，树只是把解析后的值画出来。订单号、雪花 ID 应在接口里用字符串。语法没问题也会「看起来变了」。</dd>
+          </div>
+          <div>
+            <dt class="font-medium text-slate-800">点了节点但路径和我想的不一样？</dt>
+            <dd class="mt-1">中间是否隔着一层 <code>data</code> 或 <code>result</code>。把完整路径整段复制，不要凭记忆手打。</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">相关教程</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><a href="/guide/jsonpath.html" class="text-indigo-600">JSONPath 路径查询入门</a></li>
+          <li><a href="/guide/large-json.html" class="text-indigo-600">大 JSON 怎么读才不卡</a></li>
+          <li><a href="/guide/api-debugging.html" class="text-indigo-600">API 调试中的 JSON 实践</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <p class="font-semibold text-indigo-900 mb-2">打开树视图</p>
+      <p class="text-indigo-700 text-sm mb-4">粘贴 JSON 后解析，从中间大纲跳到你关心的分支。</p>
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">打开 HiJSON →</a>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
+    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+      <span>© 2026 HiJSON</span>
+      <nav class="flex gap-4">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
+        <a href="/contact.html" class="text-slate-500 hover:text-indigo-600 no-underline">联系</a>
+        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON、YAML、XML 怎么选 - HiJSON</title>
+  <meta name="description" content="接口、配置、文档三种场景下 JSON、YAML、XML 的取舍：可读性、类型、注释、缩进陷阱和转换时会丢什么。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/guide/json-vs-yaml.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-white border-b border-slate-200 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 no-underline text-slate-900">
+        <span class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold font-mono">{}</span>
+        <span class="font-semibold">HiJSON</span>
+      </a>
+      <nav class="flex gap-4 text-sm">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">工具</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-sm text-indigo-600 font-medium mb-2"><a href="/guide/" class="text-indigo-600 no-underline">教程</a> · 结构</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">JSON、YAML、XML 怎么选</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">三种格式都能表达嵌套数据。选错的代价通常不是「不能用」，而是联调时互相转一层，注释丢了、类型漂了、缩进炸了。下面按场景说，不搞格式鄙视。</p>
+
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">对照</h2>
+        <table class="w-full text-sm border-collapse">
+          <thead><tr class="bg-slate-100"><th class="text-left p-3 border border-slate-200"></th><th class="text-left p-3 border border-slate-200">JSON</th><th class="text-left p-3 border border-slate-200">YAML</th><th class="text-left p-3 border border-slate-200">XML</th></tr></thead>
+          <tbody>
+            <tr><td class="p-3 border border-slate-200">浏览器 / 前端</td><td class="p-3 border border-slate-200">原生</td><td class="p-3 border border-slate-200">要库</td><td class="p-3 border border-slate-200">DOM 能解析，当数据用别扭</td></tr>
+            <tr><td class="p-3 border border-slate-200">注释</td><td class="p-3 border border-slate-200">标准没有</td><td class="p-3 border border-slate-200">有</td><td class="p-3 border border-slate-200">有</td></tr>
+            <tr><td class="p-3 border border-slate-200">人写配置</td><td class="p-3 border border-slate-200">括号多</td><td class="p-3 border border-slate-200">省事，怕缩进</td><td class="p-3 border border-slate-200">标签最长</td></tr>
+            <tr><td class="p-3 border border-slate-200">类型</td><td class="p-3 border border-slate-200">少而清楚</td><td class="p-3 border border-slate-200">隐式类型容易踩</td><td class="p-3 border border-slate-200">默认都是文本</td></tr>
+            <tr><td class="p-3 border border-slate-200">属性 / 混排文本</td><td class="p-3 border border-slate-200">弱</td><td class="p-3 border border-slate-200">弱</td><td class="p-3 border border-slate-200">强</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">接口：默认 JSON</h2>
+        <p>REST、大多数 RPC 网关、前端 fetch，默认就是 JSON。体积比 XML 小，解析实现到处都是。除非对端是老 SOAP 或行业强制 XML（部分政务、金融报文），新接口不要为了「看起来正式」上 XML。</p>
+        <p class="mt-3">GraphQL 的 body 也是 JSON。gRPC 用 protobuf，那是另一条线，和这三种文本格式不是互相替换关系。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">配置：YAML 常见，JSON 更老实</h2>
+        <p>Kubernetes、GitHub Actions、Docker Compose 用 YAML，因为人要写注释、写很长的列表。代价是缩进：Tab 和空格混用、同级对不齐，报错行号经常指到下一节。</p>
+        <p class="mt-3">YAML 还有隐式类型：<code>NO</code>、<code>off</code> 在旧版可能被当成 boolean。<code>1.0</code> 和 <code>"1.0"</code> 也不总是你想的那样。挪威国家代码 <code>NO</code> 当年还闹过笑话。新项目若团队不熟 YAML，配置用 JSON 或 TOML，少很多「为什么变成 false」。</p>
+        <p class="mt-3">JSON 做配置的缺点是不能写注释。可以用旁边的 README，或改用 JSONC（要接受「不是所有工具都认」）。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">文档和混排：XML 还在</h2>
+        <p>同一段里既有属性又有子节点、还要夹纯文本，JSON 会很丑（<code>#text</code> 这种键）。Office、部分出版和老企业总线仍是 XML。新业务文档如果只是结构化字段，不必为了「行业习惯」强行 XML。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">互转时会丢什么</h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li>YAML → JSON：注释没了；锚点 <code>&amp;</code> / <code>*</code> 要先展开。</li>
+          <li>XML → JSON：属性往哪放没有唯一标准，有的工具变成 <code>@id</code>，有的摊平。数组「只有一个元素」时，有的实现会变成对象而不是单元素数组。</li>
+          <li>JSON → YAML：一般安全，但长字符串、多行、和 <code>null</code> 的写法因库而异。</li>
+        </ul>
+        <p class="mt-3">转完不要只看「能 parse」。用树把关键路径对一遍，尤其是列表长度。HiJSON 读的是 JSON；YAML/XML 先在你们的转换步骤里变成 JSON，再贴进来查，见 <a href="/guide/json-tree.html" class="text-indigo-600">树视图</a>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">同一份数据三种写法</h2>
+        <pre>{
+  "service": "checkout",
+  "replicas": 2,
+  "env": ["prod"]
+}</pre>
+        <p class="mt-3">YAML 大致是：</p>
+        <pre>service: checkout
+replicas: 2
+env:
+  - prod</pre>
+        <p class="mt-3">XML 会变成一串标签，<code>replicas</code> 到底是属性还是子元素，两边要先说好。没有「正确的 XML」，只有你们契约里的那一种。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">实用建议</h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li>对浏览器和公开 HTTP API：JSON。</li>
+          <li>人要改、又要注释的运维配置：YAML，并在 CI 里做校验，不要只靠肉眼。</li>
+          <li>已有 XML 体系：继续 XML，对外增加 JSON 适配层，而不是让前端直接啃 SOAP。</li>
+          <li>仓库里的结构化数据若要稳定 diff：JSON 格式化后提交，见 <a href="/guide/json-formatting.html" class="text-indigo-600">格式化指南</a>。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">常见问题</h2>
+        <dl class="space-y-4">
+          <div>
+            <dt class="font-medium text-slate-800">能把 YAML 直接贴进 HiJSON 吗？</dt>
+            <dd class="mt-1">不能当 JSON 解析。先转成 JSON，或只把已经是 JSON 的片段贴进来。</dd>
+          </div>
+          <div>
+            <dt class="font-medium text-slate-800">TOML 呢？</dt>
+            <dd class="mt-1">适合扁平、表格式配置（不少 Rust/Python 项目）。嵌套一深就不如 JSON 直观。和 JSON 互转同样要核对数组和类型。</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">相关教程</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><a href="/guide/json-schema.html" class="text-indigo-600">JSON Schema 入门</a></li>
+          <li><a href="/guide/json-formatting.html" class="text-indigo-600">JSON 格式化与压缩完全指南</a></li>
+          <li><a href="/guide/json-in-languages.html" class="text-indigo-600">JS / Python / Go 解析 JSON</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <p class="font-semibold text-indigo-900 mb-2">转成 JSON 之后对照结构</p>
+      <p class="text-indigo-700 text-sm mb-4">列表有没有被压成单个对象，用树一眼能看出来。</p>
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">打开 HiJSON →</a>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
+    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+      <span>© 2026 HiJSON</span>
+      <nav class="flex gap-4">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
+        <a href="/contact.html" class="text-slate-500 hover:text-indigo-600 no-underline">联系</a>
+        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

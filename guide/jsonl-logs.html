@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Lines 与日志分析 - HiJSON</title>
+  <meta name="description" content="JSONL / NDJSON 和普通 JSON 的区别，为什么日志用按行对象，以及如何在 HiJSON 里查看 .jsonl 文件。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/guide/jsonl-logs.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-white border-b border-slate-200 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 no-underline text-slate-900">
+        <span class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold font-mono">{}</span>
+        <span class="font-semibold">HiJSON</span>
+      </a>
+      <nav class="flex gap-4 text-sm">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">工具</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-sm text-indigo-600 font-medium mb-2"><a href="/guide/" class="text-indigo-600 no-underline">教程</a> · 调试</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">JSON Lines 与日志分析</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">从 ELK、CloudWatch、Loki 复制出来的往往不是「一个大数组」，而是一行一个对象。整段丢给 <code>JSON.parse</code> 会直接失败。这种格式叫 JSON Lines（也叫 NDJSON），扩展名常见 <code>.jsonl</code>。</p>
+
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">和普通 JSON 差在哪</h2>
+        <p>普通 JSON 文件是一个值，通常是对象或数组。JSONL 是<strong>多行</strong>，每行必须是独立的合法 JSON，行与行之间没有逗号，外面也没有 <code>[ ]</code>。</p>
+        <pre>{"ts":"2026-08-29T01:12:03Z","level":"info","msg":"checkout start","order_id":"A1"}
+{"ts":"2026-08-29T01:12:04Z","level":"error","msg":"payment timeout","order_id":"A1"}</pre>
+        <p class="mt-3">若你把它包成数组，才是普通 JSON：</p>
+        <pre>[
+  {"ts":"2026-08-29T01:12:03Z","level":"info","msg":"checkout start","order_id":"A1"},
+  {"ts":"2026-08-29T01:12:04Z","level":"error","msg":"payment timeout","order_id":"A1"}
+]</pre>
+        <p class="mt-3">日志不用数组，是因为可以<strong>边写边追加</strong>，不用改文件开头的 <code>[</code>，也不用在上一行末尾补逗号。采集器按行切，坏一行不至于整文件作废。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">一行里不要折行</h2>
+        <p>JSONL 的约定是：一个对象不占用多行。对象内部如果有字符串换行，必须是 <code>\\n</code>，不能在文件里真的回车。否则「按行切」会切到半个对象，后面全乱。</p>
+        <p class="mt-3">有的框架 pretty-print 日志，输出多行 JSON。那种不是 JSONL，是「人类可读的日志」，要用别的方式切（空行、正则、或采集器的 multiline）。不要和 JSONL 混谈。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">在 HiJSON 里怎么看</h2>
+        <ol class="list-decimal pl-6 space-y-2">
+          <li>把导出文件存成 <code>.jsonl</code>，拖到 <a href="/" class="text-indigo-600">首页</a> 上传区。也支持 <code>.json</code> / <code>.txt</code>。</li>
+          <li>只关心一条事件：从日志里复制<strong>那一行</strong>，粘贴后解析。不要连粘 200 行当一个文档。</li>
+          <li>已经收成数组的，用 <code>$.[?(@.level=='error')]</code> 或 <code>$[*].order_id</code> 筛。语法见 <a href="/guide/jsonpath.html" class="text-indigo-600">JSONPath</a>。</li>
+        </ol>
+        <p class="mt-3">文件特别大时，先在本机 <code>grep</code> / <code>jq -c</code> 抽出相关行，再贴进来。浏览器不是日志平台，见 <a href="/guide/large-json.html" class="text-indigo-600">大 JSON</a>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">从平台复制时的脏数据</h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li>前面带时间戳或容器名：<code>2026-08-29 app[web]: {"msg":"..."}</code>。只留花括号那一段。</li>
+          <li>JSONP 或被单引号包过的 Python 风格，先按 <a href="/guide/json-errors.html" class="text-indigo-600">语法错误</a> 清一遍。</li>
+          <li>字段里有 token、手机号：分析结构即可，不要把整段日志丢进分享链接，见 <a href="/guide/json-security.html" class="text-indigo-600">安全注意</a>。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">本机快速切一行（可选）</h2>
+        <p>已经装了 jq 的话：</p>
+        <pre>jq -c 'select(.level=="error")' app.jsonl
+jq -c '.order_id' app.jsonl</pre>
+        <p class="mt-3"><code>-c</code> 保持紧凑一行，方便再导入。没装 jq 就用编辑器按行跳，或 <code>grep order_id app.jsonl</code>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">和「一次 API 响应」的工作流别混</h2>
+        <p>API 响应是一个文档，适合整段解析、树、大纲。日志是流，适合按行。硬把 5000 行 JSONL 拼成一个数组再展开，树会卡，收益也不大。先缩小到「和这个 order_id 有关的几行」，再展开对象看 <code>stack</code> 或 <code>context</code>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">常见问题</h2>
+        <dl class="space-y-4">
+          <div>
+            <dt class="font-medium text-slate-800">中间空一行算不算坏文件？</dt>
+            <dd class="mt-1">多数实现会跳过空行。保险起见导出时不要留空行，采集器配置也不要随手加。</dd>
+          </div>
+          <div>
+            <dt class="font-medium text-slate-800">UTF-8 BOM 只出现在第一行？</dt>
+            <dd class="mt-1">是。第一行解析失败、后面都正常，优先查 BOM，见语法错误文。</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">相关教程</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><a href="/guide/json-errors.html" class="text-indigo-600">JSON 常见语法错误排查</a></li>
+          <li><a href="/guide/api-debugging.html" class="text-indigo-600">API 调试中的 JSON 实践</a></li>
+          <li><a href="/guide/large-json.html" class="text-indigo-600">大 JSON 怎么读才不卡</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <p class="font-semibold text-indigo-900 mb-2">导入 .jsonl 或只贴一行</p>
+      <p class="text-indigo-700 text-sm mb-4">核心解析在本地完成。</p>
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">打开 HiJSON →</a>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
+    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+      <span>© 2026 HiJSON</span>
+      <nav class="flex gap-4">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
+        <a href="/contact.html" class="text-slate-500 hover:text-indigo-600 no-underline">联系</a>
+        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

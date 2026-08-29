@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大 JSON 怎么读才不卡 - HiJSON</title>
+  <meta name="description" content="处理数兆以上 JSON：不要硬粘贴、用文件导入、少全展开、用 JSONPath 和大纲，以及何时改用本地 jq。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/guide/large-json.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-white border-b border-slate-200 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 no-underline text-slate-900">
+        <span class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold font-mono">{}</span>
+        <span class="font-semibold">HiJSON</span>
+      </a>
+      <nav class="flex gap-4 text-sm">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">工具</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-sm text-indigo-600 font-medium mb-2"><a href="/guide/" class="text-indigo-600 no-underline">教程</a> · 调试</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">大 JSON 怎么读才不卡</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">几 KB 的响应怎么贴都行。到了几 MB，卡的往往不是「解析数学」，而是浏览器要画几千个 DOM 节点，剪贴板也有大小限制。HiJSON 能扛一部分，但用法要改。</p>
+
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">卡在哪一步</h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li><strong>粘贴</strong>：系统剪贴板和 textarea 对超大文本不友好，有的环境直接截断，解析结果「少了半截」，看起来像语法错误。</li>
+          <li><strong>parse</strong>：几兆的纯文本 parse 通常还能做。真正慢的是紧接着建树。</li>
+          <li><strong>全展开</strong>：每个键一个节点，一万个 SKU 就会把页面拖死。</li>
+        </ul>
+        <p class="mt-3">所以策略是：文件导入、少展开、用路径提问，而不是「全部打开看看」。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">用文件，不要用复制</h2>
+        <p>把接口导出或日志存成 <code>.json</code> / <code>.jsonl</code>，拖到 <a href="/" class="text-indigo-600">HiJSON</a>。绕过剪贴板截断。JSONL 按行存的日志见 <a href="/guide/jsonl-logs.html" class="text-indigo-600">JSON Lines</a>。</p>
+        <p class="mt-3">超过大约 5MB，解析和首屏树都会明显变慢。这时先问自己：我是要看全貌，还是只要 <code>errors</code> 或某个 <code>id</code>？后者在本机切一刀再导入更合适。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">先问路径，再展开分支</h2>
+        <p>搜索框用 <code>$</code> 开头，只取你要的：</p>
+        <pre>$.data.items[0]
+$.data.items[*].id
+$..error_code</pre>
+        <p class="mt-3">递归 <code>$..</code> 在超深、超宽的文档上也会慢，尽量带上已知前缀，比如 <code>$.payload..error_code</code>。语法说明在 <a href="/guide/jsonpath.html" class="text-indigo-600">JSONPath 入门</a>。</p>
+        <p class="mt-3">列表核对用 <code>$.data.items[*].{id,status}</code>，不要为了「看一眼状态」展开 2000 个对象。树怎么读见 <a href="/guide/json-tree.html" class="text-indigo-600">树视图</a>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">大纲当目录，不要当阅读器</h2>
+        <p>中间大纲用来跳到 <code>data</code>、<code>meta</code>、<code>errors</code>。跳过去再展开那一枝。把大纲理解成 IDE 的文件树，而不是把整个仓库展开。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">本机 jq：浏览器的前一步</h2>
+        <p>已经确定只要一部分时：</p>
+        <pre>jq '.data.items[:20]' dump.json &gt; slice.json
+jq '{count: (.data.items|length), sample: .data.items[0]}' dump.json</pre>
+        <p class="mt-3">把 <code>slice.json</code> 再拖进 HiJSON。结构、类型、空值这些事，小样本就够判断。全量统计（一共多少条、有多少失败）留给 jq 或数据库，别交给网页。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">内存和隐私</h2>
+        <p>大文件会占标签页内存。用完关掉，或刷新。生产导出里常有用户字段，默认不离开浏览器；一旦点分享，数据会去 JSONBin，大文件既慢也不合适。原则见 <a href="/guide/json-security.html" class="text-indigo-600">安全注意</a> 和 <a href="/privacy.html" class="text-indigo-600">隐私政策</a>。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">什么算「太大，别用网页」</h2>
+        <p>没有硬门槛。经验上：</p>
+        <ul class="list-disc pl-6 mt-2 space-y-2">
+          <li>几百 KB：随意。</li>
+          <li>一两 MB：文件导入，少全展开。</li>
+          <li>十几 MB 以上：先切，或只用命令行。网页当「看样本」的放大镜。</li>
+        </ul>
+        <p class="mt-3">流式、按行的上百 MB 日志，用日志平台或 <code>jq</code> 流式过滤。把整个文件塞进单页应用没有意义。</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">常见问题</h2>
+        <dl class="space-y-4">
+          <div>
+            <dt class="font-medium text-slate-800">解析成功但页面假死？</dt>
+            <dd class="mt-1">多半是展开过多。刷新，只开大纲，用路径取子集。</dd>
+          </div>
+          <div>
+            <dt class="font-medium text-slate-800">文件只有 2MB，粘贴却缺字段？</dt>
+            <dd class="mt-1">按截断查：文件导入对比。若导入完整、粘贴缺，就是剪贴板或输入框限制。</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">相关教程</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><a href="/guide/jsonl-logs.html" class="text-indigo-600">JSON Lines 与日志分析</a></li>
+          <li><a href="/guide/json-tree.html" class="text-indigo-600">用树视图读复杂 JSON</a></li>
+          <li><a href="/guide/api-debugging.html" class="text-indigo-600">API 调试中的 JSON 实践</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <p class="font-semibold text-indigo-900 mb-2">拖文件进来，少展开</p>
+      <p class="text-indigo-700 text-sm mb-4">用路径提问，比全展开整棵树更合适。</p>
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">打开 HiJSON →</a>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
+    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+      <span>© 2026 HiJSON</span>
+      <nav class="flex gap-4">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
+        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
+        <a href="/contact.html" class="text-slate-500 hover:text-indigo-600 no-underline">联系</a>
+        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
