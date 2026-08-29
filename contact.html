@@ -7,9 +7,13 @@
   <meta name="description" content="联系 HiJSON：功能建议、问题反馈、合作咨询。邮箱 develop_demo@163.com。">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://hijson.online/contact.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://hijson.online/contact.html">
+  <link rel="alternate" hreflang="en" href="https://hijson.online/en/contact.html">
+  <link rel="alternate" hreflang="x-default" href="https://hijson.online/contact.html">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/site-banner.css">
+  <link rel="stylesheet" href="/site-guide.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
 </head>
@@ -27,9 +31,25 @@
     <a href="/contact.html" class="is-current">联系</a>
     <a href="/privacy.html">隐私政策</a>
     </nav>
+    <div class="site-banner-spacer"></div>
+    <nav class="site-banner-lang" aria-label="Language">
+      <a href="/contact.html" class="is-current">中文</a>
+      <a href="/en/contact.html">EN</a>
+    </nav>
   </header>
 
-  <main class="max-w-3xl mx-auto px-6 py-12">
+  <div class="guide-shell">
+    <aside class="guide-index" aria-label="站点">
+      <span class="guide-index-title">站点</span>
+      <nav class="guide-index-nav">
+        <a href="/about.html">关于</a>
+        <a href="/contact.html" class="is-current">联系</a>
+        <a href="/privacy.html">隐私政策</a>
+        <div class="guide-index-group">教程</div>
+        <a href="/guide.html">教程中心</a>
+      </nav>
+    </aside>
+    <main class="guide-main">
     <h1 class="text-3xl font-bold text-slate-900 mb-6">联系我们</h1>
     <article class="space-y-8 text-slate-600 leading-relaxed">
       <section>
@@ -58,16 +78,18 @@
         <p>不要把生产环境的完整响应、用户隐私、未脱敏的密钥发过来。需要对照结构时，用假数据或打码字段即可。数据处理方式见 <a href="/privacy.html" class="text-indigo-600">隐私政策</a>。</p>
       </section>
     </article>
-  </main>
+    </main>
+  </div>
 
-  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
-    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+  <footer class="site-footer">
+    <div class="site-footer-inner">
       <span>© 2026 HiJSON</span>
-      <nav class="flex gap-4">
-        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
-        <a href="/guide.html" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
-        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
-        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      <nav>
+        <a href="/">首页</a>
+        <a href="/guide.html">教程</a>
+        <a href="/about.html">关于</a>
+        <a href="/contact.html">联系</a>
+        <a href="/privacy.html">隐私政策</a>
       </nav>
     </div>
   </footer>

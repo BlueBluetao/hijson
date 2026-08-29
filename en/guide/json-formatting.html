@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON formatting and minification — HiJSON</title>
+  <meta name="description" content="When to pretty-print JSON and when to minify it, plus how to do both in HiJSON.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/en/guide/json-formatting.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://hijson.online/guide/json-formatting.html">
+  <link rel="alternate" hreflang="en" href="https://hijson.online/en/guide/json-formatting.html">
+  <link rel="alternate" hreflang="x-default" href="https://hijson.online/guide/json-formatting.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/site-banner.css">
+  <link rel="stylesheet" href="/site-guide.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+        pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+    .guide-main code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="site-banner" role="banner">
+    <a class="site-banner-brand" href="/">
+      <span class="site-banner-logo" aria-hidden="true">{}</span>
+      <span class="site-banner-name">HiJSON</span>
+      <span class="site-banner-tag">JSON parser</span>
+    </a>
+    <nav class="site-banner-nav" aria-label="Site">
+    <a href="/">Tool</a>
+    <a href="/en/guide.html" class="is-current">Guides</a>
+    <a href="/en/about.html">About</a>
+    <a href="/en/contact.html">Contact</a>
+    <a href="/en/privacy.html">Privacy</a>
+    </nav>
+    <div class="site-banner-spacer"></div>
+    <nav class="site-banner-lang" aria-label="Language">
+      <a href="/guide/json-formatting.html">中文</a>
+      <a href="/en/guide/json-formatting.html" class="is-current">EN</a>
+    </nav>
+  </header>
+
+  <div class="guide-shell">
+    <aside class="guide-index" aria-label="Guide index">
+      <a class="guide-index-title" href="/en/guide.html">Guide index</a>
+      <nav class="guide-index-nav">
+        <div class="guide-index-group">Using the tool</div>
+        <a href="/en/guide/json-formatting.html" class="is-current">Format & minify</a>
+        <a href="/en/guide/jsonpath.html">JSONPath basics</a>
+        <a href="/en/guide/api-debugging.html">API debugging</a>
+        <div class="guide-index-group">Getting started</div>
+        <a href="/en/guide/json-errors.html">Syntax errors</a>
+        <a href="/en/guide/json-tree.html">Reading the tree</a>
+        <div class="guide-index-group">Query & logs</div>
+        <a href="/en/guide/jsonl-logs.html">JSONL logs</a>
+        <a href="/en/guide/large-json.html">Large JSON</a>
+        <div class="guide-index-group">Structure & safety</div>
+        <a href="/en/guide/json-schema.html">JSON Schema</a>
+        <a href="/en/guide/json-vs-yaml.html">JSON / YAML / XML</a>
+        <a href="/en/guide/json-in-languages.html">JS / Python / Go</a>
+        <a href="/en/guide/json-security.html">Safety notes</a>
+      </nav>
+    </aside>
+    <main class="guide-main">
+
+    <p class="text-sm text-indigo-600 font-medium mb-2"><a href="/en/guide.html" class="text-indigo-600 no-underline">Guides</a> · Using the tool</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">JSON formatting and minification</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">Pretty-print when you need to read a payload. Minify when you ship it. Both are the same document. This page covers the tradeoff and the buttons in <a href="/" class="text-indigo-600">HiJSON</a>.</p>
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">What formatting does</h2>
+        <p>Formatting (pretty-print) inserts indentation and line breaks so nesting is visible. API responses often arrive as one line. That is legal JSON and miserable to read by eye.</p>
+        <pre>{
+  "name": "HiJSON",
+  "version": "1.0",
+  "features": ["format", "minify", "tree"]
+}</pre>
+        <p class="mt-3">The minified form <code class="bg-slate-100 px-1 rounded">{"name":"HiJSON","version":"1.0","features":["format","minify","tree"]}</code> is equivalent.</p>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">What minification does</h2>
+        <p>Minify strips insignificant whitespace. Use it for request bodies, logs you store at volume, or embedding JSON in a bundle. Do not minify files you expect to diff in Git unless the team agreed on that.</p>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">When to do which</h2>
+        <table class="w-full text-sm border-collapse mt-3">
+          <thead><tr class="bg-slate-100"><th class="text-left p-3 border border-slate-200">Situation</th><th class="text-left p-3 border border-slate-200">Prefer</th></tr></thead>
+          <tbody>
+            <tr><td class="p-3 border border-slate-200">Debugging an API response</td><td class="p-3 border border-slate-200">Format</td></tr>
+            <tr><td class="p-3 border border-slate-200">Reviewing a config in a PR</td><td class="p-3 border border-slate-200">Format</td></tr>
+            <tr><td class="p-3 border border-slate-200">Production HTTP body</td><td class="p-3 border border-slate-200">Minify</td></tr>
+            <tr><td class="p-3 border border-slate-200">Git history you want to read</td><td class="p-3 border border-slate-200">Format</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">In HiJSON</h2>
+        <ol class="list-decimal pl-6 space-y-2">
+          <li>Paste JSON or drop a file on the <a href="/" class="text-indigo-600">home page</a>.</li>
+          <li>Format adds 2-space indent in the editor.</li>
+          <li>Minify collapses it to one line.</li>
+          <li>Parse (Ctrl+Enter) builds the tree. The detail panel can copy formatted or minified text for a node.</li>
+        </ol>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">Syntax has to be valid first</h2>
+        <p>Format will not save an illegal document. Trailing commas, single quotes, and comments are the usual failures. See <a href="/en/guide/json-errors.html" class="text-indigo-600">syntax errors</a>.</p>
+      </section>
+    </article>
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <p class="font-semibold text-indigo-900 mb-2">Try it</p>
+      <p class="text-indigo-700 text-sm mb-4">Format and minify in the browser. Nothing is uploaded for those actions.</p>
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">Open HiJSON →</a>
+    </div>
+
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <span>© 2026 HiJSON</span>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/en/guide.html">Guides</a>
+        <a href="/en/about.html">About</a>
+        <a href="/en/contact.html">Contact</a>
+        <a href="/en/privacy.html">Privacy</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

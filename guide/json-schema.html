@@ -7,6 +7,9 @@
   <meta name="description" content="用 JSON Schema 描述字段类型、必填和数组结构。适合接口联调前把约定写死，减少「字段突然变成字符串」的扯皮。">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://hijson.online/guide/json-schema.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://hijson.online/guide/json-schema.html">
+  <link rel="alternate" hreflang="en" href="https://hijson.online/en/guide/json-schema.html">
+  <link rel="alternate" hreflang="x-default" href="https://hijson.online/guide/json-schema.html">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/site-banner.css">
@@ -32,19 +35,25 @@
     <a href="/contact.html">联系</a>
     <a href="/privacy.html">隐私政策</a>
     </nav>
+    <div class="site-banner-spacer"></div>
+    <nav class="site-banner-lang" aria-label="Language">
+      <a href="/guide/json-schema.html" class="is-current">中文</a>
+      <a href="/en/guide/json-schema.html">EN</a>
+    </nav>
   </header>
 
   <div class="guide-shell">
     <aside class="guide-index" aria-label="教程索引">
       <a class="guide-index-title" href="/guide.html">教程索引</a>
       <nav class="guide-index-nav">
-        <div class="guide-index-group">入门</div>
+        <div class="guide-index-group">工具用法</div>
         <a href="/guide/json-formatting.html">格式化与压缩</a>
+        <a href="/guide/jsonpath.html">JSONPath 入门</a>
+        <a href="/guide/api-debugging.html">API 调试实践</a>
+        <div class="guide-index-group">入门</div>
         <a href="/guide/json-errors.html">语法错误排查</a>
         <a href="/guide/json-tree.html">树视图怎么读</a>
         <div class="guide-index-group">查询与调试</div>
-        <a href="/guide/jsonpath.html">JSONPath 入门</a>
-        <a href="/guide/api-debugging.html">API 调试实践</a>
         <a href="/guide/jsonl-logs.html">JSONL 与日志</a>
         <a href="/guide/large-json.html">大 JSON 不卡</a>
         <div class="guide-index-group">结构与安全</div>
@@ -190,15 +199,15 @@
     </main>
   </div>
 
-  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
-    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+  <footer class="site-footer">
+    <div class="site-footer-inner">
       <span>© 2026 HiJSON</span>
-      <nav class="flex gap-4">
-        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
-        <a href="/guide.html" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
-        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
-        <a href="/contact.html" class="text-slate-500 hover:text-indigo-600 no-underline">联系</a>
-        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      <nav>
+        <a href="/">首页</a>
+        <a href="/guide.html">教程</a>
+        <a href="/about.html">关于</a>
+        <a href="/contact.html">联系</a>
+        <a href="/privacy.html">隐私政策</a>
       </nav>
     </div>
   </footer>

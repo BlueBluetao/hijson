@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parsing JSON in JS, Python, and Go — HiJSON</title>
+  <meta name="description" content="Default stringify/parse differences: undefined, ensure_ascii, omitempty, and large integers.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/en/guide/json-in-languages.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://hijson.online/guide/json-in-languages.html">
+  <link rel="alternate" hreflang="en" href="https://hijson.online/en/guide/json-in-languages.html">
+  <link rel="alternate" hreflang="x-default" href="https://hijson.online/guide/json-in-languages.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/site-banner.css">
+  <link rel="stylesheet" href="/site-guide.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+        pre, code { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; }
+    .guide-main code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="site-banner" role="banner">
+    <a class="site-banner-brand" href="/">
+      <span class="site-banner-logo" aria-hidden="true">{}</span>
+      <span class="site-banner-name">HiJSON</span>
+      <span class="site-banner-tag">JSON parser</span>
+    </a>
+    <nav class="site-banner-nav" aria-label="Site">
+    <a href="/">Tool</a>
+    <a href="/en/guide.html" class="is-current">Guides</a>
+    <a href="/en/about.html">About</a>
+    <a href="/en/contact.html">Contact</a>
+    <a href="/en/privacy.html">Privacy</a>
+    </nav>
+    <div class="site-banner-spacer"></div>
+    <nav class="site-banner-lang" aria-label="Language">
+      <a href="/guide/json-in-languages.html">中文</a>
+      <a href="/en/guide/json-in-languages.html" class="is-current">EN</a>
+    </nav>
+  </header>
+
+  <div class="guide-shell">
+    <aside class="guide-index" aria-label="Guide index">
+      <a class="guide-index-title" href="/en/guide.html">Guide index</a>
+      <nav class="guide-index-nav">
+        <div class="guide-index-group">Using the tool</div>
+        <a href="/en/guide/json-formatting.html">Format & minify</a>
+        <a href="/en/guide/jsonpath.html">JSONPath basics</a>
+        <a href="/en/guide/api-debugging.html">API debugging</a>
+        <div class="guide-index-group">Getting started</div>
+        <a href="/en/guide/json-errors.html">Syntax errors</a>
+        <a href="/en/guide/json-tree.html">Reading the tree</a>
+        <div class="guide-index-group">Query & logs</div>
+        <a href="/en/guide/jsonl-logs.html">JSONL logs</a>
+        <a href="/en/guide/large-json.html">Large JSON</a>
+        <div class="guide-index-group">Structure & safety</div>
+        <a href="/en/guide/json-schema.html">JSON Schema</a>
+        <a href="/en/guide/json-vs-yaml.html">JSON / YAML / XML</a>
+        <a href="/en/guide/json-in-languages.html" class="is-current">JS / Python / Go</a>
+        <a href="/en/guide/json-security.html">Safety notes</a>
+      </nav>
+    </aside>
+    <main class="guide-main">
+
+    <p class="text-sm text-indigo-600 font-medium mb-2"><a href="/en/guide.html" class="text-indigo-600 no-underline">Guides</a> · Structure &amp; safety</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">JS / Python / Go JSON</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">The same bytes become different in-memory values. Compare the actual JSON text in <a href="/" class="text-indigo-600">HiJSON</a>, not language debug prints.</p>
+    <article class="space-y-10 text-slate-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">JavaScript</h2>
+        <p><code>undefined</code> and functions disappear in <code>stringify</code>. Integers above 2^53-1 lose precision. HiJSON’s tree is this semantics.</p>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">Python</h2>
+        <p><code>json.dumps</code> defaults to <code>ensure_ascii=True</code> (Chinese becomes <code>\\u</code>). <code>repr(dict)</code> is not JSON — it uses single quotes.</p>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">Go</h2>
+        <p>Unexported fields are omitted. <code>omitempty</code> drops zero values, including <code>false</code> and <code>0</code>. Numbers in <code>interface{}</code> decode as <code>float64</code>.</p>
+      </section>
+    </article>
+    <div class="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+      <a href="/" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium no-underline hover:bg-indigo-700">Open HiJSON →</a>
+    </div>
+
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <span>© 2026 HiJSON</span>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/en/guide.html">Guides</a>
+        <a href="/en/about.html">About</a>
+        <a href="/en/contact.html">Contact</a>
+        <a href="/en/privacy.html">Privacy</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

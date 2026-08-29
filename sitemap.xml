@@ -3,97 +3,156 @@
   <url>
     <loc>https://hijson.online/</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://hijson.online/about.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/contact.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/privacy.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide.html</loc>
+    <lastmod>2026-08-29</lastmod>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/about.html</loc>
+    <lastmod>2026-08-29</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/contact.html</loc>
+    <lastmod>2026-08-29</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/privacy.html</loc>
+    <lastmod>2026-08-29</lastmod>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/json-formatting.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/json-formatting.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/jsonpath.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/jsonpath.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/api-debugging.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/api-debugging.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/json-errors.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/json-errors.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/json-tree.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/json-tree.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/jsonl-logs.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/jsonl-logs.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/large-json.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/large-json.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/json-schema.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/json-schema.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/json-vs-yaml.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/json-vs-yaml.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/json-in-languages.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/json-in-languages.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hijson.online/guide/json-security.html</loc>
     <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hijson.online/en/guide/json-security.html</loc>
+    <lastmod>2026-08-29</lastmod>
     <priority>0.8</priority>
   </url>
 </urlset>
