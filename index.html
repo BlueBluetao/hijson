@@ -68,6 +68,7 @@
   </script>
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/site-banner.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -345,23 +346,21 @@
 </noscript>
 
 <!-- =========== HEADER =========== -->
-<header style="height:48px;flex-shrink:0;display:flex;align-items:center;gap:12px;padding:0 16px;background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);z-index:10;" role="banner">
-  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-    <div style="width:28px;height:28px;background:#4f46e5;border-radius:8px;display:flex;align-items:center;justify-content:center;" aria-hidden="true">
-      <span style="color:#fff;font-size:12px;font-weight:700;font-family:monospace;">{}</span>
-    </div>
-    <h1 style="font-weight:600;color:#1e293b;font-size:15px;margin:0;">HiJSON</h1>
-    <span style="font-size:12px;color:#94a3b8;" data-i18n="subtitle">JSON 解析工具</span>
-  </div>
-  <nav class="header-nav" style="display:flex;align-items:center;gap:4px;flex-shrink:0;" aria-label="站点导航">
-    <a href="#siteContent" data-i18n="navGuide">使用指南</a>
-    <a href="/guide/" data-i18n="navTutorials">教程</a>
+<header class="site-banner" role="banner">
+  <a class="site-banner-brand" href="/">
+    <span class="site-banner-logo" aria-hidden="true">{}</span>
+    <h1 class="site-banner-name">HiJSON</h1>
+    <span class="site-banner-tag" data-i18n="subtitle">JSON 解析工具</span>
+  </a>
+  <nav class="site-banner-nav" aria-label="站点导航">
+    <a href="/" class="is-current" data-i18n="navTool">工具</a>
+    <a href="/guide.html" data-i18n="navTutorials">教程</a>
     <a href="/about.html" data-i18n="navAbout">关于</a>
     <a href="/contact.html" data-i18n="navContact">联系</a>
     <a href="/privacy.html" data-i18n="navPrivacy">隐私政策</a>
   </nav>
 
-  <div style="flex:1;min-width:8px;"></div>
+  <div class="site-banner-spacer"></div>
 
   <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
     <span style="font-size:13px;color:#64748b;" data-i18n="memoryMode">记忆模式</span>
@@ -760,7 +759,7 @@
       <a class="guide-link" href="/guide/api-debugging.html"><strong data-i18n="guide3Title">API 调试中的 JSON 实践</strong><span data-i18n="guide3Desc">REST 接口响应分析、日志排查与多字段对比工作流。</span></a>
       <a class="guide-link" href="/guide/json-schema.html"><strong data-i18n="guide5Title">JSON Schema 入门</strong><span data-i18n="guide5Desc">用 schema 卡住类型和必填，减少联调扯皮。</span></a>
       <a class="guide-link" href="/guide/json-security.html"><strong data-i18n="guide6Title">处理 JSON 时的安全注意</strong><span data-i18n="guide6Desc">本地解析、分享、密钥和原型污染。</span></a>
-      <a class="guide-link" href="/guide/"><strong data-i18n="guideAllTitle">全部教程</strong><span data-i18n="guideAllDesc">树视图、JSONL 日志、大文件、多语言解析等。</span></a>
+      <a class="guide-link" href="/guide.html"><strong data-i18n="guideAllTitle">全部教程</strong><span data-i18n="guideAllDesc">树视图、JSONL 日志、大文件、多语言解析等。</span></a>
     </div>
 
     <h3 data-i18n="contentFaqTitle">常见问题</h3>
@@ -780,7 +779,7 @@
     <p>© 2025 HiJSON · <span data-i18n="footerTagline">免费在线 JSON 工具</span></p>
     <nav aria-label="页脚导航">
       <a href="/" data-i18n="seoFooterHome">首页</a>
-      <a href="/guide/" data-i18n="navTutorials">教程</a>
+      <a href="/guide.html" data-i18n="navTutorials">教程</a>
       <a href="/about.html" data-i18n="navAbout">关于</a>
       <a href="/contact.html" data-i18n="navContact">联系我们</a>
       <a href="/privacy.html" data-i18n="navPrivacy">隐私政策</a>
@@ -1125,6 +1124,7 @@ const I18N = {
     seoFooterDesc: 'HiJSON 提供 JSON 格式化、压缩、树形可视化、JSONPath 路径查询、多字段对比等功能。适用于前端开发、后端调试、API 测试等场景。支持拖拽导入 JSON 文件，提供键盘快捷键操作，完全免费，无需注册。',
     seoFooterHome: '首页',
     navGuide: '使用指南',
+    navTool: '工具',
     navTutorials: '教程',
     navAbout: '关于',
     navPrivacy: '隐私政策',
@@ -1344,6 +1344,7 @@ const I18N = {
     seoFooterDesc: 'HiJSON provides JSON formatting, minification, tree visualization, JSONPath queries, multi-field comparison and more. Ideal for frontend development, backend debugging, and API testing. Supports drag & drop file import and keyboard shortcuts. Completely free, no registration required.',
     seoFooterHome: 'Home',
     navGuide: 'Guide',
+    navTool: 'Tool',
     navTutorials: 'Tutorials',
     navAbout: 'About',
     navPrivacy: 'Privacy',

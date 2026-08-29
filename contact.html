@@ -9,22 +9,24 @@
   <link rel="canonical" href="https://hijson.online/contact.html">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/site-banner.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
 </head>
 <body class="bg-slate-50 text-slate-800">
-  <header class="bg-white border-b border-slate-200 px-6 py-4">
-    <div class="max-w-3xl mx-auto flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2 no-underline text-slate-900">
-        <span class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold font-mono">{}</span>
-        <span class="font-semibold">HiJSON</span>
-      </a>
-      <nav class="flex gap-4 text-sm">
-        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">工具</a>
-        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
-        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
-      </nav>
-    </div>
+  <header class="site-banner" role="banner">
+    <a class="site-banner-brand" href="/">
+      <span class="site-banner-logo" aria-hidden="true">{}</span>
+      <span class="site-banner-name">HiJSON</span>
+      <span class="site-banner-tag">JSON 解析工具</span>
+    </a>
+    <nav class="site-banner-nav" aria-label="站点导航">
+    <a href="/">工具</a>
+    <a href="/guide.html">教程</a>
+    <a href="/about.html">关于</a>
+    <a href="/contact.html" class="is-current">联系</a>
+    <a href="/privacy.html">隐私政策</a>
+    </nav>
   </header>
 
   <main class="max-w-3xl mx-auto px-6 py-12">
@@ -63,7 +65,7 @@
       <span>© 2026 HiJSON</span>
       <nav class="flex gap-4">
         <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
-        <a href="/guide/" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
+        <a href="/guide.html" class="text-slate-500 hover:text-indigo-600 no-underline">教程</a>
         <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
         <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
       </nav>

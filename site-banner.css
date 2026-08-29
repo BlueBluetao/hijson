@@ -1,0 +1,98 @@
+/* Shared top bar — used by the tool page and all content pages */
+#appViewport .site-banner {
+  position: relative;
+}
+
+.site-banner {
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  z-index: 20;
+  position: sticky;
+  top: 0;
+  box-sizing: border-box;
+}
+
+.site-banner-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.site-banner-logo {
+  width: 28px;
+  height: 28px;
+  background: #4f46e5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.site-banner-name {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 15px;
+  margin: 0;
+  line-height: 1;
+}
+
+.site-banner-tag {
+  font-size: 12px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.site-banner-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.site-banner-nav a {
+  font-size: 13px;
+  color: #64748b;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+
+.site-banner-nav a:hover {
+  background: #f1f5f9;
+  color: #4f46e5;
+}
+
+.site-banner-nav a.is-current {
+  color: #4f46e5;
+  background: #eef2ff;
+  font-weight: 500;
+}
+
+.site-banner-spacer {
+  flex: 1;
+  min-width: 8px;
+}
+
+@media (max-width: 720px) {
+  .site-banner-tag {
+    display: none;
+  }
+}

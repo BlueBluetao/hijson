@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON 教程中心 - HiJSON</title>
+  <meta name="description" content="HiJSON 教程中心：JSON 格式化、语法错误排查、JSONPath、JSON Schema、JSONL 日志、多语言解析与安全注意事项。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hijson.online/guide.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='50' font-weight='700' font-family='monospace' text-anchor='middle' fill='white'>{}</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/site-banner.css">
+  <link rel="stylesheet" href="/site-guide.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="site-banner" role="banner">
+    <a class="site-banner-brand" href="/">
+      <span class="site-banner-logo" aria-hidden="true">{}</span>
+      <span class="site-banner-name">HiJSON</span>
+      <span class="site-banner-tag">JSON 解析工具</span>
+    </a>
+    <nav class="site-banner-nav" aria-label="站点导航">
+    <a href="/">工具</a>
+    <a href="/guide.html" class="is-current">教程</a>
+    <a href="/about.html">关于</a>
+    <a href="/contact.html">联系</a>
+    <a href="/privacy.html">隐私政策</a>
+    </nav>
+  </header>
+
+  <div class="guide-shell">
+    <aside class="guide-index" aria-label="教程索引">
+      <a class="guide-index-title" href="/guide.html">教程索引</a>
+      <nav class="guide-index-nav">
+        <div class="guide-index-group">入门</div>
+        <a href="/guide/json-formatting.html">格式化与压缩</a>
+        <a href="/guide/json-errors.html">语法错误排查</a>
+        <a href="/guide/json-tree.html">树视图怎么读</a>
+        <div class="guide-index-group">查询与调试</div>
+        <a href="/guide/jsonpath.html">JSONPath 入门</a>
+        <a href="/guide/api-debugging.html">API 调试实践</a>
+        <a href="/guide/jsonl-logs.html">JSONL 与日志</a>
+        <a href="/guide/large-json.html">大 JSON 不卡</a>
+        <div class="guide-index-group">结构与安全</div>
+        <a href="/guide/json-schema.html">JSON Schema</a>
+        <a href="/guide/json-vs-yaml.html">JSON / YAML / XML</a>
+        <a href="/guide/json-in-languages.html">JS / Python / Go</a>
+        <a href="/guide/json-security.html">安全注意</a>
+      </nav>
+    </aside>
+    <main class="guide-main">
+    <p class="text-sm text-indigo-600 font-medium mb-2">教程中心</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-4">JSON 教程</h1>
+    <p class="text-slate-500 mb-10 leading-relaxed">这些文章面向日常要读 JSON、改 JSON、查接口的人。工具本身在 <a href="/" class="text-indigo-600">首页</a>，这里只讲怎么用、哪里容易踩坑。所有示例都可以粘到 HiJSON 里对照。</p>
+
+    <section class="mb-10">
+      <h2 class="text-lg font-semibold text-slate-800 mb-4">入门</h2>
+      <ul class="space-y-3">
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/json-formatting.html" class="text-indigo-600 font-medium no-underline">JSON 格式化与压缩完全指南</a>
+          <p class="text-sm text-slate-500 mt-1">什么时候该美化，什么时候该压成一行，Git 里该怎么存。</p>
+        </li>
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/json-errors.html" class="text-indigo-600 font-medium no-underline">JSON 常见语法错误排查</a>
+          <p class="text-sm text-slate-500 mt-1">尾逗号、单引号、注释、NaN，以及报错信息怎么读。</p>
+        </li>
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/json-tree.html" class="text-indigo-600 font-medium no-underline">用树视图读复杂 JSON</a>
+          <p class="text-sm text-slate-500 mt-1">对象和数组怎么展开，路径怎么抄，大纲栏干什么用。</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-lg font-semibold text-slate-800 mb-4">查询与调试</h2>
+      <ul class="space-y-3">
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/jsonpath.html" class="text-indigo-600 font-medium no-underline">JSONPath 路径查询入门</a>
+          <p class="text-sm text-slate-500 mt-1">从 <code>$</code> 到过滤器、递归下降，以及多字段对比语法。</p>
+        </li>
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/api-debugging.html" class="text-indigo-600 font-medium no-underline">API 调试中的 JSON 实践</a>
+          <p class="text-sm text-slate-500 mt-1">把响应贴进来分析、按路径抽字段、给同事发一份干净数据。</p>
+        </li>
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/jsonl-logs.html" class="text-indigo-600 font-medium no-underline">JSON Lines 与日志分析</a>
+          <p class="text-sm text-slate-500 mt-1">.jsonl 和普通 JSON 差在哪，从日志里抠一条事件怎么做。</p>
+        </li>
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/large-json.html" class="text-indigo-600 font-medium no-underline">大 JSON 怎么读才不卡</a>
+          <p class="text-sm text-slate-500 mt-1">别硬粘 20MB。文件导入、路径查询、什么时候该用本地 jq。</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-lg font-semibold text-slate-800 mb-4">结构、语言与安全</h2>
+      <ul class="space-y-3">
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/json-schema.html" class="text-indigo-600 font-medium no-underline">JSON Schema 入门</a>
+          <p class="text-sm text-slate-500 mt-1">用 schema 描述字段类型和必填项，联调前先卡死结构。</p>
+        </li>
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/json-vs-yaml.html" class="text-indigo-600 font-medium no-underline">JSON、YAML、XML 怎么选</a>
+          <p class="text-sm text-slate-500 mt-1">接口、配置、文档三种场景，各自适合什么格式。</p>
+        </li>
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/json-in-languages.html" class="text-indigo-600 font-medium no-underline">JS / Python / Go 解析 JSON</a>
+          <p class="text-sm text-slate-500 mt-1">各语言默认行为不一样：undefined、中文转义、数字精度。</p>
+        </li>
+        <li class="bg-white border border-slate-200 rounded-xl p-4">
+          <a href="/guide/json-security.html" class="text-indigo-600 font-medium no-underline">处理 JSON 时的安全注意</a>
+          <p class="text-sm text-slate-500 mt-1">密钥别乱分享，原型污染、XSS、把 JSON 当 HTML 渲染。</p>
+        </li>
+      </ul>
+    </section>
+    </main>
+  </div>
+
+  <footer class="border-t border-slate-200 bg-white py-6 px-6 mt-8">
+    <div class="max-w-3xl mx-auto flex flex-wrap justify-between gap-4 text-sm text-slate-400">
+      <span>© 2026 HiJSON</span>
+      <nav class="flex gap-4">
+        <a href="/" class="text-slate-500 hover:text-indigo-600 no-underline">首页</a>
+        <a href="/about.html" class="text-slate-500 hover:text-indigo-600 no-underline">关于</a>
+        <a href="/contact.html" class="text-slate-500 hover:text-indigo-600 no-underline">联系</a>
+        <a href="/privacy.html" class="text-slate-500 hover:text-indigo-600 no-underline">隐私政策</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
