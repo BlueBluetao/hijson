@@ -66,6 +66,13 @@
     "inLanguage": "zh-CN"
   }
   </script>
+  <script type="application/ld+json" id="faqLd">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": []
+  }
+  </script>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/site-banner.css">
@@ -102,6 +109,7 @@
     #siteFooter nav { display: flex; flex-wrap: wrap; gap: 16px; }
     #siteFooter nav a { font-size: 0.8125rem; color: #64748b; text-decoration: none; }
     #siteFooter nav a:hover { color: #4f46e5; }
+    .tool-hint { margin: 10px 12px 0; font-size: 12px; line-height: 1.5; color: #64748b; }
     .header-nav a { font-size: 13px; color: #64748b; text-decoration: none; padding: 6px 10px; border-radius: 8px; transition: background .1s, color .1s; white-space: nowrap; }
     .header-nav a:hover { background: #f1f5f9; color: #4f46e5; }
     .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; }
@@ -443,6 +451,7 @@
     </div>
 
     <div id="jsonTabPanel">
+    <p class="tool-hint" data-i18n="toolHint">本地 JSON 工具：左侧粘贴，右侧出树。解析在浏览器里完成，默认不上传。</p>
     <!-- Drop Zone -->
     <div id="dropZone"
       style="margin:12px 12px 0;border:2px dashed #e2e8f0;border-radius:12px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all .15s;flex-shrink:0;"
@@ -1131,7 +1140,8 @@ const I18N = {
     navContact: '联系我们',
     footerTagline: '免费在线 JSON 工具',
     contentIntroTitle: 'HiJSON — 开发者必备的在线 JSON 工具',
-    contentIntroLead: '免费、无需注册，在浏览器中完成 JSON 解析、格式化、压缩与可视化。',
+    toolHint: '本地 JSON 工具：左侧粘贴，右侧出树。解析在浏览器里完成，默认不上传。',
+    contentIntroLead: '和空白输入框不同：粘贴后可格式化、看树、用 JSONPath 抽字段。解析在浏览器本地完成，默认不上传。',
     contentIntroDesc: 'HiJSON 面向前端工程师、后端开发者和测试人员，帮助你在调试 API、阅读日志、对比数据结构时更高效。所有数据处理均在本地浏览器完成，不上传至服务器（分享功能需自行配置 JSONBin）。',
     contentFeaturesTitle: '核心功能',
     contentHowTitle: '快速上手',
@@ -1351,7 +1361,8 @@ const I18N = {
     navContact: 'Contact',
     footerTagline: 'Free Online JSON Tool',
     contentIntroTitle: 'HiJSON — Essential Online JSON Tool for Developers',
-    contentIntroLead: 'Free, no sign-up required. Parse, format, minify and visualize JSON in your browser.',
+    toolHint: 'Local JSON tool: paste on the left, get a tree on the right. Parsing stays in the browser unless you share.',
+    contentIntroLead: 'More than an empty box: format, inspect a tree, and query with JSONPath. Parsing stays in your browser by default.',
     contentIntroDesc: 'HiJSON is built for frontend engineers, backend developers and QA engineers. Debug APIs, read logs and compare data structures more efficiently. All processing runs locally in your browser — nothing is uploaded (sharing requires your own JSONBin setup).',
     contentFeaturesTitle: 'Core Features',
     contentHowTitle: 'Quick Start',
@@ -1510,7 +1521,7 @@ function applySeoI18n(lang) {
   setMeta('meta[name="twitter:title"]', t('seoOgTitle'));
   setMeta('meta[name="twitter:description"]', t('seoOgDesc'));
 
-  const ldEl = document.querySelector('script[type="application/ld+json"]');
+  const ldEl = document.querySelector('script[type="application/ld+json"]:not(#faqLd)');
   if (ldEl) {
     try {
       const ld = JSON.parse(ldEl.textContent);
@@ -1520,6 +1531,19 @@ function applySeoI18n(lang) {
       if (ld.offers) ld.offers.priceCurrency = lang === 'en' ? 'USD' : 'CNY';
       ldEl.textContent = JSON.stringify(ld, null, 2);
     } catch {}
+  }
+  const faqEl = document.getElementById('faqLd');
+  if (faqEl) {
+    const keys = ['1', '2', '3', '4', '5', '6'];
+    faqEl.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: keys.map(n => ({
+        '@type': 'Question',
+        name: t('faq' + n + 'Q'),
+        acceptedAnswer: { '@type': 'Answer', text: t('faq' + n + 'A') }
+      }))
+    }, null, 2);
   }
 
   const ns = document.querySelector('noscript');
@@ -1535,6 +1559,23 @@ function applySeoI18n(lang) {
 }
 
 // ==================== INIT ====================
+const DEMO_JSON = `{
+  "hello": "world"
+}`;
+
+function hasBinShareParam() {
+  return !!new URLSearchParams(location.search).get('bin');
+}
+
+function fillDemoJsonIfNeeded() {
+  if (hasBinShareParam()) return;
+  const el = document.getElementById('jsonInput');
+  if (!el || el.value.trim()) return;
+  el.value = DEMO_JSON;
+  updateSizeLabel();
+  parseJson(true);
+}
+
 function init() {
   applyI18n();
   loadMem();
@@ -1552,11 +1593,15 @@ function init() {
   const op = document.getElementById('outlinePanel');
   if (op) op.style.width = outlineWidth + 'px';
   applyOutlineUI();
-  loadFromBinParam();
+  if (hasBinShareParam()) {
+    loadFromBinParam();
+  } else {
+    fillDemoJsonIfNeeded();
+  }
 }
 
 // ==================== PARSE ====================
-function parseJson() {
+function parseJson(silent) {
   const raw = document.getElementById('jsonInput').value.trim();
   if (!raw) { showErr(t('inputEmpty')); return; }
   try {
@@ -1564,7 +1609,7 @@ function parseJson() {
     hideErr();
     renderTree(parsedData);
     renderOutline(parsedData);
-    showToast(t('parseSuccess'));
+    if (!silent) showToast(t('parseSuccess'));
   } catch (e) {
     showErr(t('parseError') + e.message);
     clearTree();

@@ -1,0 +1,45 @@
+# HiJSON
+
+> Free in-browser JSON parser at https://hijson.online — format, minify, tree view, JSONPath. Parsing stays in the browser unless the user shares or uses AI.
+
+HiJSON is a single-page tool plus written guides. Core parse / format / tree / JSONPath do not upload JSON to HiJSON servers.
+
+## Tool
+
+- [HiJSON](https://hijson.online/): paste JSON on the left, get a tree on the right. Optional JSONBin share (`?bin=`) and optional BYO LLM.
+
+## Guides (Chinese)
+
+- [教程中心](https://hijson.online/guide.html)
+- [格式化与压缩](https://hijson.online/guide/json-formatting.html): when to pretty-print vs minify
+- [JSONPath 入门](https://hijson.online/guide/jsonpath.html): `$`, filters, recursive descent
+- [API 调试实践](https://hijson.online/guide/api-debugging.html): read a response, extract fields
+- [语法错误排查](https://hijson.online/guide/json-errors.html): trailing commas, quotes, comments, NaN
+- [树视图怎么读](https://hijson.online/guide/json-tree.html): objects vs arrays, copy a path
+- [JSONL 与日志](https://hijson.online/guide/jsonl-logs.html): one object per line
+- [大 JSON 不卡](https://hijson.online/guide/large-json.html): import files, slice with jq
+- [JSON Schema](https://hijson.online/guide/json-schema.html): types and required fields
+- [JSON / YAML / XML](https://hijson.online/guide/json-vs-yaml.html)
+- [JS / Python / Go](https://hijson.online/guide/json-in-languages.html): stringify/parse differences
+- [安全注意](https://hijson.online/guide/json-security.html): local parse vs share/AI
+
+## Guides (English)
+
+- [Guide index](https://hijson.online/en/guide.html)
+- [Formatting](https://hijson.online/en/guide/json-formatting.html)
+- [JSONPath](https://hijson.online/en/guide/jsonpath.html)
+- [API debugging](https://hijson.online/en/guide/api-debugging.html)
+- [Syntax errors](https://hijson.online/en/guide/json-errors.html)
+- [Reading the tree](https://hijson.online/en/guide/json-tree.html)
+- [JSONL logs](https://hijson.online/en/guide/jsonl-logs.html)
+- [Large JSON](https://hijson.online/en/guide/large-json.html)
+- [JSON Schema](https://hijson.online/en/guide/json-schema.html)
+- [JSON / YAML / XML](https://hijson.online/en/guide/json-vs-yaml.html)
+- [JS / Python / Go](https://hijson.online/en/guide/json-in-languages.html)
+- [Safety notes](https://hijson.online/en/guide/json-security.html)
+
+## Site
+
+- [About](https://hijson.online/about.html) / [EN](https://hijson.online/en/about.html)
+- [Contact](https://hijson.online/contact.html) — develop_demo@163.com
+- [Privacy](https://hijson.online/privacy.html)
